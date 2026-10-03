@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="login.css">
+    <link rel="javascript" href="login.js">>
+
+    <title>TecnoFix</title>
+    
+</head>
+
+<body>
+  <div class="pagina">
+    <main class="columnaFormulario">
+      <div class="contenido">
+        <h1>Iniciar sesión</h1>
+        <p class="subtitulo">Ingresa con tu correo electrónico y tu contraseña.</p>
+ 
+        <!-- Error general (credenciales incorrectas) -->
+        <p id="errorGeneral" class="mensajeError" role="alert"></p>
+ 
+        <form id="formularioLogIn" novalidate>
+          <div class="campo">
+            <label for="correo">Correo electrónico</label>
+            <div class="entradaContenedor">
+              <input id="correo" name="correo" type="email" autocomplete="username" placeholder="usuario@correo.cl">
+              <div class="accionesCampo">
+                <span class="ayuda">
+                  <button type="button" class="ayudaBoton" aria-describedby="ayudaCorreo" aria-label="Ayuda: correo electrónico">?</button>
+                  <span id="ayudaCorreo" class="ayudaTexto" role="tooltip">Es el correo con el que te registraste, por ejemplo usuario@correo.cl.</span>
+                </span>
+              </div>
+            </div>
+            <p id="errorCorreo" class="mensajeError" role="alert"></p>
+          </div>
+ 
+          <div class="campo">
+            <label for="contrasena">Contraseña</label>
+            <div class="entradaContenedor">
+              <input id="contrasena" name="contrasena" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña">
+              <div class="accionesCampo">
+                <button type="button" id="botonVerContrasena" class="verContrasena" aria-pressed="false">Ver</button>
+                <span class="ayuda">
+                  <button type="button" class="ayudaBoton" aria-describedby="ayudaContrasena" aria-label="Ayuda: contraseña">?</button>
+                  <span id="ayudaContrasena" class="ayudaTexto" role="tooltip">Si es tu primer ingreso, usa la contraseña temporal que te llegó por correo.</span>
+                </span>
+              </div>
+            </div>
+            <p id="errorContrasena" class="mensajeError" role="alert"></p>
+          </div>
+ 
+          <button type="submit" id="botonIngresar" class="botonPrincipal">Iniciar sesión</button>
+        </form>
+ 
+        <!-- Enlace a USU-002 (registro de cliente). Ruta provisoria. -->
+        <p class="pieFormulario">¿No tienes cuenta? <a href="registro.html">Regístrate</a></p>
+      </div>
+    </main>
+ 
+    <aside class="panel" aria-hidden="true">
+      <!-- Espacio reservado para una foto o ilustración real, a definir con el cliente (NF01) -->
+      <p>Sigue el estado de tu reparación paso a paso con TecnoFix.</p>
+    </aside>
+  </div>
+ 
+  <script src="js/login.js"></script>
+</body>
+</html>
+ 
+
+
+    
+ 
+    
