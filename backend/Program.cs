@@ -1,8 +1,83 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using TecnoFix.Src.Data;
+using TecnoFix.Src.Services;
+using TecnoFix.Src.Services.Interfaces;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
 builder.Services.AddOpenApi();
+
+// Conexión a la base de datos
+builder.Services.AddDbContext<TecnoFixDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("TecnoFixConnection")));
+
+// Publicar los servicios de autenticación
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Configuración para MVC
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+
+// Configuración de CORS
+const string politicCors = "PoliticaCors";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(politicCors, policy =>
+    {
+        policy.WithOrigins(builder.Configuration["UrlFront"]!)
+              .AllowAnyMethod()
+              .AllowAnyHeader()
+              .AllowCredentials();
+    });
+});
+
+// Configuración de token de usuario
+builder.Services.AddAuthentication(options =>
+{
+    // Configura el esquema de autenticación predeterminado para JWT Bearer
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+
+.AddJwtBearer(options =>
+{
+    // Configura los parámetros de validación del token JWT
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        // Habilita la validación del emisor, audiencia, tiempo de vida y clave de firma del token
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        // Establece el emisor, audiencia y clave de firma válidos para la validación del token
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!))
+    };
+    // Configura un evento para extraer el token JWT de 
+    // las cookies en lugar de los encabezados de autorización
+    options.Events = new JwtBearerEvents
+    {
+        // Este evento se activa cuando se recibe un mensaje de autenticación
+        OnMessageReceived = context =>
+        {
+            // Intenta obtener el token JWT de las cookies de la solicitud
+            if (context.Request.Cookies.TryGetValue("access_token", out var token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
+// Servicio de autorización
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -12,30 +87,25 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<TecnoFixDbContext>();
+    await context.Database.MigrateAsync();     
+    await DbSeeder.SeedAsync(context);         
+}
+
 app.UseHttpsRedirection();
+app.UseCors(politicCors);
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllers();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+
+
+
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
+
+
