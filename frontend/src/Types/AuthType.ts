@@ -45,3 +45,16 @@ export interface ApiErrorResponse {
     mensaje?: string;
     errors?: Record<string, string[]>;
 }
+
+// Datos que se solicitan para registrar un técnico (USU-003)
+export interface TecnicoCreateDto {
+    Nombre: string;
+    Rut: string;
+    Correo: string;
+    Telefono: string;
+}
+
+// Respuesta del Backend al registrar un técnico
+export interface RegistroTecnicoResponseDto {
+    mensaje: string;
+}

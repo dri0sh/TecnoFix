@@ -8,16 +8,34 @@ using System.IdentityModel.Tokens.Jwt;
 namespace TecnoFix.Src.Controller;
 
 /// <summary>
-/// Controlador encargado de las operaciones de autenticación
-/// y gestión de credenciales.
+/// Controlador encargado de las operaciones de autenticación y gestión de credenciales.
 /// </summary>
-/// <param name="authService">Servicio de autenticación</param>
+/// <param name="authService">Servicio de autenticación inyectado.</param>
 [ApiController]
 [Route("api/[controller]")]
 public class AuthController(IAuthService authService) : ControllerBase
 {
-    // Servicio de autenticación inyectado en el controlador
     private readonly IAuthService _authService = authService;
+
+    /// <summary>
+    /// Registra a un nuevo técnico en el sistema. Requiere privilegios de Administrador.
+    /// </summary>
+    /// <param name="dto">Datos del nuevo técnico.</param>
+    /// <returns>Resultado del registro.</returns>
+    [HttpPost("register-tecnico")]
+    //[Authorize(Roles = "Administrador")]
+    public async Task<IActionResult> RegisterTecnico([FromBody] TecnicoCreateDto dto)
+    {
+        try
+        {
+            var resultado = await _authService.RegisterTecnicoAsync(dto);
+            return Ok(new { mensaje = resultado });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { mensaje = ex.Message });
+        }
+    }
 
     /// <summary>
     /// Cambia la contraseña del usuario autenticado.
@@ -45,6 +63,5 @@ public class AuthController(IAuthService authService) : ControllerBase
         Response.Cookies.Delete("access_token");
 
         return Ok(resultado);
-
     }
 }
