@@ -1,10 +1,10 @@
-import {apiFetch} from "./Client.ts";
+import {apiFetch} from "./Client";
 import type {
     LoginRequestDto, 
     LoginResponseDto, 
     RegistrarClienteRequestDto, 
     RegistrarClienteResponseDto
-} from "../Types/Auth.Type.ts";
+} from "../Types/Auth.Type";
 //Función que realiza la petición al backend para registrar un cliente
 export function login(request: LoginRequestDto): Promise<LoginResponseDto>
 {

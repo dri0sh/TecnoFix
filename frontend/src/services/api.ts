@@ -2,19 +2,27 @@ import type { ApiErrorResponse } from "../Types/Auth.Type";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL as string;
 
-function ExtraerMensajeError(Body: ApiErrorResponse): string {
-  if (Body.mensaje) return Body.mensaje;
+function ExtraerMensajeError(body: ApiErrorResponse | null): string 
+{ 
+    if (!body)
+         { return "El servidor devolvio un error sin mensaje"; 
 
-  if (Body.errors) {
-    const primerCampo = Object.values(Body.errors)[0];
+         } 
+if (body.mensaje) 
+    { return body.mensaje; 
 
-    if (primerCampo?.length) {
-      return primerCampo[0];
-    }
-  }
+    } 
+if (body.errors) 
+    { 
+        const primerCampo = Object.values(body.errors)[0]; 
+    if (primerCampo?.length) 
+        { return primerCampo[0];
 
-  return "Ocurrio un error inesperado, intentelo nuevamente";
-}
+     } 
+    } 
+    return "Ocurrio un error inesperado, intentelo nuevamente"; 
+} 
+
 
 export async function apiFetch<TResponse>(
   path: string,
