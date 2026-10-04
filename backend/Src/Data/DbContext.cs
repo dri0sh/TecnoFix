@@ -50,7 +50,7 @@ public class TecnoFixDbContext : Microsoft.EntityFrameworkCore.DbContext
             e.Property(u => u.Nombre).HasMaxLength(150).IsRequired();
             e.Property(u => u.Correo).HasMaxLength(256).IsRequired();
             e.Property(u => u.PasswordHash).IsRequired();
-            e.Property(u => u.Rut).HasMaxLength(10);
+            e.Property(u => u.Rut).IsRequired().HasMaxLength(10);
             // Se establecen índices únicos para los campos Correo y Rut
             e.HasIndex(u => u.Correo).IsUnique();
             e.HasIndex(u => u.Rut).IsUnique();
@@ -64,5 +64,4 @@ public class TecnoFixDbContext : Microsoft.EntityFrameworkCore.DbContext
         // Se llama al método base para completar la configuración del modelo
         base.OnModelCreating(modelBuilder);
     }
-
 }
