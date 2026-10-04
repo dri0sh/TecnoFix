@@ -159,7 +159,7 @@ export function Login() {
                     </form>
 
                     {/* Enlace a USU-002 (registro de cliente). Ruta provisoria. */}
-                    <p className="pieFormulario">¿No tienes cuenta? <Link to="/registro">Regístrate</Link></p>
+                    <p className="pieFormulario">¿No tienes cuenta? <Link to="/registro-cliente">Regístrate</Link></p>
                 </div>
             </main>
 

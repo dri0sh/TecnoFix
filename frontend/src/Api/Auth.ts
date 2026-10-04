@@ -5,7 +5,9 @@ import type {
     LoginRequestDto,
     LoginResponseDto,
     TecnicoCreateDto,
-    RegistroTecnicoResponseDto
+    RegistroTecnicoResponseDto,
+    RegistrarClienteRequestDto,
+    RegistrarClienteResponseDto
 } from "../Types/AuthType";
 
 /**
@@ -52,6 +54,21 @@ export function registrarTecnico(
     request: TecnicoCreateDto
 ): Promise<RegistroTecnicoResponseDto> {
     return apiFetch<RegistroTecnicoResponseDto>("/auth/register-tecnico", {
+        method: "POST",
+        body: JSON.stringify(request)
+    });
+}
+
+/**
+ * Realiza la petición al backend para registrar a un nuevo cliente en el sistema.
+ *
+ * @param request Objeto con los datos del cliente a registrar.
+ * @returns Datos y mensaje de confirmación entregados por la API.
+ */
+export function registrarCliente(
+    request: RegistrarClienteRequestDto
+): Promise<RegistrarClienteResponseDto> {
+    return apiFetch<RegistrarClienteResponseDto>("/auth/register-cliente", {
         method: "POST",
         body: JSON.stringify(request)
     });

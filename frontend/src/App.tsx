@@ -2,6 +2,7 @@ import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
 import { ChangePassword } from "./Page/ChangePassword/ChangePassword";
 import { RegistrarTecnico } from "./Page/RegistrarTecnico/RegistrarTecnico";
 import { Login } from "./Page/Login/Login";
+import { RegistrarCliente } from "./Page/RegistrarCliente/RegistrarCliente";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
         <Link to="/login">Iniciar sesión</Link>
         <Link to="/cambiar-password">Cambiar contraseña</Link>
         <Link to="/registro-tecnico">Registrar Técnico</Link>
+        <Link to="/registro-cliente">Registrar Cliente</Link>
       </nav>
 
       <Routes>
@@ -17,6 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/cambiar-password" element={<ChangePassword />} />
         <Route path="/registro-tecnico" element={<RegistrarTecnico />} />
+        <Route path="/registro-cliente" element={<RegistrarCliente />} />
       </Routes>
     </BrowserRouter>
   );
