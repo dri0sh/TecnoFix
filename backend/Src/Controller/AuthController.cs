@@ -57,7 +57,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// </summary>
     /// <param name="request">Datos del nuevo cliente.</param>
     /// <returns>Resultado del registro.</returns>
-    [HttpPost("register")]
+    [HttpPost("register-cliente")]
     public async Task<ActionResult<RegistrarClienteResponseDto>> RegistrarCliente(
         [FromBody] RegistrarClienteRequestDto request)
     {

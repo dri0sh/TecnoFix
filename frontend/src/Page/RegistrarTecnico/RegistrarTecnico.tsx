@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { registrarTecnico } from "../../Api/Auth";
-import "./RegistrarTecnico.css";
+import "../../EstandarPage.css";
 
 export function RegistrarTecnico() {
   const [nombre, setNombre] = useState("");
@@ -38,77 +38,100 @@ export function RegistrarTecnico() {
   }
 
   return (
-    <div className="container">
-      <h1 className="title">Registrar Técnico</h1>
+    <div className="formPage">
+        <main className="formPage__content">
+            <h1 className="formPage__title">Registrar Técnico</h1>
 
-      {error && <p className="error">{error}</p>}
-      {mensaje && <p className="success">{mensaje}</p>}
+            <p className="formPage__subtitle">
+                Ingresa los datos del nuevo técnico.
+            </p>
 
-      <form onSubmit={handleSubmit} className="form">
-        <div className="field">
-          <label className="label" htmlFor="nombre">
-            Nombre completo
-          </label>
-          <input
-            id="nombre"
-            type="text"
-            className="input"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            placeholder="Juan Pérez"
-            required
-          />
-        </div>
+            {error && (
+                <p className="formPage__error" role="alert">
+                    {error}
+                </p>
+            )}
 
-        <div className="field">
-          <label className="label" htmlFor="rut">
-            RUT
-          </label>
-          <input
-            id="rut"
-            type="text"
-            className="input"
-            value={rut}
-            onChange={(e) => setRut(e.target.value)}
-            placeholder="12345678-9"
-            required
-          />
-        </div>
+            {mensaje && (
+                <p className="formPage__success" role="alert">
+                    {mensaje}
+                </p>
+            )}
 
-        <div className="field">
-          <label className="label" htmlFor="correo">
-            Correo electrónico
-          </label>
-          <input
-            id="correo"
-            type="email"
-            className="input"
-            value={correo}
-            onChange={(e) => setCorreo(e.target.value)}
-            placeholder="correo@ejemplo.cl"
-            required
-          />
-        </div>
+            <form onSubmit={handleSubmit} className="formPage__form">
+                <div className="formPage__field">
+                    <label className="formPage__label" htmlFor="nombre">
+                        Nombre completo
+                    </label>
 
-        <div className="field">
-          <label className="label" htmlFor="telefono">
-            Teléfono
-          </label>
-          <input
-            id="telefono"
-            type="tel"
-            className="input"
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-            placeholder="+56912345678"
-            required
-          />
-        </div>
+                    <input
+                        id="nombre"
+                        type="text"
+                        className="formPage__input"
+                        value={nombre}
+                        onChange={(e) => setNombre(e.target.value)}
+                        placeholder="Juan Pérez"
+                        required
+                    />
+                </div>
 
-        <button type="submit" className="button" disabled={cargando}>
-          {cargando ? "Registrando..." : "Registrar Técnico"}
-        </button>
-      </form>
+                <div className="formPage__field">
+                    <label className="formPage__label" htmlFor="rut">
+                        RUT
+                    </label>
+
+                    <input
+                        id="rut"
+                        type="text"
+                        className="formPage__input"
+                        value={rut}
+                        onChange={(e) => setRut(e.target.value)}
+                        placeholder="12345678K"
+                        required
+                    />
+                </div>
+
+                <div className="formPage__field">
+                    <label className="formPage__label" htmlFor="correo">
+                        Correo electrónico
+                    </label>
+
+                    <input
+                        id="correo"
+                        type="email"
+                        className="formPage__input"
+                        value={correo}
+                        onChange={(e) => setCorreo(e.target.value)}
+                        placeholder="correo@ejemplo.cl"
+                        required
+                    />
+                </div>
+
+                <div className="formPage__field">
+                    <label className="formPage__label" htmlFor="telefono">
+                        Teléfono
+                    </label>
+
+                    <input
+                        id="telefono"
+                        type="tel"
+                        className="formPage__input"
+                        value={telefono}
+                        onChange={(e) => setTelefono(e.target.value)}
+                        placeholder="+56912345678"
+                        required
+                    />
+                </div>
+
+                <button
+                    type="submit"
+                    className="formPage__button"
+                    disabled={cargando}
+                >
+                    {cargando ? "Registrando..." : "Registrar Técnico"}
+                </button>
+            </form>
+        </main>
     </div>
   );
 }

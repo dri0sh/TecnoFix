@@ -1,5 +1,5 @@
 import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
-import { ChangePassword } from "./Page/ChangePassword/ChangePassword";
+import { ChangePassword } from "./Page/CambiarPassword/CambiarPassword";
 import { RegistrarTecnico } from "./Page/RegistrarTecnico/RegistrarTecnico";
 import { Login } from "./Page/Login/Login";
 import { RegistrarCliente } from "./Page/RegistrarCliente/RegistrarCliente";

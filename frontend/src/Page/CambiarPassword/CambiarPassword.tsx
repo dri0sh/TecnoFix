@@ -1,0 +1,119 @@
+import { FormEvent, useState } from "react";
+import { cambiarPassword } from "../../Api/Auth";
+import "../../EstandarPage.css";
+
+export function ChangePassword() {
+    const [passwordActual, setPasswordActual] = useState("");
+    const [passwordNueva, setPasswordNueva] = useState("");
+    const [confirmarPasswordNueva, setConfirmarPasswordNueva] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    const [mensaje, setMensaje] = useState<string | null>(null);
+    const [cargando, setCargando] = useState(false);
+
+    async function handleSubmit(event: FormEvent) {
+        event.preventDefault();
+        setCargando(true);
+        setError(null);
+        setMensaje(null);
+
+        try {
+            const response = await cambiarPassword({PasswordActual: passwordActual, 
+                PasswordNueva: passwordNueva, 
+                ConfirmarPasswordNueva: confirmarPasswordNueva});
+
+            if (response.Exito) {
+                setMensaje(response.Mensaje);
+                setPasswordActual("");
+                setPasswordNueva("");
+                setConfirmarPasswordNueva("");
+
+            } else {
+                setError(response.Mensaje);
+            }
+        } catch (error) {
+            setError(error instanceof Error ? error.message : "Error desconocido");
+        } finally {
+            setCargando(false);
+        }
+    }
+
+    return (
+        <div className="formPage">
+            <main className="formPage__content">
+                <h1 className="formPage__title">Cambiar contraseña</h1>
+
+                <p className="formPage__subtitle">
+                    Actualiza tu contraseña de acceso.
+                </p>
+
+                {error && (<p className="formPage__error" role="alert">{error}</p>)}
+
+                {mensaje && (<p className="formPage__success" role="alert">{mensaje}</p>)}
+
+                <form onSubmit={handleSubmit} className="formPage__form">
+                    <div className="formPage__field">
+                        <label
+                            className="formPage__label"
+                            htmlFor="passwordActual"
+                        >
+                            Contraseña actual
+                        </label>
+
+                        <input
+                            id="passwordActual"
+                            type="password"
+                            className="formPage__input"
+                            value={passwordActual}
+                            onChange={(e) => setPasswordActual(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="formPage__field">
+                        <label
+                            className="formPage__label"
+                            htmlFor="passwordNueva"
+                        >
+                            Nueva contraseña
+                        </label>
+
+                        <input
+                            id="passwordNueva"
+                            type="password"
+                            className="formPage__input"
+                            value={passwordNueva}
+                            onChange={(e) => setPasswordNueva(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <div className="formPage__field">
+                        <label
+                            className="formPage__label"
+                            htmlFor="confirmarPasswordNueva"
+                        >
+                            Confirmar nueva contraseña
+                        </label>
+
+                        <input
+                            id="confirmarPasswordNueva"
+                            type="password"
+                            className="formPage__input"
+                            value={confirmarPasswordNueva}
+                            onChange={(e) => setConfirmarPasswordNueva(e.target.value)}
+                            required
+                        />
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="formPage__button"
+                        disabled={cargando}
+                    >
+                        {cargando ? "Cambiando..." : "Cambiar contraseña"}
+                    </button>
+                </form>
+            </main>
+        </div>
+    );
+}

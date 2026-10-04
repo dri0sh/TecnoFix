@@ -3,6 +3,7 @@ import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { iniciarSesion } from "../../Api/Auth";
 import "./Login.css";
+import { guardarRol, normalizarRol } from "../../Utils/Auth";
 
 // Mensajes exactos de la tarjeta USU-001
 const MENSAJE_CORREO_INVALIDO = "El correo electrónico no tiene un formato válido";
@@ -18,10 +19,15 @@ function mensajeCampoVacio(nombreCampo: string): string {
 // Pantalla de inicio según el rol (NF02).
 // Provisorio: todos van a cambiar contraseña hasta que existan las pantallas de cada rol.
 function obtenerRutaDeInicio(rol: string): string {
-    const rolNormalizado = rol.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-    if (rolNormalizado === "administrador") return "/cambiar-password";
-    if (rolNormalizado === "tecnico") return "/cambiar-password";
-    return "/cambiar-password";
+    const rolNormalizado = normalizarRol(rol);
+
+    if (rolNormalizado === "administrador") {return "/cambiar-password";}
+
+    if (rolNormalizado === "tecnico") {return "/cambiar-password";}
+
+    if (rolNormalizado === "cliente") {return "/cambiar-password";}
+
+    return "/login";
 }
 
 export function Login() {
@@ -71,7 +77,7 @@ export function Login() {
                 Contrasena: contrasena
             });
 
-            localStorage.setItem("rol", respuesta.rol);
+            guardarRol(respuesta.rol);
             navegar(obtenerRutaDeInicio(respuesta.rol));
         } catch (error) {
             // Un TypeError significa que no hubo conexión con el servidor.
