@@ -47,4 +47,31 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(resultado);
 
     }
+
+    /// <summary>
+    /// Inicia sesión con correo y contraseña (USU-001).
+    /// </summary>
+    [HttpPost("login")]
+    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto request)
+    {
+        var resultado = await _authService.LoginAsync(request);
+
+        if (!resultado.Exito)
+        {
+            return Unauthorized(new { mensaje = resultado.Mensaje });
+        }
+
+        // El token se guarda en una cookie HttpOnly, igual que la que borra CambiarPassword
+        Response.Cookies.Append("access_token", resultado.Token, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
+            Expires = DateTimeOffset.UtcNow.AddHours(1)
+        });
+
+        // No se devuelve el token en el body
+        return Ok(new { mensaje = resultado.Mensaje, correo = resultado.Correo, rol = resultado.Rol });
+    }
+
 }

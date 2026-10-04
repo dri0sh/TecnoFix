@@ -1,14 +1,14 @@
-// Interface que corresponde al request del Backend del login
+// Datos que se envían al Backend para iniciar sesión (USU-001)
 export interface LoginRequestDto {
     Correo: string;
-    Password: string;
+    Contrasena: string;
 }
 
-// Respuesta del Backend
+// Respuesta del Backend al iniciar sesión
 export interface LoginResponseDto {
-    name: string;
+    mensaje: string;
+    correo: string;
     rol: string;
-    message: string;
 }
 
 // Datos que se solicitan para crear el usuario
