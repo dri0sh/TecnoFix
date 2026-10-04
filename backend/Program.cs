@@ -13,12 +13,11 @@ builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, relo
 builder.Services.AddOpenApi();
 
 // Conexión a la base de datos
-builder.Services.AddDbContext<TecnoFixDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("TecnoFixConnection")));
+builder.Services.AddDbContext<TecnoFixDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TecnoFixConnection")));
 
 // Publicar los servicios de autenticación
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IEmailSender, SendGridEmailSender>();
 
 // Configuración para MVC
 builder.Services.AddControllers();
@@ -58,8 +57,7 @@ builder.Services.AddAuthentication(options =>
         // Establece el emisor, audiencia y clave de firma válidos para la validación del token
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!))
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!))
     };
     // Configura un evento para extraer el token JWT de 
     // las cookies en lugar de los encabezados de autorización
@@ -101,10 +99,6 @@ app.UseCors(politicCors);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
-
-
-
 
 app.Run();
 

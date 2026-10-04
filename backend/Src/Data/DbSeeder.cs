@@ -18,9 +18,9 @@ public static class DbSeeder
         if (!await context.Roles.AnyAsync())
         {
             context.Roles.AddRange(
-                new Rol { Name = "Administrador" },
-                new Rol { Name = "Cliente" },
-                new Rol { Name = "Tecnico" }
+                new Rol { Nombre = "Administrador" },
+                new Rol { Nombre = "Cliente" },
+                new Rol { Nombre = "Tecnico" }
             );
             await context.SaveChangesAsync();
         }
@@ -30,12 +30,14 @@ public static class DbSeeder
         var yaExiste = await context.Usuarios.AnyAsync(u => u.Correo == correoAdmin);
         if (!yaExiste)
         {
-            var rolAdmin = await context.Roles.FirstAsync(r => r.Name == "Administrador");
+            var rolAdmin = await context.Roles.FirstAsync(r => r.Nombre == "Administrador");
 
             context.Usuarios.Add(new Usuario
             {
-                Name = "Admin",
+                Nombre = "Admin",
                 Correo = correoAdmin,
+                Rut = "21830784-1",
+                Telefono = "000000000",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123"), // se calcula en runtime, no en el modelo
                 IdRol = rolAdmin.Id
             });

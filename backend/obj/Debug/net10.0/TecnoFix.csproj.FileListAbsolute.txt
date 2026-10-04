@@ -1,9 +1,0 @@
-C:\Users\Javiera Barreda\OneDrive\Documentos\TecnoFix-1\backend\obj\Debug\net10.0\TecnoFix.csproj.AssemblyReference.cache
-C:\Users\Javiera Barreda\OneDrive\Documentos\TecnoFix-1\backend\obj\Debug\net10.0\rpswa.dswa.cache.json
-C:\Users\Javiera Barreda\OneDrive\Documentos\TecnoFix-1\backend\obj\Debug\net10.0\TecnoFix.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Javiera Barreda\OneDrive\Documentos\TecnoFix-1\backend\obj\Debug\net10.0\TecnoFix.AssemblyInfoInputs.cache
-C:\Users\Javiera Barreda\OneDrive\Documentos\TecnoFix-1\backend\obj\Debug\net10.0\TecnoFix.AssemblyInfo.cs
-C:\Users\Javiera Barreda\OneDrive\Documentos\TecnoFix-1\backend\obj\Debug\net10.0\TecnoFix.csproj.CoreCompileInputs.cache
-C:\Users\Javiera Barreda\OneDrive\Documentos\TecnoFix-1\backend\obj\Debug\net10.0\TecnoFix.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Javiera Barreda\OneDrive\Documentos\TecnoFix-1\backend\obj\Debug\net10.0\TecnoFix.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\Javiera Barreda\OneDrive\Documentos\TecnoFix-1\backend\obj\Debug\net10.0\TecnoFix.sourcelink.json
