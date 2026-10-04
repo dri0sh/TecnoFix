@@ -1,4 +1,715 @@
-body {
+
+* {
   margin: 0;
-  font-family: Arial, sans-serif;
+  padding: 0;
+  box-sizing: border-box;
 }
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #172033;
+  background: #ffffff;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  height: 76px;
+  padding: 0 7%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border-bottom: 1px solid #edf0f5;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo-tecnofix {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: #1769ff;
+  color: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.logo-tecnofix span,
+.auth-logo span {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.navbar nav {
+  display: flex;
+  align-items: center;
+  gap: 34px;
+}
+
+.navbar nav button,
+.navbar nav a {
+  border: none;
+  background: transparent;
+  text-decoration: none;
+  color: #657086;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.navbar nav button:hover,
+.navbar nav a:hover {
+  color: #1769ff;
+}
+
+.nav-login {
+  border: none;
+  background: #1769ff;
+  color: white;
+  padding: 11px 22px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.nav-login:hover {
+  background: #0d55d8;
+  transform: translateY(-1px);
+}
+
+/* =========================
+   HERO
+========================= */
+
+.hero {
+  min-height: 650px;
+  padding: 80px 9%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 60px;
+  background:
+    radial-gradient(circle at 85% 40%, #e8f1ff 0, transparent 30%),
+    #f8faff;
+}
+
+.hero-text {
+  max-width: 600px;
+}
+
+.etiqueta {
+  display: inline-block;
+  color: #1769ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  margin-bottom: 22px;
+}
+
+.hero h1 {
+  font-size: clamp(48px, 5vw, 70px);
+  line-height: 1.05;
+  letter-spacing: -3px;
+  color: #111827;
+  margin-bottom: 25px;
+}
+
+.hero h1 strong {
+  color: #1769ff;
+}
+
+.hero-text > p {
+  max-width: 520px;
+  color: #657086;
+  font-size: 17px;
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+
+.hero-buttons {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.boton-azul {
+  border: none;
+  background: #1769ff;
+  color: white;
+  padding: 14px 24px;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.boton-azul:hover {
+  background: #0d55d8;
+  transform: translateY(-2px);
+}
+
+.boton-blanco {
+  padding: 13px 23px;
+  border: 1px solid #d7ddea;
+  border-radius: 9px;
+  color: #172033;
+  background: white;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.boton-blanco:hover {
+  border-color: #1769ff;
+  color: #1769ff;
+}
+
+.estadisticas {
+  display: flex;
+  gap: 45px;
+  margin-top: 55px;
+}
+
+.estadisticas div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.estadisticas strong {
+  font-size: 22px;
+  color: #172033;
+}
+
+.estadisticas span {
+  font-size: 12px;
+  color: #7b8495;
+}
+
+/* =========================
+   HERO VISUAL
+========================= */
+
+.hero-visual {
+  height: 500px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circulo-grande {
+  width: 400px;
+  height: 400px;
+  background: #1769ff;
+  border-radius: 50%;
+  opacity: 0.08;
+  position: absolute;
+}
+
+.tarjeta-tecnologia {
+  position: relative;
+  z-index: 2;
+  width: 310px;
+  padding: 40px;
+  background: white;
+  border-radius: 22px;
+  box-shadow: 0 25px 60px rgba(30, 60, 100, 0.15);
+  text-align: center;
+}
+
+.icono-computador {
+  width: 95px;
+  height: 95px;
+  margin: 0 auto 25px;
+  border-radius: 20px;
+  background: #edf4ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+}
+
+.tarjeta-tecnologia h3 {
+  font-size: 21px;
+  margin-bottom: 8px;
+}
+
+.tarjeta-tecnologia p {
+  color: #7b8495;
+  font-size: 14px;
+  margin-bottom: 22px;
+}
+
+.estado {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 13px;
+  background: #effbf4;
+  color: #239653;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.estado span {
+  width: 7px;
+  height: 7px;
+  background: #2dbb69;
+  border-radius: 50%;
+}
+
+.tarjeta-flotante {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 55px;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 13px;
+  box-shadow: 0 15px 35px rgba(30, 60, 100, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tarjeta-flotante > span {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eaf8f0;
+  color: #25a35b;
+  border-radius: 50%;
+  font-weight: bold;
+}
+
+.tarjeta-flotante div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tarjeta-flotante strong {
+  font-size: 12px;
+}
+
+.tarjeta-flotante small {
+  font-size: 10px;
+  color: #8a93a2;
+}
+
+/* =========================
+   SERVICIOS
+========================= */
+
+.servicios {
+  padding: 110px 9%;
+  background: white;
+}
+
+.titulo-seccion {
+  max-width: 650px;
+  margin-bottom: 55px;
+}
+
+.titulo-seccion > span,
+.nosotros span {
+  color: #1769ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.titulo-seccion h2,
+.nosotros h2 {
+  font-size: 40px;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  margin: 14px 0 18px;
+}
+
+.titulo-seccion p {
+  color: #737d8f;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.servicios-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.servicio {
+  padding: 30px 25px;
+  border: 1px solid #e9edf4;
+  border-radius: 14px;
+  transition: 0.25s;
+}
+
+.servicio:hover {
+  transform: translateY(-6px);
+  border-color: #c8d9ff;
+  box-shadow: 0 15px 35px rgba(30, 80, 150, 0.08);
+}
+
+.servicio-icono {
+  width: 52px;
+  height: 52px;
+  background: #edf4ff;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 25px;
+  margin-bottom: 22px;
+}
+
+.servicio h3 {
+  font-size: 17px;
+  margin-bottom: 10px;
+}
+
+.servicio p {
+  color: #7b8495;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =========================
+   NOSOTROS
+========================= */
+
+.nosotros {
+  padding: 100px 9%;
+  background: #f5f8fd;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.nosotros p {
+  color: #667085;
+  line-height: 1.8;
+  font-size: 16px;
+}
+
+/* =========================
+   CONTACTO
+========================= */
+
+.contacto {
+  padding: 100px 20px;
+  text-align: center;
+  background: #111c31;
+  color: white;
+}
+
+.contacto h2 {
+  font-size: 38px;
+  margin-bottom: 15px;
+}
+
+.contacto p {
+  color: #aeb8ca;
+  margin-bottom: 30px;
+}
+
+/* =========================
+   FOOTER
+========================= */
+
+footer {
+  padding: 30px 9%;
+  background: #0c1423;
+  color: #8792a6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+footer strong {
+  color: white;
+  letter-spacing: 1px;
+}
+
+/* =========================
+   LOGIN / REGISTRO
+========================= */
+
+.auth-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 10% 20%, #dceaff, transparent 30%),
+    radial-gradient(circle at 90% 80%, #e5efff, transparent 30%),
+    #f5f8fd;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+}
+
+.volver {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  border: none;
+  background: transparent;
+  color: #536078;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.volver:hover {
+  color: #1769ff;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 440px;
+  padding: 45px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(20, 50, 100, 0.12);
+}
+
+.auth-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 45px;
+}
+
+.auth-title {
+  margin-bottom: 30px;
+}
+
+.auth-title h1 {
+  font-size: 30px;
+  margin-bottom: 8px;
+}
+
+.auth-title p {
+  color: #7b8495;
+  font-size: 14px;
+}
+
+.formulario {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.formulario label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #394357;
+  margin-top: 7px;
+}
+
+.formulario input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid #d9dee8;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.formulario input:focus {
+  border-color: #1769ff;
+  box-shadow: 0 0 0 3px rgba(23, 105, 255, 0.1);
+}
+
+.formulario small {
+  color: #8a93a2;
+  font-size: 11px;
+}
+
+.boton-form {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.cambiar-auth {
+  margin-top: 25px;
+  text-align: center;
+  color: #7b8495;
+  font-size: 13px;
+}
+
+.cambiar-auth button {
+  border: none;
+  background: transparent;
+  color: #1769ff;
+  font-weight: 700;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.mensaje {
+  margin-top: 20px;
+  padding: 12px;
+  background: #f1f5f9;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 13px;
+  text-align: center;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 900px) {
+
+  .navbar {
+    padding: 0 4%;
+  }
+
+  .navbar nav {
+    display: none;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 70px 7%;
+  }
+
+  .hero-visual {
+    height: 400px;
+  }
+
+  .servicios-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .nosotros {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+
+  .navbar {
+    height: 65px;
+  }
+
+  .nav-login {
+    padding: 9px 14px;
+    font-size: 12px;
+  }
+
+  .hero {
+    padding: 55px 25px;
+  }
+
+  .hero h1 {
+    font-size: 45px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .estadisticas {
+    gap: 20px;
+  }
+
+  .hero-visual {
+    height: 350px;
+  }
+
+  .circulo-grande {
+    width: 280px;
+    height: 280px;
+  }
+
+  .tarjeta-tecnologia {
+    width: 260px;
+  }
+
+  .tarjeta-flotante {
+    right: 0;
+    bottom: 20px;
+  }
+
+  .servicios {
+    padding: 70px 25px;
+  }
+
+  .titulo-seccion h2,
+  .nosotros h2 {
+    font-size: 32px;
+  }
+
+  .servicios-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .nosotros {
+    padding: 70px 25px;
+    gap: 35px;
+  }
+
+  .contacto {
+    padding: 70px 25px;
+  }
+
+  .contacto h2 {
+    font-size: 30px;
+  }
+
+  footer {
+    padding: 25px;
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .auth-card {
+    padding: 35px 25px;
+  }
+
+  .volver {
+    left: 20px;
+    top: 20px;
+  }
+}
+
