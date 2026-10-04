@@ -3,6 +3,8 @@ import { ChangePassword } from "./Page/CambiarPassword/CambiarPassword";
 import { RegistrarTecnico } from "./Page/RegistrarTecnico/RegistrarTecnico";
 import { Login } from "./Page/Login/Login";
 import { RegistrarCliente } from "./Page/RegistrarCliente/RegistrarCliente";
+import { ProtectedRoute } from "./Components/ProtectedRoute";
+import { AccesoDenegado } from "./Page/AccesoDenegado/AccesoDenegado";
 
 function App() {
   return (
@@ -16,10 +18,36 @@ function App() {
 
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
+
         <Route path="/login" element={<Login />} />
-        <Route path="/cambiar-password" element={<ChangePassword />} />
-        <Route path="/registro-tecnico" element={<RegistrarTecnico />} />
-        <Route path="/registro-cliente" element={<RegistrarCliente />} />
+
+        <Route path="/cambiar-password" element={
+            <ProtectedRoute
+                rolesPermitidos={["Administrador", "Tecnico", "Cliente"]}>
+                <ChangePassword/>
+            </ProtectedRoute>
+          }/>
+
+        <Route path="/registro-cliente" element={
+            <ProtectedRoute
+                rolesPermitidos={["Administrador", "Tecnico"]}>
+                <RegistrarCliente/>
+            </ProtectedRoute>
+        }/>
+
+    <Route path="/registro-tecnico" element={
+            <ProtectedRoute
+                rolesPermitidos={["Administrador"]}>
+                <RegistrarTecnico/>
+            </ProtectedRoute>
+        }/>
+
+    <Route path="/acceso-denegado" element={
+            <ProtectedRoute
+                rolesPermitidos={["Administrador", "Tecnico", "Cliente"]}>
+                <AccesoDenegado/>
+            </ProtectedRoute>
+          }/>
       </Routes>
     </BrowserRouter>
   );
