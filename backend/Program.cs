@@ -31,10 +31,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(politicCors, policy =>
     {
-        policy.WithOrigins(builder.Configuration["UrlFront"]!)
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        policy.WithOrigins("http://localhost:5173")
+      .AllowAnyMethod()
+      .AllowAnyHeader()
+      .AllowCredentials();
     });
 });
 
