@@ -6,7 +6,6 @@ using TecnoFix.Src.Data;
 using TecnoFix.Src.Services;
 using TecnoFix.Src.Services.Interfaces;
 using TecnoFix.Src.Utils;
-using Microsoft.OpenApi.Model;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);

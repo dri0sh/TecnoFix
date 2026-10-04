@@ -1,27 +1,26 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace TecnoFix.Src.DTO.Usuario;
+
 /// <summary>
-/// Representa la solicitud de registro de un nuevo cliente.
+/// Representa la solicitud para iniciar sesión.
 /// </summary>
-public class RegistrarClienteRequestDto
-{  
-    [Required(ErrorMessage = "El nombre es obligatorio.")]
-    public string Name { get; set; } = string.Empty;
+public class LoginRequestDto
+{
     [Required(ErrorMessage = "El correo es obligatorio.")]
     public string Correo { get; set; } = string.Empty;
-    [Required(ErrorMessage = "El rut es obligatorio.")]
-    public string Rut { get; set; } = string.Empty;
-    [Required(ErrorMessage = "El teléfono es obligatorio.")]
-    public string Telefono { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "La contraseña es obligatoria.")]
+    public string Password { get; set; } = string.Empty;
 }
+
 /// <summary>
-/// Representa la respuesta de un intento de registro de cliente.
+/// Representa la respuesta del inicio de sesión.
 /// </summary>
-public class RegistrarClienteResponseDto
+public class LoginResponseDto
 {
-    public int Id { get; set; }
+    public string Token { get; set; } = string.Empty;
     public string Name { get; set; } = string.Empty;
-    public string Correo { get; set; } = string.Empty;
-    public string Mensaje { get; set; } = "Cliente registrado. Revisa tu correo para la contraseña temporal.";
+    public string Rol { get; set; } = string.Empty;
+    public string Message { get; set; } = string.Empty;
 }

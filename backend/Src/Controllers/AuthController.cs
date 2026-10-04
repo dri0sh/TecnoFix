@@ -46,18 +46,42 @@ public class AuthController(IAuthService authService) : ControllerBase
     // POST: http://localhost:5321/api/auth/register
     // Registrando un nuevo cliente en el sistema
     [HttpPost("register")]
-    // Endpoint para registrar un nuevo cliente en el sistema
-    public async Task<ActionResult<RegistrarClienteResponseDto>> RegistrarCliente(
+public async Task<ActionResult<RegistrarClienteResponseDto>> RegistrarCliente(
     [FromBody] RegistrarClienteRequestDto request)
+{
+    var resultado = await _authService.RegistrarClienteAsync(request);
+
+    if (resultado is null)
     {
-        var resultado = await _authService.RegistrarClienteAsync(request);
-
-        if (resultado is null)
-            return BadRequest(new { mensaje = "Error al registrar el cliente" }
-            );
-
-        return Ok(resultado);
+        return BadRequest(new
+        {
+            mensaje = "Error al registrar el cliente"
+        });
     }
+
+    // Si el correo o RUT ya están registrados,
+    // informamos un conflicto con los datos existentes.
+    if (resultado.Mensaje.Contains("ya se encuentra registrado"))
+    {
+        return Conflict(resultado);
+    }
+
+    // Si el RUT tiene un formato incorrecto o no es válido,
+    // informamos que los datos enviados no son correctos.
+    if (resultado.Mensaje.Contains("RUT"))
+    {
+        return BadRequest(resultado);
+    }
+
+    // Si el envío del correo falló, no se debe considerar
+    // exitoso el registro del cliente.
+    if (resultado.Mensaje.Contains("falló el envío del correo"))
+    {
+        return BadRequest(resultado);
+    }
+
+    return Ok(resultado);
+}
 
     // POST: http://localhost:5321/api/auth/logout
     // Endpoint para cerrar la sesión del usuario
