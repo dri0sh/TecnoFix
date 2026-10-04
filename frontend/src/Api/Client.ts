@@ -5,7 +5,7 @@ import type { ApiErrorResponse } from "../Types/AuthType.ts";
  * Esta dirección debe configurarse mediante la variable de entorno
  * VITE_API_URL y puede cambiar al momento de desplegar la aplicación.
  */
-const API_BASE_URL = import.meta.env.VITE_API_URL as string;
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || "http://localhost:5174/api";
 
 /**
  * Extrae el mensaje de error entregado por el backend.

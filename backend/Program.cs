@@ -18,6 +18,7 @@ builder.Services.AddDbContext<TecnoFixDbContext>(options =>
 
 // Publicar los servicios de autenticación
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // Configuración para MVC
 builder.Services.AddControllers();

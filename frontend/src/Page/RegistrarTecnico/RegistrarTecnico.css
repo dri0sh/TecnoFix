@@ -1,0 +1,103 @@
+/* Contenedor principal centrado */
+.container {
+  width: 100%;
+  max-width: 440px;
+  margin: 3rem auto;
+  padding: 2rem;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  border: 1px solid #d0d0d0;
+  border-radius: 4px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-align: center;
+  margin: 0 0 1.5rem 0;
+  color: #111111;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  width: 100%;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+  text-align: left;
+}
+
+.label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #222222;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.95rem;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #000000;
+  outline: none;
+}
+
+.input:focus {
+  border-color: #111111;
+}
+
+.button {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: #111111;
+  border: 1px solid #111111;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background-color: #333333;
+}
+
+.button:disabled {
+  background-color: #888888;
+  border-color: #888888;
+  cursor: not-allowed;
+}
+
+.error {
+  padding: 0.65rem;
+  font-size: 0.85rem;
+  background-color: #f7f7f7;
+  border: 1px dashed #666666;
+  color: #111111;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.success {
+  padding: 0.65rem;
+  font-size: 0.85rem;
+  background-color: #eeeeee;
+  border: 1px solid #222222;
+  color: #111111;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}

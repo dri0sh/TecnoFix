@@ -14,4 +14,10 @@ public interface IAuthService
     /// <param name="request">Datos necesarios para cambiar la contraseña.</param>
     /// <returns>Mensaje indicando el resultado de la operación.</returns>
     Task<CambiarPasswordResponseDto> CambiarPasswordAsync(int usuarioId, CambiarPasswordRequestDto request);
+
+
+    /// <summary>
+    /// Registra a un nuevo técnico en el sistema, genera una clave provisoria y la envía por correo.
+    /// </summary>
+    Task<string> RegisterTecnicoAsync(TecnicoCreateDto dto);
 }
