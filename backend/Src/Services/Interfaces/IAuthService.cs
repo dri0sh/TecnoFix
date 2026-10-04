@@ -37,4 +37,8 @@ public interface IAuthService
     /// <param name="request">Datos necesarios para cambiar la contraseña.</param>
     /// <returns>Resultado del cambio de contraseña.</returns>
     Task<CambiarPasswordResponseDto> CambiarPasswordAsync(int usuarioId, CambiarPasswordRequestDto request);
+    Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
+
+    
+
 }

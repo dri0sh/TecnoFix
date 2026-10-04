@@ -2,9 +2,28 @@ import { apiFetch } from "./Client";
 import type {
     CambiarPasswordRequestDto,
     CambiarPasswordResponseDto,
+    LoginRequestDto,
+    LoginResponseDto,
     TecnicoCreateDto,
     RegistroTecnicoResponseDto
 } from "../Types/AuthType";
+
+/**
+ * Realiza la petición al backend para iniciar sesión (USU-001).
+ * Si las credenciales son incorrectas, apiFetch lanza un Error
+ * con el mensaje que entrega el backend.
+ *
+ * @param request Correo y contraseña ingresados.
+ * @returns Datos del usuario autenticado.
+ */
+export function iniciarSesion(
+    request: LoginRequestDto
+): Promise<LoginResponseDto> {
+    return apiFetch<LoginResponseDto>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify(request)
+    });
+}
 
 /**
  * Realiza la petición al backend para cambiar la contraseña

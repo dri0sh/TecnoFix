@@ -58,7 +58,7 @@ public class AuthService : IAuthService
             Token = new GenerateTokenClass(_configuration).GenerarToken(usuario),
             Name = usuario.Nombre,
             Rol = usuario.RolUsuario?.Nombre ?? string.Empty,
-            Message = "Login successful"
+            Message = "Inicio de sesión exitoso"
         };
     }
 
