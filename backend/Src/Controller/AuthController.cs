@@ -24,39 +24,30 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// <param name="request">Credenciales del usuario.</param>
     /// <returns>Información básica del usuario autenticado.</returns>
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponseDto>> Login(
-        [FromBody] LoginRequestDto request)
+    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto request)
     {
-        if (string.IsNullOrWhiteSpace(request.Correo) || string.IsNullOrWhiteSpace(request.Password))
-        {
-            return BadRequest(new
- {
-                mensaje = "Debe completar correo y contraseña"
-            });
-        }
-
         var resultado = await _authService.LoginAsync(request);
 
-        if (resultado is null ||
-            (string.IsNullOrEmpty(resultado.Name) && string.IsNullOrEmpty(resultado.Rol)))
+        if (!resultado.Exito)
         {
             return Unauthorized(new
             {
-                mensaje = resultado?.Message ?? "Correo o contraseña incorrectos"
+                mensaje = resultado.Mensaje
             });
         }
 
         Response.Cookies.Append("access_token", resultado.Token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.None,
+            Secure = Request.IsHttps,
+            SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
         return Ok(new
         {
-            usuario = resultado.Name,
+            mensaje = resultado.Mensaje,
+            correo = resultado.Correo,
             rol = resultado.Rol
         });
     }
@@ -172,36 +163,6 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         Response.Cookies.Delete("access_token");
 
-        return Ok(new
-        {
-            mensaje = "Sesión cerrada"
-        });
+        return Ok(new{mensaje = "Sesión cerrada"});
     }
-
-    /// <summary>
-    /// Inicia sesión con correo y contraseña (USU-001).
-    /// </summary>
-    [HttpPost("login")]
-    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto request)
-    {
-        var resultado = await _authService.LoginAsync(request);
-
-        if (!resultado.Exito)
-        {
-            return Unauthorized(new { mensaje = resultado.Mensaje });
-        }
-
-        // El token se guarda en una cookie HttpOnly, igual que la que borra CambiarPassword
-        Response.Cookies.Append("access_token", resultado.Token, new CookieOptions
-        {
-            HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
-            Expires = DateTimeOffset.UtcNow.AddHours(1)
-        });
-
-        // No se devuelve el token en el body
-        return Ok(new { mensaje = resultado.Mensaje, correo = resultado.Correo, rol = resultado.Rol });
-    }
-
 }

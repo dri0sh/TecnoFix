@@ -37,28 +37,28 @@ public class AuthService : IAuthService
     /// </summary>
     /// <param name="request">Credenciales del usuario.</param>
     /// <returns>Resultado del inicio de sesión.</returns>
-    public async Task<LoginResponseDto?> LoginAsync(LoginRequestDto request)
+    public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
     {
-        var usuario = await _context.Usuarios
-            .Include(u => u.RolUsuario)
-            .FirstOrDefaultAsync(u => u.Correo == request.Correo.Trim().ToLowerInvariant());
+        var correo = request.Correo.Trim().ToLowerInvariant();
 
-        if (usuario is null || !BCrypt.Net.BCrypt.Verify(request.Password, usuario.PasswordHash))
+        var usuario = await _context.Usuarios.Include(u => u.RolUsuario).FirstOrDefaultAsync(u => u.Correo == correo);
+
+        if (usuario is null || !BCrypt.Net.BCrypt.Verify(request.Contrasena, usuario.PasswordHash))
         {
             return new LoginResponseDto
             {
-                Name = string.Empty,
-                Rol = string.Empty,
-                Message = "Correo o contraseña incorrectos"
+                Exito = false,
+                Mensaje = "Correo electrónico o contraseña incorrectos"
             };
         }
 
         return new LoginResponseDto
         {
+            Exito = true,
+            Mensaje = "Inicio de sesión exitoso",
             Token = new GenerateTokenClass(_configuration).GenerarToken(usuario),
-            Name = usuario.Nombre,
-            Rol = usuario.RolUsuario?.Nombre ?? string.Empty,
-            Message = "Inicio de sesión exitoso"
+            Correo = usuario.Correo,
+            Rol = usuario.RolUsuario?.Nombre ?? string.Empty
         };
     }
 

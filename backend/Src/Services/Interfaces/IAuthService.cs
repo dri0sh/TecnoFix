@@ -13,7 +13,7 @@ public interface IAuthService
     /// </summary>
     /// <param name="request">Credenciales del usuario.</param>
     /// <returns>Información del resultado del inicio de sesión.</returns>
-    Task<LoginResponseDto?> LoginAsync(LoginRequestDto request);
+    Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
 
     /// <summary>
     /// Registra un nuevo cliente en el sistema.
@@ -37,8 +37,4 @@ public interface IAuthService
     /// <param name="request">Datos necesarios para cambiar la contraseña.</param>
     /// <returns>Resultado del cambio de contraseña.</returns>
     Task<CambiarPasswordResponseDto> CambiarPasswordAsync(int usuarioId, CambiarPasswordRequestDto request);
-    Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
-
-    
-
 }
