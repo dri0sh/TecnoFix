@@ -14,4 +14,4 @@ COPY --from=build /app/publish .
 
 ENV ASPNETCORE_ENVIRONMENT=Production
 
-ENTRYPOINT ["sh", "-c", "dotnet TecnoFix.dll --urls http://+:${PORT:-8080}"]
+ENTRYPOINT ["sh", "-c", "dotnet backend.dll --urls http://+:${PORT:-8080}"]

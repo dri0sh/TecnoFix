@@ -1,39 +1,105 @@
+# ==========================================
 # .NET
+# ==========================================
+
+# Build
 **/bin/
 **/obj/
+**/publish/
+**/artifacts/
 
-# Node.js
+# Logs
+*.log
+**/logs/
+
+# User-specific files
+*.user
+*.suo
+*.rsuser
+*.userosscache
+*.sln.docstates
+
+# Visual Studio
+.vs/
+
+# JetBrains Rider
+.idea/
+
+# ==========================================
+# Configuración y secretos
+# ==========================================
+
+# Variables de entorno
+.env
+.env.*
+!.env.example
+
+# Configuración local/de desarrollo de .NET
+**/appsettings.Local.json
+**/appsettings.Development.json
+
+# ==========================================
+# Node.js / Frontend
+# ==========================================
+
 **/node_modules/
 **/dist/
 **/dist-ssr/
 
-# Logs
-*.log
+# npm / yarn / pnpm logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Archivos de entorno
-.env
-.env.*
-!.env.example
+# ==========================================
+# VS Code
+# ==========================================
 
-# Configuración local de .NET
-**/appsettings.Local.json
-
-# Visual Studio Code
 .vscode/
+*.code-workspace
 
-# Visual Studio
-*.user
-*.suo
+# ==========================================
+# Archivos temporales / sistema
+# ==========================================
 
-# JetBrains
-.idea/
+*.tmp
+*.swp
+*~
+.DS_Store
+Thumbs.db
+Desktop.ini
 
-# Otros archivos de IDE
-*.ntvs*
-*.njsproj
-*.sw?
+# ==========================================
+# Cobertura y pruebas
+# ==========================================
+
+coverage/
+*.coverage
+*.coveragexml
+TestResults/
+test-results/
+
+# ==========================================
+# NuGet
+# ==========================================
+
+*.nupkg
+*.snupkg
+**/packages/
+
+# ==========================================
+# Archivos de publicación / despliegue local
+# ==========================================
+
+*.publish.xml
+*.pubxml
+*.publishproj
+
+# ==========================================
+# Archivos generados
+# ==========================================
+
+*.pdb
+*.cache
