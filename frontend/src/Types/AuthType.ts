@@ -36,8 +36,8 @@ export interface CambiarPasswordRequestDto {
 
 // Respuesta del Backend
 export interface CambiarPasswordResponseDto {
-    Exito: boolean;
-    Mensaje: string;
+    exito: boolean;
+    mensaje: string;
 }
 
 // Errores genericos de ASP.NET (400, 401, 404, 500, etc.)

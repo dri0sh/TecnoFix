@@ -127,8 +127,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     public async Task<ActionResult<CambiarPasswordResponseDto>> CambiarPassword(
         [FromBody] CambiarPasswordRequestDto request)
     {
-        var usuarioIdClaim =
-            User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+        var usuarioIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (!int.TryParse(usuarioIdClaim, out var usuarioId))
         {

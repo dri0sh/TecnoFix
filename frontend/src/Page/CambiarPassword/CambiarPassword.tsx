@@ -1,5 +1,7 @@
 import { FormEvent, useState } from "react";
 import { cambiarPassword } from "../../Api/Auth";
+import { useNavigate } from "react-router-dom";
+import { eliminarSesion } from "../../Utils/Auth";
 import "../../EstandarPage.css";
 
 export function ChangePassword() {
@@ -9,6 +11,7 @@ export function ChangePassword() {
     const [error, setError] = useState<string | null>(null);
     const [mensaje, setMensaje] = useState<string | null>(null);
     const [cargando, setCargando] = useState(false);
+    const navigate = useNavigate();
 
     function validarFormulario(): boolean {
     if (passwordActual.trim() === "") {
@@ -48,14 +51,18 @@ export function ChangePassword() {
                 PasswordNueva: passwordNueva, 
                 ConfirmarPasswordNueva: confirmarPasswordNueva});
 
-            if (response.Exito) {
-                setMensaje(response.Mensaje);
+            if (response.exito) {
+                setMensaje(`${response.mensaje}. Serás redirigido al inicio de sesión.`);
+
                 setPasswordActual("");
                 setPasswordNueva("");
                 setConfirmarPasswordNueva("");
 
+                setTimeout(() => {eliminarSesion();
+                navigate("/login", { replace: true });
+                }, 2500);
             } else {
-                setError(response.Mensaje);
+                setError(response.mensaje);
             }
         } catch (error) {
             if (error instanceof Error && !(error instanceof TypeError)) {

@@ -25,7 +25,7 @@ public static class DbSeeder
             await context.SaveChangesAsync();
         }
 
-        var correoAdmin = "admin@tecnofix.cl";
+        var correoAdmin = "admin2@tecnofix.cl";
         
         var yaExiste = await context.Usuarios.AnyAsync(u => u.Correo == correoAdmin);
         if (!yaExiste)
@@ -34,9 +34,9 @@ public static class DbSeeder
 
             context.Usuarios.Add(new Usuario
             {
-                Nombre = "Admin",
+                Nombre = "Admin2",
                 Correo = correoAdmin,
-                Rut = "21830784-1",
+                Rut = "20211762-7",
                 Telefono = "000000000",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin123"), // se calcula en runtime, no en el modelo
                 IdRol = rolAdmin.Id

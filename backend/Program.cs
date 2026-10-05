@@ -5,6 +5,7 @@ using System.Text;
 using TecnoFix.Src.Data;
 using TecnoFix.Src.Services;
 using TecnoFix.Src.Services.Interfaces;
+using System.IdentityModel.Tokens.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,18 +63,33 @@ builder.Services.AddAuthentication(options =>
     // Configura un evento para extraer el token JWT de 
     // las cookies en lugar de los encabezados de autorización
     options.Events = new JwtBearerEvents
+{
+    OnMessageReceived = context =>
     {
-        // Este evento se activa cuando se recibe un mensaje de autenticación
-        OnMessageReceived = context =>
+
+        if (context.Request.Cookies.TryGetValue("access_token", out var token))
         {
-            // Intenta obtener el token JWT de las cookies de la solicitud
-            if (context.Request.Cookies.TryGetValue("access_token", out var token))
-            {
-                context.Token = token;
-            }
-            return Task.CompletedTask;
+            context.Token = token;
         }
-    };
+
+        return Task.CompletedTask;
+    },
+
+    OnTokenValidated = context =>
+    {
+        return Task.CompletedTask;
+    },
+
+    OnAuthenticationFailed = context =>
+    {
+        return Task.CompletedTask;
+    },
+
+    OnChallenge = context =>
+    {
+        return Task.CompletedTask;
+    }
+};
 });
 // Servicio de autorización
 builder.Services.AddAuthorization();
