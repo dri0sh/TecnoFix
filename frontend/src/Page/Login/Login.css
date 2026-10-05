@@ -1,0 +1,197 @@
+/* USU-001 · Iniciar sesión · Estilos de la vista.
+   La identidad visual (colores) es provisoria: se acuerda con el cliente (NF01).
+   Las variables están en un solo lugar para cambiar los colores fácilmente. */
+
+.paginaLogin {
+  --color-primario: #3a35e0;
+  --color-panel: #9b98ff;
+  --color-texto: #111111;
+  --color-texto-suave: #6b6b78;
+  --color-borde: #2b2b33;
+  --color-fondo: #ffffff;
+  --color-error: #f56558; /* NF01: mensajes de error en #f56558 */
+  --fuente: "Lato", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  gap: 2.5rem;
+  padding: 1.75rem;
+  font-family: var(--fuente);
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  text-align: left;
+}
+
+.paginaLogin *,
+.paginaLogin *::before,
+.paginaLogin *::after { box-sizing: border-box; }
+
+.paginaLogin .columnaFormulario {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.paginaLogin .contenido { width: 100%; max-width: 34rem; margin: auto 0; }
+
+.paginaLogin h1 {
+  margin: 0 0 .6rem;
+  font-size: clamp(2.2rem, 4.2vw, 3.3rem);
+  font-weight: 900;
+  line-height: 1.05;
+}
+.paginaLogin .subtitulo { margin: 0 0 2.2rem; font-size: 1.15rem; color: var(--color-texto-suave); }
+
+/* Campo con la etiqueta sobre el borde */
+.paginaLogin .campo { position: relative; margin-bottom: 1.9rem; }
+.paginaLogin .campo label {
+  position: absolute;
+  top: -.7rem;
+  left: 1rem;
+  padding: 0 .35rem;
+  background: var(--color-fondo);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.paginaLogin .entradaContenedor {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--color-borde);
+  border-radius: 14px;
+}
+.paginaLogin .entradaContenedor:focus-within {
+  outline: 3px solid var(--color-primario);
+  outline-offset: 2px;
+}
+.paginaLogin .entradaContenedor.invalido { border-color: var(--color-error); }
+
+.paginaLogin input {
+  flex: 1;
+  min-width: 0;
+  height: 3.6rem;
+  padding: 0 1.3rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-texto);
+  background: none;
+  border: 0;
+}
+.paginaLogin input:focus { outline: none; }
+.paginaLogin input::placeholder { color: var(--color-texto-suave); }
+
+.paginaLogin .accionesCampo {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  padding-right: .9rem;
+}
+
+.paginaLogin .verContrasena {
+  background: none;
+  border: 0;
+  padding: .3rem;
+  cursor: pointer;
+  font: inherit;
+  font-size: .85rem;
+  color: var(--color-texto-suave);
+}
+
+/* Mensajes de error (NF01) */
+.paginaLogin .mensajeError {
+  margin: .45rem 0 0 .4rem;
+  font-size: .9rem;
+  font-weight: 700;
+  color: var(--color-error);
+}
+.paginaLogin .mensajeError:empty { display: none; }
+.paginaLogin #errorGeneral {
+  margin: 0 0 1.6rem;
+  padding: .8rem 1rem;
+  border: 1.5px solid var(--color-error);
+  border-radius: 14px;
+}
+.paginaLogin #errorGeneral:empty { display: none; }
+
+/* Ayuda en línea tipo tooltip (NF03) */
+.paginaLogin .ayuda { position: relative; display: flex; }
+.paginaLogin .ayudaBoton {
+  width: 1.3rem;
+  height: 1.3rem;
+  padding: 0;
+  border: 1.5px solid var(--color-texto-suave);
+  border-radius: 50%;
+  background: none;
+  color: var(--color-texto-suave);
+  font-size: .75rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+}
+.paginaLogin .ayudaTexto {
+  position: absolute;
+  right: -.5rem;
+  bottom: calc(100% + .55rem);
+  width: 15rem;
+  padding: .6rem .8rem;
+  background: #1c1c24;
+  color: var(--color-fondo);
+  border-radius: 8px;
+  font-size: .82rem;
+  line-height: 1.4;
+  font-weight: 400;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity .12s;
+}
+.paginaLogin .ayuda:hover .ayudaTexto,
+.paginaLogin .ayuda:focus-within .ayudaTexto { visibility: visible; opacity: 1; }
+
+.paginaLogin .botonPrincipal {
+  width: 100%;
+  height: 3.6rem;
+  margin-top: .4rem;
+  font: inherit;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: .03em;
+  color: var(--color-fondo);
+  background: var(--color-primario);
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+}
+.paginaLogin .botonPrincipal:hover { filter: brightness(1.12); }
+.paginaLogin .botonPrincipal:disabled { opacity: .65; cursor: progress; }
+.paginaLogin .botonPrincipal:focus-visible { outline: 3px solid var(--color-primario); outline-offset: 2px; }
+
+.paginaLogin .pieFormulario {
+  margin: 1.8rem 0 0;
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--color-texto-suave);
+}
+.paginaLogin .pieFormulario a { color: var(--color-primario); font-weight: 700; }
+
+/* Columna derecha: panel ilustrado */
+.paginaLogin .panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 2rem 2.5rem;
+  border-radius: 22px;
+  background: var(--color-panel);
+  color: var(--color-fondo);
+}
+.paginaLogin .panel p { max-width: 24rem; text-align: center; font-size: 1.35rem; font-style: italic; line-height: 1.4; }
+
+@media (max-width: 860px) {
+  .paginaLogin { flex-direction: column; padding: 1.25rem; }
+  .paginaLogin .panel { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .paginaLogin .ayudaTexto { transition: none; }
+}
