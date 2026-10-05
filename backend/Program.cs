@@ -10,6 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Console.WriteLine("API KEY CARGADA: " + 
+    (!string.IsNullOrWhiteSpace(builder.Configuration["SendGrid:ApiKey"])));
+
 builder.Services.AddOpenApi();
 
 // Conexión a la base de datos
