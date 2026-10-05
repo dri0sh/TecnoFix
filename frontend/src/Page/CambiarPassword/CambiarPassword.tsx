@@ -10,11 +10,38 @@ export function ChangePassword() {
     const [mensaje, setMensaje] = useState<string | null>(null);
     const [cargando, setCargando] = useState(false);
 
+    function validarFormulario(): boolean {
+    if (passwordActual.trim() === "") {
+        setError("Debe completar el campo Contraseña actual");
+        return false;
+    }
+
+    if (passwordNueva.trim() === "") {
+        setError("Debe completar el campo Nueva contraseña");
+        return false;
+    }
+
+    if (confirmarPasswordNueva.trim() === "") {
+        setError("Debe completar el campo Confirmar nueva contraseña");
+        return false;
+    }
+
+    if (passwordNueva !== confirmarPasswordNueva) {
+        setError("Las contraseñas no coinciden");
+        return false;
+    }
+
+    return true;
+    }
+
     async function handleSubmit(event: FormEvent) {
         event.preventDefault();
-        setCargando(true);
         setError(null);
         setMensaje(null);
+        
+        if (!validarFormulario()) {return;}
+
+        setCargando(true);
 
         try {
             const response = await cambiarPassword({PasswordActual: passwordActual, 
@@ -31,7 +58,11 @@ export function ChangePassword() {
                 setError(response.Mensaje);
             }
         } catch (error) {
-            setError(error instanceof Error ? error.message : "Error desconocido");
+            if (error instanceof Error && !(error instanceof TypeError)) {
+                setError(error.message);
+            } else {
+                setError("No se pudo conectar con el servidor. Intenta nuevamente.");
+                }
         } finally {
             setCargando(false);
         }
@@ -50,7 +81,7 @@ export function ChangePassword() {
 
                 {mensaje && (<p className="formPage__success" role="alert">{mensaje}</p>)}
 
-                <form onSubmit={handleSubmit} className="formPage__form">
+                <form onSubmit={handleSubmit} className="formPage__form" noValidate>
                     <div className="formPage__field">
                         <label
                             className="formPage__label"

@@ -11,11 +11,38 @@ export function RegistrarTecnico() {
   const [mensaje, setMensaje] = useState<string | null>(null);
   const [cargando, setCargando] = useState(false);
 
+    function validarFormulario(): boolean {
+    if (nombre.trim() === "") {
+        setError("Debe completar el campo Nombre");
+        return false;
+    }
+
+    if (rut.trim() === "") {
+        setError("Debe completar el campo RUT");
+        return false;
+    }
+
+    if (correo.trim() === "") {
+        setError("Debe completar el campo Correo electrónico");
+        return false;
+    }
+
+    if (telefono.trim() === "") {
+        setError("Debe completar el campo Teléfono");
+        return false;
+    }
+
+    return true;
+  }
+
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
-    setCargando(true);
     setError(null);
     setMensaje(null);
+
+    if (!validarFormulario()) {return;}
+
+    setCargando(true);
 
     try {
       const response = await registrarTecnico({
@@ -30,10 +57,14 @@ export function RegistrarTecnico() {
       setRut("");
       setCorreo("");
       setTelefono("");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido al registrar técnico");
-    } finally {
-      setCargando(false);
+      } catch (error) {
+          if (error instanceof Error && !(error instanceof TypeError)) {
+              setError(error.message);
+          } else {
+              setError("No se pudo conectar con el servidor. Intenta nuevamente.");
+              }
+      } finally {
+          setCargando(false);
     }
   }
 
@@ -58,7 +89,7 @@ export function RegistrarTecnico() {
                 </p>
             )}
 
-            <form onSubmit={handleSubmit} className="formPage__form">
+            <form onSubmit={handleSubmit} className="formPage__form" noValidate>
                 <div className="formPage__field">
                     <label className="formPage__label" htmlFor="nombre">
                         Nombre completo

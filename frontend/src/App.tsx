@@ -1,20 +1,17 @@
-import { BrowserRouter, Link, Navigate, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ChangePassword } from "./Page/CambiarPassword/CambiarPassword";
 import { RegistrarTecnico } from "./Page/RegistrarTecnico/RegistrarTecnico";
 import { Login } from "./Page/Login/Login";
 import { RegistrarCliente } from "./Page/RegistrarCliente/RegistrarCliente";
 import { ProtectedRoute } from "./Components/ProtectedRoute";
 import { AccesoDenegado } from "./Page/AccesoDenegado/AccesoDenegado";
+import { Navigation } from "./Components/Navigation";
 
 function App() {
   return (
     <BrowserRouter>
-      <nav style={{ padding: "1rem", display: "flex", gap: "1rem" }}>
-        <Link to="/login">Iniciar sesión</Link>
-        <Link to="/cambiar-password">Cambiar contraseña</Link>
-        <Link to="/registro-tecnico">Registrar Técnico</Link>
-        <Link to="/registro-cliente">Registrar Cliente</Link>
-      </nav>
+
+      <Navigation/>
 
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
@@ -30,7 +27,8 @@ function App() {
 
         <Route path="/registro-cliente" element={
             <ProtectedRoute
-                rolesPermitidos={["Administrador", "Tecnico"]}>
+                rolesPermitidos={["Administrador", "Tecnico"]}
+                  permitirSinAutenticar={true}>
                 <RegistrarCliente/>
             </ProtectedRoute>
         }/>
