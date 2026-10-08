@@ -1,103 +1,185 @@
-/* Contenedor principal centrado */
-.container {
+
+.formPage {
+  --color-primario: #3a35e0;
+  --color-texto: #111111;
+  --color-texto-suave: #6b6b78;
+  --color-borde: #2b2b33;
+  --color-fondo: #ffffff;
+  --color-error: #f56558; /* NF01: mensajes de error en #f56558 */
+  --color-exito: #2e7d32;
+  --fuente: "Lato", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
-  max-width: 440px;
-  margin: 3rem auto;
+  min-height: 100vh;
   padding: 2rem;
+  font-family: var(--fuente);
+  color: var(--color-texto);
+  background: var(--color-fondo);
+}
+
+.formPage *,
+.formPage *::before,
+.formPage *::after {
   box-sizing: border-box;
-  background-color: #ffffff;
-  border: 1px solid #d0d0d0;
-  border-radius: 4px;
 }
 
-.title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  text-align: center;
-  margin: 0 0 1.5rem 0;
-  color: #111111;
-}
+/* Contenedor principal */
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.1rem;
+.formPage__content {
   width: 100%;
+  max-width: 34rem;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  width: 100%;
-  text-align: left;
+/* Título */
+
+.formPage__title {
+  margin: 0 0 0.6rem;
+  font-size: clamp(2.2rem, 4.2vw, 3.3rem);
+  font-weight: 900;
+  line-height: 1.05;
 }
 
-.label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #222222;
+/* Subtítulo */
+
+.formPage__subtitle {
+  margin: 0 0 2.2rem;
+  font-size: 1.15rem;
+  color: var(--color-texto-suave);
 }
 
-.input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 0.65rem 0.75rem;
+/* Mensaje de error */
+
+.formPage__error {
+  margin: 0 0 1.6rem;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--color-error);
+  border-radius: 14px;
   font-size: 0.95rem;
-  border: 1px solid #cccccc;
-  border-radius: 4px;
-  background-color: #ffffff;
-  color: #000000;
+  font-weight: 700;
+  color: var(--color-error);
+}
+
+/* Mensaje de éxito */
+
+.formPage__success {
+  margin: 0 0 1.6rem;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--color-exito);
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-exito);
+}
+
+/* Formulario */
+
+.formPage__form {
+  width: 100%;
+}
+
+/* Campo */
+
+.formPage__field {
+  margin-bottom: 1.5rem;
+}
+
+/* Etiqueta */
+
+.formPage__label {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Entrada */
+
+.formPage__input {
+  width: 100%;
+  height: 3.6rem;
+  padding: 0 1.3rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--color-texto);
+  background: var(--color-fondo);
+  border: 1.5px solid var(--color-borde);
+  border-radius: 14px;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+
+.formPage__input::placeholder {
+  color: var(--color-texto-suave);
+}
+
+.formPage__input:focus {
   outline: none;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 3px rgba(58, 53, 224, 0.15);
 }
 
-.input:focus {
-  border-color: #111111;
-}
+/* Botón principal */
 
-.button {
+.formPage__button {
   width: 100%;
-  box-sizing: border-box;
-  margin-top: 0.5rem;
-  padding: 0.75rem;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: #ffffff;
-  background-color: #111111;
-  border: 1px solid #111111;
-  border-radius: 4px;
+  height: 3.6rem;
+  margin-top: 0.4rem;
+  padding: 0 1rem;
+  font: inherit;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--color-fondo);
+  background: var(--color-primario);
+  border: 0;
+  border-radius: 14px;
   cursor: pointer;
+  transition: filter 0.12s, opacity 0.12s;
 }
 
-.button:hover:not(:disabled) {
-  background-color: #333333;
+.formPage__button:hover {
+  filter: brightness(1.12);
 }
 
-.button:disabled {
-  background-color: #888888;
-  border-color: #888888;
-  cursor: not-allowed;
+.formPage__button:disabled {
+  opacity: 0.65;
+  cursor: progress;
 }
 
-.error {
-  padding: 0.65rem;
-  font-size: 0.85rem;
-  background-color: #f7f7f7;
-  border: 1px dashed #666666;
-  color: #111111;
-  border-radius: 4px;
-  text-align: center;
-  margin-bottom: 1rem;
+.formPage__button:focus-visible {
+  outline: 3px solid var(--color-primario);
+  outline-offset: 2px;
 }
 
-.success {
-  padding: 0.65rem;
-  font-size: 0.85rem;
-  background-color: #eeeeee;
-  border: 1px solid #222222;
-  color: #111111;
-  border-radius: 4px;
-  text-align: center;
-  margin-bottom: 1rem;
-  font-weight: 500;
+/* Adaptación para pantallas pequeñas */
+
+@media (max-width: 600px) {
+  .formPage {
+    padding: 1.25rem;
+  }
+
+  .formPage__title {
+    font-size: 2.4rem;
+  }
+
+  .formPage__subtitle {
+    margin-bottom: 1.8rem;
+  }
+
+  .formPage__field {
+    margin-bottom: 1.25rem;
+  }
+}
+
+/* Accesibilidad */
+
+@media (prefers-reduced-motion: reduce) {
+  .formPage__input,
+  .formPage__button {
+    transition: none;
+  }
 }

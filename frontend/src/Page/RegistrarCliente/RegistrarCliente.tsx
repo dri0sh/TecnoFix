@@ -1,6 +1,7 @@
 import { FormEvent, useState } from "react";
 import { registrarCliente } from "../../Api/Auth";
-import "../../EstandarPage.css";
+import "./RegistrarCliente.css";
+import { Link } from "react-router-dom";
 
 export function RegistrarCliente() {
   const [nombre, setNombre] = useState("");
@@ -73,10 +74,10 @@ export function RegistrarCliente() {
   return (
     <div className="formPage">
         <main className="formPage__content">
-            <h1 className="formPage__title">Registrar Cliente</h1>
+            <h1 className="formPage__title">Crear Cuenta</h1>
 
             <p className="formPage__subtitle">
-                Ingresa los datos del nuevo cliente.
+                Registrate como cliente de TecnoFix
             </p>
 
             {error && (
@@ -103,14 +104,14 @@ export function RegistrarCliente() {
                         className="formPage__input"
                         value={nombre}
                         onChange={(e) => setNombre(e.target.value)}
-                        placeholder="Juan Pérez"
+                        placeholder="Ingresa tu nombre."
                         required
                     />
                 </div>
 
                 <div className="formPage__field">
                     <label className="formPage__label" htmlFor="rut">
-                        RUT
+                        RUT (sin puntos ni guion)
                     </label>
 
                     <input
@@ -151,7 +152,7 @@ export function RegistrarCliente() {
                         className="formPage__input"
                         value={telefono}
                         onChange={(e) => setTelefono(e.target.value)}
-                        placeholder="+56912345678"
+                        placeholder="+56 9 1234 5678"
                         required
                     />
                 </div>
@@ -161,9 +162,10 @@ export function RegistrarCliente() {
                     className="formPage__button"
                     disabled={cargando}
                 >
-                    {cargando ? "Registrando..." : "Registrar Cliente"}
+                    {cargando ? "Creando cuenta..." : "Crear Cuenta"}
                 </button>
             </form>
+            <p className="pieFormulario">¿Ya tienes una cuenta? <Link to="/login">Iniciar Sesión</Link></p>
         </main>
     </div>
   );

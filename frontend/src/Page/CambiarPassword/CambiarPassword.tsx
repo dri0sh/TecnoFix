@@ -2,7 +2,7 @@ import { FormEvent, useState } from "react";
 import { cambiarPassword } from "../../Api/Auth";
 import { useNavigate } from "react-router-dom";
 import { eliminarSesion } from "../../Utils/Auth";
-import "../../EstandarPage.css";
+import "./CambiarPassword.css";
 
 export function ChangePassword() {
     const [passwordActual, setPasswordActual] = useState("");

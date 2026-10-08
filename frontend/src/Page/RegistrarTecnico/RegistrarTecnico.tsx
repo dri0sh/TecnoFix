@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { registrarTecnico } from "../../Api/Auth";
-import "../../EstandarPage.css";
+import "./RegistrarTecnico.css";
 
 export function RegistrarTecnico() {
   const [nombre, setNombre] = useState("");
@@ -149,7 +149,7 @@ export function RegistrarTecnico() {
                         className="formPage__input"
                         value={telefono}
                         onChange={(e) => setTelefono(e.target.value)}
-                        placeholder="+56912345678"
+                        placeholder="+56 912345678"
                         required
                     />
                 </div>

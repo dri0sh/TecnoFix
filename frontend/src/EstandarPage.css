@@ -127,6 +127,14 @@
   font-weight: 700;
 }
 
+.paginaLogin .pieFormulario {
+  margin: 1.8rem 0 0;
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--color-texto-suave);
+}
+
+.paginaLogin .pieFormulario a { color: var(--color-primario); font-weight: 700; }
 @media (max-width: 600px) {
   .formPage {
     padding: 1.25rem;
