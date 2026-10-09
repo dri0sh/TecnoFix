@@ -1,13 +1,24 @@
-const CLAVE_ROL = "rol";
+const ROLE_STORAGE_KEY = "role";
 
-export function obtenerRol(): string | null {return localStorage.getItem(CLAVE_ROL);}
+export function GetRole(): string | null {
+    return localStorage.getItem(ROLE_STORAGE_KEY);
+}
 
-export function guardarRol(rol: string): void {localStorage.setItem(CLAVE_ROL, rol);}
+export function SaveRole(role: string): void {
+    localStorage.setItem(ROLE_STORAGE_KEY, role);
+}
 
-export function eliminarSesion(): void {localStorage.removeItem(CLAVE_ROL);}
+export function ClearSession(): void {
+    localStorage.removeItem(ROLE_STORAGE_KEY);
+}
 
-export function estaAutenticado(): boolean {return obtenerRol() !== null;}
+export function IsAuthenticated(): boolean {
+    return GetRole() !== null;
+}
 
-export function normalizarRol(rol: string): string {
-    return rol.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+export function NormalizeRole(role: string): string {
+    return role
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase();
 }

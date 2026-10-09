@@ -1,12 +1,14 @@
+/* Estilos compartidos para páginas con formularios estándar. */
+
 .formPage {
-  --color-primario: #3a35e0;
-  --color-panel: #9b98ff;
-  --color-texto: #111111;
-  --color-texto-suave: #6b6b78;
-  --color-borde: #2b2b33;
-  --color-fondo: #ffffff;
-  --color-error: #f56558;
-  --color-exito: #2e7d32;
+  --primary-color: #3a35e0;
+  --text-color: #111111;
+  --muted-text-color: #6b6b78;
+  --border-color: #2b2b33;
+  --background-color: #ffffff;
+  --error-color: #f56558;
+  --success-color: #2e7d32;
+  --font-family: "Lato", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 
   width: 100%;
   min-height: calc(100vh - 5rem);
@@ -14,9 +16,9 @@
   justify-content: center;
   align-items: center;
   padding: 2rem;
-  font-family: "Lato", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
-  color: var(--color-texto);
-  background: var(--color-fondo);
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background: var(--background-color);
 }
 
 .formPage__content {
@@ -34,7 +36,7 @@
 .formPage__subtitle {
   margin: 0 0 2.2rem;
   font-size: 1.15rem;
-  color: var(--color-texto-suave);
+  color: var(--muted-text-color);
 }
 
 .formPage__form {
@@ -51,7 +53,7 @@
   top: -0.7rem;
   left: 1rem;
   padding: 0 0.35rem;
-  background: var(--color-fondo);
+  background: var(--background-color);
   font-size: 1rem;
   font-weight: 600;
 }
@@ -62,20 +64,20 @@
   padding: 0 1.3rem;
   font: inherit;
   font-size: 1rem;
-  color: var(--color-texto);
-  background: var(--color-fondo);
-  border: 1.5px solid var(--color-borde);
+  color: var(--text-color);
+  background: var(--background-color);
+  border: 1.5px solid var(--border-color);
   border-radius: 14px;
   outline: none;
 }
 
 .formPage__input:focus {
-  outline: 3px solid var(--color-primario);
+  outline: 3px solid var(--primary-color);
   outline-offset: 2px;
 }
 
 .formPage__input::placeholder {
-  color: var(--color-texto-suave);
+  color: var(--muted-text-color);
 }
 
 .formPage__button {
@@ -86,8 +88,8 @@
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: var(--color-fondo);
-  background: var(--color-primario);
+  color: var(--background-color);
+  background: var(--primary-color);
   border: 0;
   border-radius: 14px;
   cursor: pointer;
@@ -103,16 +105,16 @@
 }
 
 .formPage__button:focus-visible {
-  outline: 3px solid var(--color-primario);
+  outline: 3px solid var(--primary-color);
   outline-offset: 2px;
 }
 
 .formPage__error {
   margin: 0 0 1.6rem;
   padding: 0.8rem 1rem;
-  border: 1.5px solid var(--color-error);
+  border: 1.5px solid var(--error-color);
   border-radius: 14px;
-  color: var(--color-error);
+  color: var(--error-color);
   font-size: 0.9rem;
   font-weight: 700;
 }
@@ -120,21 +122,27 @@
 .formPage__success {
   margin: 0 0 1.6rem;
   padding: 0.8rem 1rem;
-  border: 1.5px solid var(--color-exito);
+  border: 1.5px solid var(--success-color);
   border-radius: 14px;
-  color: var(--color-exito);
+  color: var(--success-color);
   font-size: 0.9rem;
   font-weight: 700;
 }
 
-.paginaLogin .pieFormulario {
+/* Pie del formulario */
+
+.formPage .formFooter {
   margin: 1.8rem 0 0;
   text-align: center;
   font-size: 1.05rem;
-  color: var(--color-texto-suave);
+  color: var(--muted-text-color);
 }
 
-.paginaLogin .pieFormulario a { color: var(--color-primario); font-weight: 700; }
+.formPage .formFooter a {
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
 @media (max-width: 600px) {
   .formPage {
     padding: 1.25rem;

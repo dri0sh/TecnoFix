@@ -1,13 +1,13 @@
-import { apiFetch } from "./Client";
+import { ApiFetch } from "./Client";
 import type {
-    CambiarPasswordRequestDto,
-    CambiarPasswordResponseDto,
+    PasswordChangeRequestDto,
+    PasswordChangeResponseDto,
     LoginRequestDto,
     LoginResponseDto,
-    TecnicoCreateDto,
-    RegistroTecnicoResponseDto,
-    RegistrarClienteRequestDto,
-    RegistrarClienteResponseDto
+    TechnicianRegistrationRequestDto,
+    TechnicianRegistrationResponseDto,
+    ClientRegistrationRequestDto,
+    ClientRegistrationResponseDto
 } from "../Types/AuthType";
 
 /**
@@ -18,10 +18,10 @@ import type {
  * @param request Correo y contraseña ingresados.
  * @returns Datos del usuario autenticado.
  */
-export function iniciarSesion(
+export function Login(
     request: LoginRequestDto
 ): Promise<LoginResponseDto> {
-    return apiFetch<LoginResponseDto>("/auth/login", {
+    return ApiFetch<LoginResponseDto>("/auth/login", {
         method: "POST",
         body: JSON.stringify(request)
     });
@@ -34,10 +34,10 @@ export function iniciarSesion(
  * @param request Datos necesarios para cambiar la contraseña.
  * @returns Resultado de la operación.
  */
-export function cambiarPassword(
-    request: CambiarPasswordRequestDto
-): Promise<CambiarPasswordResponseDto> {
-    return apiFetch<CambiarPasswordResponseDto>("/auth/cambiar-password", {
+export function ChangePassword(
+    request: PasswordChangeRequestDto
+): Promise<PasswordChangeResponseDto> {
+    return ApiFetch<PasswordChangeResponseDto>("/auth/change-password", {
         method: "POST",
         body: JSON.stringify(request)
     });
@@ -50,13 +50,16 @@ export function cambiarPassword(
  * @param request Objeto con los datos del técnico a dar de alta.
  * @returns Mensaje de confirmación entregado por la API.
  */
-export function registrarTecnico(
-    request: TecnicoCreateDto
-): Promise<RegistroTecnicoResponseDto> {
-    return apiFetch<RegistroTecnicoResponseDto>("/auth/register-tecnico", {
-        method: "POST",
-        body: JSON.stringify(request)
-    });
+export function RegisterTechnician(
+    request: TechnicianRegistrationRequestDto
+): Promise<TechnicianRegistrationResponseDto> {
+    return ApiFetch<TechnicianRegistrationResponseDto>(
+        "/auth/register-technician",
+        {
+            method: "POST",
+            body: JSON.stringify(request)
+        }
+    );
 }
 
 /**
@@ -65,10 +68,8 @@ export function registrarTecnico(
  * @param request Objeto con los datos del cliente a registrar.
  * @returns Datos y mensaje de confirmación entregados por la API.
  */
-export function registrarCliente(
-    request: RegistrarClienteRequestDto
-): Promise<RegistrarClienteResponseDto> {
-    return apiFetch<RegistrarClienteResponseDto>("/auth/register-cliente", {
+export function RegisterClient(request: ClientRegistrationRequestDto): Promise<ClientRegistrationResponseDto> {
+    return ApiFetch<ClientRegistrationResponseDto>("/auth/register-client", {
         method: "POST",
         body: JSON.stringify(request)
     });

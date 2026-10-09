@@ -17,13 +17,12 @@ const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || "http://localho
  * @param body Respuesta de error entregada por el backend.
  * @returns Mensaje de error que será mostrado al usuario.
  */
-function ExtraerMensajeError(body: ApiErrorResponse | null): string {
-    if (body?.mensaje) return body.mensaje;
+function ExtractErrorMessage(body: ApiErrorResponse | null): string {
+    if (body?.message) return body.message;
 
-    if (body?.errors) {
-        const primerCampo = Object.values(body.errors)[0];
+    if (body?.errors) {const firstField = Object.values(body.errors)[0];
 
-        if (primerCampo?.length) return primerCampo[0];
+        if (firstField?.length) return firstField[0];
     }
 
     return "Ocurrió un error inesperado, inténtelo nuevamente";
@@ -40,25 +39,18 @@ function ExtraerMensajeError(body: ApiErrorResponse | null): string {
  * @returns Respuesta del backend convertida al tipo indicado.
  * @throws Error cuando el backend responde con un código HTTP no exitoso.
  */
-export async function apiFetch<TRespuesta>(
-    path: string,
-    options: RequestInit = {}
-): Promise<TRespuesta> {
+export async function ApiFetch<TResponse>(path: string, options: RequestInit = {}): Promise<TResponse> {
     const response = await fetch(`${API_BASE_URL}${path}`, {
         ...options,
         credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            ...options.headers,
-        },
+        headers: {"Content-Type": "application/json", ...options.headers,},
     });
 
     const body = await response.json().catch(() => null);
 
-    if (!response.ok) {
-        const mensajeError = ExtraerMensajeError(body);
-        throw new Error(mensajeError);
+    if (!response.ok) {const errorMessage = ExtractErrorMessage(body);
+        throw new Error(errorMessage);
     }
 
-    return body as TRespuesta;
+    return body as TResponse;
 }

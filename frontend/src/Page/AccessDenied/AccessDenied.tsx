@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
-import "../../EstandarPage.css";
+import "../../StandardPage.css";
 
-export function AccesoDenegado() {
+export function AccessDenied() {
     return (
         <div className="formPage">
             <main className="formPage__content">
@@ -14,7 +14,7 @@ export function AccesoDenegado() {
                 </p>
 
                 <Link
-                    to="/cambiar-password"
+                    to="/change-password"
                     className="formPage__button"
                     style={{
                         display: "flex",

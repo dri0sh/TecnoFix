@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TecnoFix.Src.Data;
-using TecnoFix.Src.DTO.Usuario;
+using TecnoFix.Src.DTO.User;
 using TecnoFix.Src.Model;
 using TecnoFix.Src.Services.Interfaces;
 using TecnoFix.Src.Utils;
@@ -39,26 +39,29 @@ public class AuthService : IAuthService
     /// <returns>Resultado del inicio de sesión.</returns>
     public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
     {
-        var correo = request.Correo.Trim().ToLowerInvariant();
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
-        var usuario = await _context.Usuarios.Include(u => u.RolUsuario).FirstOrDefaultAsync(u => u.Correo == correo);
+        var user = await _context.Users
+            .Include(user => user.Role)
+            .FirstOrDefaultAsync(user => user.Email == normalizedEmail);
 
-        if (usuario is null || !BCrypt.Net.BCrypt.Verify(request.Contrasena, usuario.PasswordHash))
+        if (user is null ||
+            !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
             return new LoginResponseDto
             {
-                Exito = false,
-                Mensaje = "Correo electrónico o contraseña incorrectos"
+                Success = false,
+                Message = "Correo electrónico o contraseña incorrectos"
             };
         }
 
         return new LoginResponseDto
         {
-            Exito = true,
-            Mensaje = "Inicio de sesión exitoso",
-            Token = new TokenGenerator(_configuration).GenerateToken(usuario),
-            Correo = usuario.Correo,
-            Rol = usuario.RolUsuario?.Nombre ?? string.Empty
+            Success = true,
+            Message = "Inicio de sesión exitoso",
+            Token = new TokenGenerator(_configuration).GenerateToken(user),
+            Email = user.Email,
+            Role = user.Role?.Name ?? string.Empty
         };
     }
 
@@ -67,159 +70,155 @@ public class AuthService : IAuthService
     /// </summary>
     /// <param name="request">Datos del nuevo cliente.</param>
     /// <returns>Resultado del registro.</returns>
-    public async Task<RegistrarClienteResponseDto> RegistrarClienteAsync(RegistrarClienteRequestDto request)
+    public async Task<ClientRegistrationResponseDto> RegisterClientAsync(
+        ClientRegistrationRequestDto request)
     {
-        var correoNormalizado = request.Correo.Trim().ToLowerInvariant();
+        var normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
         // El RUT debe ingresarse sin puntos ni guion.
         if (request.Rut.Contains('.') || request.Rut.Contains('-'))
         {
-            return new RegistrarClienteResponseDto
+            return new ClientRegistrationResponseDto
             {
-                Mensaje =
-                    "El RUT debe ingresarse sin puntos ni guion (ej.: 12345670K)"
+                Message = "El RUT debe ingresarse sin puntos ni guion (ej.: 12345670K)"
             };
         }
 
-        var rutNormalizado = RutValidator.ValidateRut(request.Rut);
+        var normalizedRut = RutValidator.ValidateRut(request.Rut);
 
-        if (rutNormalizado is null)
+        if (normalizedRut is null)
         {
-            return new RegistrarClienteResponseDto
+            return new ClientRegistrationResponseDto
             {
-                Mensaje = "El RUT ingresado no es válido."
+                Message = "El RUT ingresado no es válido."
             };
         }
 
-        var rolCliente = await _context.Roles.FirstOrDefaultAsync(r => r.Nombre == "Cliente");
+        var clientRole = await _context.Roles.FirstOrDefaultAsync(role => role.Name == "Cliente");
 
-        if (rolCliente is null)
+        if (clientRole is null)
         {
-            return new RegistrarClienteResponseDto
+            return new ClientRegistrationResponseDto
             {
-                Mensaje = "No se encontró el rol de Cliente en la base de datos."
+                Message = "No se encontró el rol de Cliente en la base de datos."
             };
         }
 
-        var correoExiste = await _context.Usuarios.AnyAsync(u => u.Correo == correoNormalizado);
+        var emailExists = await _context.Users.AnyAsync(user => user.Email == normalizedEmail);
 
-        if (correoExiste)
+        if (emailExists)
         {
-            return new RegistrarClienteResponseDto
+            return new ClientRegistrationResponseDto
             {
-                Mensaje = "El correo electrónico ingresado ya se encuentra registrado"
+                Message = "El correo electrónico ingresado ya se encuentra registrado"
             };
         }
 
-        var rutExiste = await _context.Usuarios.AnyAsync(u => u.Rut == rutNormalizado);
+        var rutExists = await _context.Users.AnyAsync(user => user.Rut == normalizedRut);
 
-        if (rutExiste)
+        if (rutExists)
         {
-            return new RegistrarClienteResponseDto
+            return new ClientRegistrationResponseDto
             {
-                Mensaje = "El RUT ingresado ya se encuentra registrado"
+                Message = "El RUT ingresado ya se encuentra registrado"
             };
         }
 
-        var passwordTemporal = PasswordGenerator.GenerateRandomPassword();
+        var temporaryPassword = PasswordGenerator.GenerateRandomPassword();
 
         try
         {
-            var cuerpoHtml = $"""
+            var emailBody = $"""
                 <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333; max-width: 480px;">
                     <h2 style="color: #1d4ed8;">Bienvenido a TecnoFix, {request.Name}</h2>
                     <p>Tu cuenta fue creada exitosamente. Esta es tu contraseña temporal:</p>
-                    <p style="font-size: 18px; font-weight: bold; letter-spacing: 1px;">{passwordTemporal}</p>
+                    <p style="font-size: 18px; font-weight: bold; letter-spacing: 1px;">{temporaryPassword}</p>
                     <p>Te recomendamos cambiarla después de tu primer inicio de sesión.</p>
                     <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
                     <p style="font-size: 12px; color: #888;">Este es un correo automático, por favor no respondas.</p>
                 </div>
                 """;
 
-            await _emailSender.SendEmailAsync(
-                request.Correo.Trim(),
-                "Tu contraseña temporal - TecnoFix",
-                cuerpoHtml);
+            await _emailSender.SendEmailAsync(request.Email.Trim(), "Tu contraseña temporal - TecnoFix", emailBody);
         }
         catch (Exception ex)
         {
-            return new RegistrarClienteResponseDto
+            return new ClientRegistrationResponseDto
             {
                 Id = 0,
                 Name = string.Empty,
-                Correo = string.Empty,
-                Mensaje = $"Cliente no registrado, falló el envío del correo: {ex.Message}"
+                Email = string.Empty,
+                Message = $"Cliente no registrado, falló el envío del correo: {ex.Message}"
             };
         }
 
-        var nuevoUsuario = new Usuario
+        var newUser = new User
         {
-            Nombre = request.Name,
-            Correo = correoNormalizado,
-            Rut = rutNormalizado,
-            Telefono = request.Telefono,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordTemporal),
-            IdRol = rolCliente.Id
+            Name = request.Name,
+            Email = normalizedEmail,
+            Rut = normalizedRut,
+            PhoneNumber = request.PhoneNumber,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(temporaryPassword),
+            RoleId = clientRole.Id
         };
 
-        _context.Usuarios.Add(nuevoUsuario);
+        _context.Users.Add(newUser);
         await _context.SaveChangesAsync();
 
-        return new RegistrarClienteResponseDto
+        return new ClientRegistrationResponseDto
         {
-            Id = nuevoUsuario.Id,
-            Name = nuevoUsuario.Nombre,
-            Correo = nuevoUsuario.Correo,
-            Mensaje = "Cliente registrado. Revisa tu correo para la contraseña temporal."
+            Id = newUser.Id,
+            Name = newUser.Name,
+            Email = newUser.Email,
+            Message = "Cliente registrado. Revisa tu correo para la contraseña temporal."
         };
     }
 
     /// <summary>
     /// Registra un nuevo técnico en el sistema.
     /// </summary>
-    /// <param name="dto">Datos del nuevo técnico.</param>
+    /// <param name="request">Datos del nuevo técnico.</param>
     /// <returns>Mensaje indicando el resultado de la operación.</returns>
-    public async Task<string> RegisterTecnicoAsync(TecnicoCreateDto dto)
+    public async Task<string> RegisterTechnicianAsync(
+        TechnicianRegistrationRequestDto request)
     {
-        if (await _context.Usuarios.AnyAsync(u => u.Correo == dto.Correo))
+        if (await _context.Users.AnyAsync(user => user.Email == request.Email))
         {
             throw new Exception("El correo ya se encuentra registrado en el sistema.");
         }
 
-        if (await _context.Usuarios.AnyAsync(u => u.Rut == dto.Rut))
+        if (await _context.Users.AnyAsync(user => user.Rut == request.Rut))
         {
             throw new Exception("El RUT ya se encuentra registrado en el sistema.");
         }
 
-        var rolTecnico = await _context.Roles
-            .FirstOrDefaultAsync(r => r.Nombre == "Tecnico") ?? throw new Exception("No se encontró el rol de Técnico en la base de datos.");
+        var technicianRole = await _context.Roles
+            .FirstOrDefaultAsync(role => role.Name == "Tecnico") ?? throw new Exception("No se encontró el rol de Técnico en la base de datos.");
 
-        var passwordProvisoria =
-            PasswordGenerator.GenerateRandomPassword(10);
+        var temporaryPassword = PasswordGenerator.GenerateRandomPassword(10);
 
-        var nuevoTecnico = new Usuario
+        var newTechnician = new User
         {
-            Nombre = dto.Nombre,
-            Rut = dto.Rut,
-            Correo = dto.Correo,
-            Telefono = dto.Telefono,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(passwordProvisoria),
-            IdRol = rolTecnico.Id
+            Name = request.Name,
+            Rut = request.Rut,
+            Email = request.Email,
+            PhoneNumber = request.PhoneNumber,
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(temporaryPassword),
+            RoleId = technicianRole.Id
         };
 
-        _context.Usuarios.Add(nuevoTecnico);
+        _context.Users.Add(newTechnician);
         await _context.SaveChangesAsync();
 
-        var mensajeCorreo =
-            $"Hola {nuevoTecnico.Nombre},\n\n" +
+        var emailMessage = $"Hola {newTechnician.Name},\n\n" +
             "Has sido registrado como Técnico en el sistema TecnoFix.\n" +
-            $"Tu contraseña provisoria de acceso es: {passwordProvisoria}\n\n" +
+            $"Tu contraseña provisoria de acceso es: {temporaryPassword}\n\n" +
             "Por favor, cámbiala inmediatamente al ingresar por primera vez.";
 
         await _emailSender.SendEmailAsync(
-            nuevoTecnico.Correo,
+            newTechnician.Email,
             "Bienvenido a TecnoFix - Credenciales de Técnico",
-            mensajeCorreo);
+            emailMessage);
 
         return "Técnico registrado exitosamente.";
     }
@@ -227,70 +226,73 @@ public class AuthService : IAuthService
     /// <summary>
     /// Cambia la contraseña del usuario autenticado.
     /// </summary>
-    /// <param name="usuarioId">Identificador del usuario.</param>
+    /// <param name="userId">Identificador del usuario.</param>
     /// <param name="request">Datos necesarios para cambiar la contraseña.</param>
     /// <returns>Resultado del cambio de contraseña.</returns>
-    public async Task<CambiarPasswordResponseDto> CambiarPasswordAsync(
-        int usuarioId,
-        CambiarPasswordRequestDto request)
+    public async Task<PasswordChangeResponseDto> ChangePasswordAsync(
+        int userId,
+        PasswordChangeRequestDto request)
     {
-        var usuario = await _context.Usuarios.FirstOrDefaultAsync(usuario => usuario.Id == usuarioId);
+        var user = await _context.Users
+            .FirstOrDefaultAsync(user => user.Id == userId);
 
-        if (usuario is null)
+        if (user is null)
         {
-            return new CambiarPasswordResponseDto
+            return new PasswordChangeResponseDto
             {
-                Exito = false,
-                Mensaje = "Usuario no encontrado"
+                Success = false,
+                Message = "Usuario no encontrado"
             };
         }
 
-        if (!BCrypt.Net.BCrypt.Verify(request.PasswordActual, usuario.PasswordHash))
+        if (!BCrypt.Net.BCrypt.Verify(
+                request.CurrentPassword,
+                user.PasswordHash))
         {
-            return new CambiarPasswordResponseDto
+            return new PasswordChangeResponseDto
             {
-                Exito = false,
-                Mensaje = "La contraseña actual es incorrecta"
+                Success = false,
+                Message = "La contraseña actual es incorrecta"
             };
         }
 
-        if (request.PasswordNueva.Length < 8 ||
-            !request.PasswordNueva.Any(char.IsLetter) ||
-            !request.PasswordNueva.Any(char.IsDigit))
+        if (request.NewPassword.Length < 8 ||
+            !request.NewPassword.Any(char.IsLetter) ||
+            !request.NewPassword.Any(char.IsDigit))
         {
-            return new CambiarPasswordResponseDto
+            return new PasswordChangeResponseDto
             {
-                Exito = false,
-                Mensaje = "La contraseña debe tener al menos 8 caracteres, una letra y un número"
+                Success = false,
+                Message = "La contraseña debe tener al menos 8 caracteres, una letra y un número"
             };
         }
 
-        if (request.PasswordNueva != request.ConfirmarPasswordNueva)
+        if (request.NewPassword != request.ConfirmNewPassword)
         {
-            return new CambiarPasswordResponseDto
+            return new PasswordChangeResponseDto
             {
-                Exito = false,
-                Mensaje = "Las contraseñas ingresadas no coinciden"
+                Success = false,
+                Message = "Las contraseñas ingresadas no coinciden"
             };
         }
 
-        if (BCrypt.Net.BCrypt.Verify(request.PasswordNueva, usuario.PasswordHash))
+        if (BCrypt.Net.BCrypt.Verify(request.NewPassword, user.PasswordHash))
         {
-            return new CambiarPasswordResponseDto
+            return new PasswordChangeResponseDto
             {
-                Exito = false,
-                Mensaje = "La nueva contraseña debe ser distinta de la actual"
+                Success = false,
+                Message = "La nueva contraseña debe ser distinta de la actual"
             };
         }
 
-        usuario.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.PasswordNueva);
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
 
         await _context.SaveChangesAsync();
 
-        return new CambiarPasswordResponseDto
+        return new PasswordChangeResponseDto
         {
-            Exito = true,
-            Mensaje = "Contraseña actualizada correctamente"
+            Success = true,
+            Message = "Contraseña actualizada correctamente"
         };
     }
 }

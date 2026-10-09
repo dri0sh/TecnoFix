@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TecnoFix.Src.DTO.Usuario;
+using TecnoFix.Src.DTO.User;
 using TecnoFix.Src.Services.Interfaces;
 
 namespace TecnoFix.Src.Controller;
@@ -24,19 +24,20 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// <param name="request">Credenciales del usuario.</param>
     /// <returns>Información básica del usuario autenticado.</returns>
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto request)
+    public async Task<ActionResult<LoginResponseDto>> Login(
+        [FromBody] LoginRequestDto request)
     {
-        var resultado = await _authService.LoginAsync(request);
+        var result = await _authService.LoginAsync(request);
 
-        if (!resultado.Exito)
+        if (!result.Success)
         {
             return Unauthorized(new
             {
-                mensaje = resultado.Mensaje
+                message = result.Message
             });
         }
 
-        Response.Cookies.Append("access_token", resultado.Token, new CookieOptions
+        Response.Cookies.Append("access_token", result.Token, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
@@ -46,9 +47,9 @@ public class AuthController(IAuthService authService) : ControllerBase
 
         return Ok(new
         {
-            mensaje = resultado.Mensaje,
-            correo = resultado.Correo,
-            rol = resultado.Rol
+            message = result.Message,
+            email = result.Email,
+            role = result.Role
         });
     }
 
@@ -57,62 +58,62 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// </summary>
     /// <param name="request">Datos del nuevo cliente.</param>
     /// <returns>Resultado del registro.</returns>
-    [HttpPost("register-cliente")]
-    public async Task<ActionResult<RegistrarClienteResponseDto>> RegistrarCliente(
-        [FromBody] RegistrarClienteRequestDto request)
+    [HttpPost("register-client")]
+    public async Task<ActionResult<ClientRegistrationResponseDto>> RegisterClient(
+        [FromBody] ClientRegistrationRequestDto request)
     {
-        var resultado = await _authService.RegistrarClienteAsync(request);
+        var result = await _authService.RegisterClientAsync(request);
 
-        if (resultado is null)
+        if (result is null)
         {
             return BadRequest(new
             {
-                mensaje = "Error al registrar el cliente"
+                message = "Error al registrar el cliente"
             });
         }
 
-        if (resultado.Mensaje.Contains("ya se encuentra registrado"))
+        if (result.Message.Contains("ya se encuentra registrado"))
         {
-            return Conflict(resultado);
+            return Conflict(result);
         }
 
-        if (resultado.Mensaje.Contains("RUT"))
+        if (result.Message.Contains("RUT"))
         {
-            return BadRequest(resultado);
+            return BadRequest(result);
         }
 
-        if (resultado.Mensaje.Contains("falló el envío del correo"))
+        if (result.Message.Contains("falló el envío del correo"))
         {
-            return BadRequest(resultado);
+            return BadRequest(result);
         }
 
-        return Ok(resultado);
+        return Ok(result);
     }
 
     /// <summary>
     /// Registra a un nuevo técnico en el sistema.
     /// </summary>
-    /// <param name="dto">Datos del nuevo técnico.</param>
+    /// <param name="request">Datos del nuevo técnico.</param>
     /// <returns>Resultado del registro.</returns>
-    [HttpPost("register-tecnico")]
+    [HttpPost("register-technician")]
     //[Authorize(Roles = "Administrador")]
-    public async Task<IActionResult> RegisterTecnico(
-        [FromBody] TecnicoCreateDto dto)
+    public async Task<IActionResult> RegisterTechnician(
+        [FromBody] TechnicianRegistrationRequestDto request)
     {
         try
         {
-            var resultado = await _authService.RegisterTecnicoAsync(dto);
+            var result = await _authService.RegisterTechnicianAsync(request);
 
             return Ok(new
             {
-                mensaje = resultado
+                message = result
             });
         }
         catch (Exception ex)
         {
             return BadRequest(new
             {
-                mensaje = ex.Message
+                message = ex.Message
             });
         }
     }
@@ -123,34 +124,34 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// <param name="request">Datos necesarios para cambiar la contraseña.</param>
     /// <returns>Resultado de la operación.</returns>
     [Authorize]
-    [HttpPost("cambiar-password")]
-    public async Task<ActionResult<CambiarPasswordResponseDto>> CambiarPassword(
-        [FromBody] CambiarPasswordRequestDto request)
+    [HttpPost("change-password")]
+    public async Task<ActionResult<PasswordChangeResponseDto>> ChangePassword(
+        [FromBody] PasswordChangeRequestDto request)
     {
-        var usuarioIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+        if (!int.TryParse(userIdClaim, out var userId))
         {
             return Unauthorized(new
             {
-                mensaje = "No se pudo identificar al usuario autenticado"
+                message = "No se pudo identificar al usuario autenticado"
             });
         }
 
-        var resultado =
-            await _authService.CambiarPasswordAsync(usuarioId, request);
+        var result =
+            await _authService.ChangePasswordAsync(userId, request);
 
-        if (!resultado.Exito)
+        if (!result.Success)
         {
             return BadRequest(new
             {
-                mensaje = resultado.Mensaje
+                message = result.Message
             });
         }
 
         Response.Cookies.Delete("access_token");
 
-        return Ok(resultado);
+        return Ok(result);
     }
 
     /// <summary>
@@ -162,6 +163,9 @@ public class AuthController(IAuthService authService) : ControllerBase
     {
         Response.Cookies.Delete("access_token");
 
-        return Ok(new{mensaje = "Sesión cerrada"});
+        return Ok(new
+        {
+            message = "Sesión cerrada"
+        });
     }
 }

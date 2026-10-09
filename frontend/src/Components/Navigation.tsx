@@ -1,41 +1,52 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { eliminarSesion, normalizarRol, obtenerRol } from "../Utils/Auth";
+import {
+    ClearSession,
+    NormalizeRole,
+    GetRole
+} from "../Utils/Auth";
 import "./Navigation.css";
 
 export function Navigation() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const rol = obtenerRol();
+    const role = GetRole();
 
     // El login no debe mostrar navegación.
-    if (!rol || location.pathname === "/login") {
+    if (!role || location.pathname === "/login") {
         return null;
     }
 
-    const rolNormalizado = normalizarRol(rol);
+    const normalizedRole = NormalizeRole(role);
 
-    function cerrarSesion() {
-        eliminarSesion();
-        navigate("/login", { replace: true });
-    }
+    function Logout() {ClearSession(); navigate("/login", { replace: true });}
 
     return (
         <nav className="navigation">
             <div className="navigation__brand">TecnoFix</div>
 
             <div className="navigation__links">
-                <Link to="/cambiar-password">Cambiar contraseña</Link>
+                <Link to="/change-password">
+                    Cambiar contraseña
+                </Link>
 
-                {(rolNormalizado === "tecnico" || rolNormalizado === "administrador") && (
-                    <Link to="/registro-cliente">Registrar Cliente</Link>
+                {(normalizedRole === "tecnico" || normalizedRole === "administrador") && (
+                    <Link to="/register-client">
+                        Registrar Cliente
+                    </Link>
                 )}
 
-                {rolNormalizado === "administrador" && (
-                    <Link to="/registro-tecnico">Registrar Técnico</Link>
+                {normalizedRole === "administrador" && (
+                    <Link to="/register-technician">
+                        Registrar Técnico
+                    </Link>
                 )}
 
-                <button type="button" className="navigation__logout" onClick={cerrarSesion}>
+                <button
+                    type="button"
+                    className="navigation__logout"
+                    onClick={Logout}
+                >
                     Cerrar sesión
                 </button>
             </div>

@@ -1,13 +1,16 @@
+/* Estilos de la vista de registro de cliente.
+   La identidad visual (colores) es provisoria: se acuerda con el cliente (NF01).
+   Las variables están en un solo lugar para cambiar los colores fácilmente. */
 
 .formPage {
-  --color-primario: #3a35e0;
-  --color-texto: #111111;
-  --color-texto-suave: #6b6b78;
-  --color-borde: #2b2b33;
-  --color-fondo: #ffffff;
-  --color-error: #f56558; /* NF01: mensajes de error en #f56558 */
-  --color-exito: #2e7d32;
-  --fuente: "Lato", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  --primary-color: #3a35e0;
+  --text-color: #111111;
+  --muted-text-color: #6b6b78;
+  --border-color: #2b2b33;
+  --background-color: #ffffff;
+  --error-color: #f56558; /* NF01: mensajes de error en #f56558 */
+  --success-color: #2e7d32;
+  --font-family: "Lato", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 
   display: flex;
   justify-content: center;
@@ -15,9 +18,9 @@
   width: 100%;
   min-height: 100vh;
   padding: 2rem;
-  font-family: var(--fuente);
-  color: var(--color-texto);
-  background: var(--color-fondo);
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background: var(--background-color);
 }
 
 .formPage *,
@@ -26,7 +29,7 @@
   box-sizing: border-box;
 }
 
-/* Contenedor principal */
+/* Contenedor principal del formulario */
 
 .formPage__content {
   width: 100%;
@@ -47,7 +50,7 @@
 .formPage__subtitle {
   margin: 0 0 2.2rem;
   font-size: 1.15rem;
-  color: var(--color-texto-suave);
+  color: var(--muted-text-color);
 }
 
 /* Mensaje de error */
@@ -55,11 +58,11 @@
 .formPage__error {
   margin: 0 0 1.6rem;
   padding: 0.8rem 1rem;
-  border: 1.5px solid var(--color-error);
+  border: 1.5px solid var(--error-color);
   border-radius: 14px;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--color-error);
+  color: var(--error-color);
 }
 
 /* Mensaje de éxito */
@@ -67,11 +70,11 @@
 .formPage__success {
   margin: 0 0 1.6rem;
   padding: 0.8rem 1rem;
-  border: 1.5px solid var(--color-exito);
+  border: 1.5px solid var(--success-color);
   border-radius: 14px;
   font-size: 0.95rem;
   font-weight: 700;
-  color: var(--color-exito);
+  color: var(--success-color);
 }
 
 /* Formulario */
@@ -103,9 +106,9 @@
   padding: 0 1.3rem;
   font: inherit;
   font-size: 1rem;
-  color: var(--color-texto);
-  background: var(--color-fondo);
-  border: 1.5px solid var(--color-borde);
+  color: var(--text-color);
+  background: var(--background-color);
+  border: 1.5px solid var(--border-color);
   border-radius: 14px;
   transition:
     border-color 0.12s,
@@ -113,12 +116,12 @@
 }
 
 .formPage__input::placeholder {
-  color: var(--color-texto-suave);
+  color: var(--muted-text-color);
 }
 
 .formPage__input:focus {
   outline: none;
-  border-color: var(--color-primario);
+  border-color: var(--primary-color);
   box-shadow: 0 0 0 3px rgba(58, 53, 224, 0.15);
 }
 
@@ -133,8 +136,8 @@
   font-size: 1.15rem;
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: var(--color-fondo);
-  background: var(--color-primario);
+  color: var(--background-color);
+  background: var(--primary-color);
   border: 0;
   border-radius: 14px;
   cursor: pointer;
@@ -151,8 +154,27 @@
 }
 
 .formPage__button:focus-visible {
-  outline: 3px solid var(--color-primario);
+  outline: 3px solid var(--primary-color);
   outline-offset: 2px;
+}
+
+/* Pie del formulario */
+
+.formPage .formFooter {
+  margin: 1.8rem 0 0;
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--muted-text-color);
+}
+
+.formPage .formFooter a {
+  color: var(--primary-color);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.formPage .formFooter a:hover {
+  text-decoration: underline;
 }
 
 /* Adaptación para pantallas pequeñas */
@@ -174,8 +196,6 @@
     margin-bottom: 1.25rem;
   }
 }
-
-/* Accesibilidad */
 
 @media (prefers-reduced-motion: reduce) {
   .formPage__input,

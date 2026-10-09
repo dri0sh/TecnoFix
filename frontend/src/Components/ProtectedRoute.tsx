@@ -1,33 +1,34 @@
 import { Navigate } from "react-router-dom";
-import {estaAutenticado, normalizarRol, obtenerRol} from "../Utils/Auth";
+import {
+    IsAuthenticated,
+    NormalizeRole,
+    GetRole
+} from "../Utils/Auth";
 
 interface ProtectedRouteProps {
-    rolesPermitidos: string[];
+    allowedRoles: string[];
     children: React.ReactNode;
-    permitirSinAutenticar?: boolean;
+    allowUnauthenticated?: boolean;
 }
 
-export function ProtectedRoute({
-    rolesPermitidos,
-    children,
-    permitirSinAutenticar = false
-}: ProtectedRouteProps) {
-
-    if (!estaAutenticado()) {
-        if (permitirSinAutenticar) { return <>{children}</>;}
+export function ProtectedRoute({allowedRoles, children, allowUnauthenticated = false}: ProtectedRouteProps) {
+    if (!IsAuthenticated()) {
+        if (allowUnauthenticated) {
+            return <>{children}</>;
+        }
 
         return <Navigate to="/login" replace />;
     }
 
-    const rol = obtenerRol();
+    const role = GetRole();
 
-    if (!rol) {return <Navigate to="/login" replace />;}
+    if (!role) { return <Navigate to="/login" replace />;}
 
-    const rolNormalizado = normalizarRol(rol);
+    const normalizedRole = NormalizeRole(role);
 
-    const puedeAcceder = rolesPermitidos.map(normalizarRol).includes(rolNormalizado);
+    const canAccess = allowedRoles.map(NormalizeRole).includes(normalizedRole);
 
-    if (!puedeAcceder) {return <Navigate to="/acceso-denegado" replace />;}
+    if (!canAccess) {return <Navigate to="/access-denied" replace />;}
 
     return <>{children}</>;
 }

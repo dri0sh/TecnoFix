@@ -55,16 +55,6 @@ Se establece una separación entre el idioma utilizado en el código y el conten
 - Los textos visibles para el usuario deben estar en español.
 - Los mensajes establecidos por los requisitos del sistema deben conservar su significado y contenido.
 
-### Consistencia
-
-La estandarización de nombres no debe modificar contratos externos del sistema de manera innecesaria.
-
-En particular:
-
-- Las rutas de la API no deben modificarse únicamente por motivos de nomenclatura.
-- Los cambios en nombres de propiedades de DTO deben considerar su impacto en el contrato entre frontend y backend.
-- Los nombres de columnas o elementos de base de datos no deben modificarse sin evaluar su impacto en Entity Framework y las migraciones.
-
 ### Estructura de commits
 
 Los commits deben seguir el formato:

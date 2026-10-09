@@ -1,60 +1,60 @@
-// Datos que se envían al Backend para iniciar sesión (USU-001)
+// Datos que se envían al backend para iniciar sesión (USU-001)
 export interface LoginRequestDto {
-    Correo: string;
-    Contrasena: string;
+    email: string;
+    password: string;
 }
 
-// Respuesta del Backend al iniciar sesión
+// Respuesta del backend al iniciar sesión
 export interface LoginResponseDto {
-    mensaje: string;
-    correo: string;
-    rol: string;
+    message: string;
+    email: string;
+    role: string;
 }
 
-// Datos que se solicitan para crear el usuario
-export interface RegistrarClienteRequestDto {
+// Datos que se solicitan para crear un cliente
+export interface ClientRegistrationRequestDto {
     name: string;
-    correo: string;
+    email: string;
     rut: string;
-    telefono: string;
+    phoneNumber: string;
 }
 
-// Datos de respuesta
-export interface RegistrarClienteResponseDto {
+// Respuesta del backend al registrar un cliente
+export interface ClientRegistrationResponseDto {
     id: number;
     name: string;
-    correo: string;
-    mensaje: string;
+    email: string;
+    message: string;
 }
 
 // Datos que se solicitan para cambiar la contraseña
-export interface CambiarPasswordRequestDto {
-    PasswordActual: string;
-    PasswordNueva: string;
-    ConfirmarPasswordNueva: string;
+export interface PasswordChangeRequestDto {
+    currentPassword: string;
+    newPassword: string;
+    confirmNewPassword: string;
 }
 
-// Respuesta del Backend
-export interface CambiarPasswordResponseDto {
-    exito: boolean;
-    mensaje: string;
+// Respuesta del backend al cambiar la contraseña
+export interface PasswordChangeResponseDto {
+    success: boolean;
+    message: string;
 }
 
-// Errores genericos de ASP.NET (400, 401, 404, 500, etc.)
+// Errores genéricos de ASP.NET (400, 401, 404, 500, etc.)
 export interface ApiErrorResponse {
-    mensaje?: string;
+    message?: string;
     errors?: Record<string, string[]>;
 }
 
 // Datos que se solicitan para registrar un técnico (USU-003)
-export interface TecnicoCreateDto {
-    Nombre: string;
-    Rut: string;
-    Correo: string;
-    Telefono: string;
+export interface TechnicianRegistrationRequestDto {
+    name: string;
+    rut: string;
+    email: string;
+    phoneNumber: string;
 }
 
-// Respuesta del Backend al registrar un técnico
-export interface RegistroTecnicoResponseDto {
-    mensaje: string;
+// Respuesta del backend al registrar un técnico
+export interface TechnicianRegistrationResponseDto {
+    message: string;
 }

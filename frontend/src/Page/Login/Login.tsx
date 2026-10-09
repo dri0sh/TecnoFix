@@ -1,176 +1,283 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { iniciarSesion } from "../../Api/Auth";
+import { Login as LoginApi } from "../../Api/Auth";
+import { SaveRole, NormalizeRole } from "../../Utils/Auth";
 import "./Login.css";
-import { guardarRol, normalizarRol } from "../../Utils/Auth";
 
 // Mensajes exactos de la tarjeta USU-001
-const MENSAJE_CORREO_INVALIDO = "El correo electrónico no tiene un formato válido";
-const MENSAJE_ERROR_CONEXION = "No se pudo conectar con el servidor. Intenta nuevamente.";
+const INVALID_EMAIL_MESSAGE = "El correo electrónico no tiene un formato válido";
+
+const CONNECTION_ERROR_MESSAGE = "No se pudo conectar con el servidor. Intenta nuevamente.";
 
 // Formato: algo@dominio.ext
-const REGEX_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-function mensajeCampoVacio(nombreCampo: string): string {
-    return "Debe completar el campo " + nombreCampo;
+function GetEmptyFieldMessage(fieldName: string): string {
+    return "Debe completar el campo " + fieldName;
 }
 
 // Pantalla de inicio según el rol (NF02).
 // Provisorio: todos van a cambiar contraseña hasta que existan las pantallas de cada rol.
-function obtenerRutaDeInicio(rol: string): string {
-    const rolNormalizado = normalizarRol(rol);
+function GetStartRoute(role: string): string {
+    const normalizedRole = NormalizeRole(role);
 
-    if (rolNormalizado === "administrador") {return "/cambiar-password";}
+    if (normalizedRole === "administrador") {
+        return "/change-password";
+    }
 
-    if (rolNormalizado === "tecnico") {return "/cambiar-password";}
+    if (normalizedRole === "tecnico") {
+        return "/change-password";
+    }
 
-    if (rolNormalizado === "cliente") {return "/cambiar-password";}
+    if (normalizedRole === "cliente") {
+        return "/change-password";
+    }
 
     return "/login";
 }
 
 export function Login() {
-    const navegar = useNavigate();
+    const navigate = useNavigate();
 
-    const [correo, setCorreo] = useState("");
-    const [contrasena, setContrasena] = useState("");
-    const [verContrasena, setVerContrasena] = useState(false);
-    const [errorCorreo, setErrorCorreo] = useState("");
-    const [errorContrasena, setErrorContrasena] = useState("");
-    const [errorGeneral, setErrorGeneral] = useState("");
-    const [cargando, setCargando] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [emailError, setEmailError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const [generalError, setGeneralError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
     // Revisa que los campos estén completos y con buen formato
-    function validarFormulario(correoLimpio: string): boolean {
-        let esValido = true;
+    function ValidateForm(trimmedEmail: string): boolean {
+        let isValid = true;
 
-        if (correoLimpio === "") {
-            setErrorCorreo(mensajeCampoVacio("Correo electrónico"));
-            esValido = false;
-        } else if (!REGEX_CORREO.test(correoLimpio)) {
-            setErrorCorreo(MENSAJE_CORREO_INVALIDO);
-            esValido = false;
+        if (trimmedEmail === "") {
+            setEmailError(GetEmptyFieldMessage("Correo electrónico"));
+            isValid = false;
+        } else if (!EMAIL_REGEX.test(trimmedEmail)) {
+            setEmailError(INVALID_EMAIL_MESSAGE);
+            isValid = false;
         }
 
-        if (contrasena === "") {
-            setErrorContrasena(mensajeCampoVacio("Contraseña"));
-            esValido = false;
+        if (password === "") {
+            setPasswordError(
+                GetEmptyFieldMessage("Contraseña")
+            );
+            isValid = false;
         }
 
-        return esValido;
+        return isValid;
     }
 
-    async function manejarEnvio(evento: FormEvent<HTMLFormElement>) {
-        evento.preventDefault();
-        setErrorCorreo("");
-        setErrorContrasena("");
-        setErrorGeneral("");
+    async function HandleSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
 
-        const correoLimpio = correo.trim();
-        if (!validarFormulario(correoLimpio)) return;
+        setEmailError("");
+        setPasswordError("");
+        setGeneralError("");
 
-        setCargando(true);
+        const trimmedEmail = email.trim();
+
+        if (!ValidateForm(trimmedEmail)) {
+            return;
+        }
+
+        setIsLoading(true);
+
         try {
-            const respuesta = await iniciarSesion({
-                Correo: correoLimpio,
-                Contrasena: contrasena
-            });
+            const response = await LoginApi({email: trimmedEmail, password});
 
-            guardarRol(respuesta.rol);
-            navegar(obtenerRutaDeInicio(respuesta.rol));
+            SaveRole(response.role);
+            navigate(GetStartRoute(response.role));
         } catch (error) {
             // Un TypeError significa que no hubo conexión con el servidor.
-            // Cualquier otro Error trae el mensaje del backend ("Correo electrónico o contraseña incorrectos").
-            if (error instanceof Error && !(error instanceof TypeError)) {
-                setErrorGeneral(error.message);
+            // Cualquier otro Error trae el mensaje del backend.
+            if (error instanceof Error && !(error instanceof TypeError)
+            ) {
+                setGeneralError(error.message);
             } else {
-                setErrorGeneral(MENSAJE_ERROR_CONEXION);
+                setGeneralError(CONNECTION_ERROR_MESSAGE);
             }
         } finally {
-            setCargando(false);
+            setIsLoading(false);
         }
     }
 
     return (
-        <div className="paginaLogin">
-            <main className="columnaFormulario">
-                <div className="contenido">
+        <div className="loginPage">
+            <main className="formColumn">
+                <div className="content">
                     <h1>Iniciar sesión</h1>
-                    <p className="subtitulo">Ingresa con tu correo electrónico y tu contraseña.</p>
+
+                    <p className="subtitle">
+                        Ingresa con tu correo electrónico y tu contraseña.
+                    </p>
 
                     {/* Error general (credenciales incorrectas) */}
-                    <p id="errorGeneral" className="mensajeError" role="alert">{errorGeneral}</p>
+                    <p
+                        id="generalError"
+                        className="errorMessage"
+                        role="alert"
+                    >
+                        {generalError}
+                    </p>
 
-                    <form onSubmit={manejarEnvio} noValidate>
-                        <div className="campo">
-                            <label htmlFor="correo">Correo electrónico</label>
-                            <div className={"entradaContenedor" + (errorCorreo ? " invalido" : "")}>
+                    <form onSubmit={HandleSubmit} noValidate>
+                        <div className="field">
+                            <label htmlFor="email">
+                                Correo electrónico
+                            </label>
+
+                            <div
+                                className={
+                                    "inputContainer" +
+                                    (emailError ? " invalid" : "")
+                                }
+                            >
                                 <input
-                                    id="correo"
-                                    name="correo"
+                                    id="email"
+                                    name="email"
                                     type="email"
                                     autoComplete="username"
                                     placeholder="usuario@correo.cl"
-                                    value={correo}
-                                    onChange={(e) => setCorreo(e.target.value)}
+                                    value={email}
+                                    onChange={(event) =>
+                                        setEmail(event.target.value)
+                                    }
                                 />
-                                <div className="accionesCampo">
-                                    <span className="ayuda">
-                                        <button type="button" className="ayudaBoton" aria-describedby="ayudaCorreo" aria-label="Ayuda: correo electrónico">?</button>
-                                        <span id="ayudaCorreo" className="ayudaTexto" role="tooltip">
-                                            Es el correo con el que te registraste, por ejemplo usuario@correo.cl.
+
+                                <div className="fieldActions">
+                                    <span className="help">
+                                        <button
+                                            type="button"
+                                            className="helpButton"
+                                            aria-describedby="emailHelp"
+                                            aria-label="Ayuda: correo electrónico"
+                                        >
+                                            ?
+                                        </button>
+
+                                        <span
+                                            id="emailHelp"
+                                            className="helpText"
+                                            role="tooltip"
+                                        >
+                                            Es el correo con el que te
+                                            registraste, por ejemplo
+                                            usuario@correo.cl.
                                         </span>
                                     </span>
                                 </div>
                             </div>
-                            <p className="mensajeError" role="alert">{errorCorreo}</p>
+
+                            <p
+                                className="errorMessage"
+                                role="alert"
+                            >
+                                {emailError}
+                            </p>
                         </div>
 
-                        <div className="campo">
-                            <label htmlFor="contrasena">Contraseña</label>
-                            <div className={"entradaContenedor" + (errorContrasena ? " invalido" : "")}>
+                        <div className="field">
+                            <label htmlFor="password">
+                                Contraseña
+                            </label>
+
+                            <div
+                                className={
+                                    "inputContainer" +
+                                    (passwordError ? " invalid" : "")
+                                }
+                            >
                                 <input
-                                    id="contrasena"
-                                    name="contrasena"
-                                    type={verContrasena ? "text" : "password"}
+                                    id="password"
+                                    name="password"
+                                    type={
+                                        showPassword
+                                            ? "text"
+                                            : "password"
+                                    }
                                     autoComplete="current-password"
                                     placeholder="Ingresa tu contraseña"
-                                    value={contrasena}
-                                    onChange={(e) => setContrasena(e.target.value)}
+                                    value={password}
+                                    onChange={(event) =>
+                                        setPassword(event.target.value)
+                                    }
                                 />
-                                <div className="accionesCampo">
+
+                                <div className="fieldActions">
                                     <button
                                         type="button"
-                                        className="verContrasena"
-                                        aria-pressed={verContrasena}
-                                        onClick={() => setVerContrasena(!verContrasena)}
+                                        className="showPassword"
+                                        aria-pressed={showPassword}
+                                        onClick={() =>
+                                            setShowPassword(
+                                                !showPassword
+                                            )
+                                        }
                                     >
-                                        {verContrasena ? "Ocultar" : "Ver"}
+                                        {showPassword
+                                            ? "Ocultar"
+                                            : "Ver"}
                                     </button>
-                                    <span className="ayuda">
-                                        <button type="button" className="ayudaBoton" aria-describedby="ayudaContrasena" aria-label="Ayuda: contraseña">?</button>
-                                        <span id="ayudaContrasena" className="ayudaTexto" role="tooltip">
-                                            Si es tu primer ingreso, usa la contraseña temporal que te llegó por correo.
+
+                                    <span className="help">
+                                        <button
+                                            type="button"
+                                            className="helpButton"
+                                            aria-describedby="passwordHelp"
+                                            aria-label="Ayuda: contraseña"
+                                        >
+                                            ?
+                                        </button>
+
+                                        <span
+                                            id="passwordHelp"
+                                            className="helpText"
+                                            role="tooltip"
+                                        >
+                                            Si es tu primer ingreso, usa la
+                                            contraseña temporal que te llegó
+                                            por correo.
                                         </span>
                                     </span>
                                 </div>
                             </div>
-                            <p className="mensajeError" role="alert">{errorContrasena}</p>
+
+                            <p
+                                className="errorMessage"
+                                role="alert"
+                            >
+                                {passwordError}
+                            </p>
                         </div>
 
-                        <button type="submit" className="botonPrincipal" disabled={cargando}>
-                            {cargando ? "Ingresando..." : "Iniciar sesión"}
+                        <button
+                            type="submit"
+                            className="primaryButton"
+                            disabled={isLoading}
+                        >
+                            {isLoading
+                                ? "Ingresando..."
+                                : "Iniciar sesión"}
                         </button>
                     </form>
 
-                    <p className="pieFormulario">¿No tienes cuenta? <Link to="/registro-cliente">Regístrate</Link></p>
+                    <p className="formFooter">
+                        ¿No tienes cuenta?{" "}
+                        <Link to="/register-client">
+                            Regístrate
+                        </Link>
+                    </p>
                 </div>
             </main>
 
             <aside className="panel" aria-hidden="true">
                 {/* Espacio reservado para una foto o ilustración real, a definir con el cliente (NF01) */}
-                <p>Sigue el estado de tu reparación paso a paso con TecnoFix.</p>
+                <p>
+                    Sigue el estado de tu reparación paso a paso con
+                    TecnoFix.
+                </p>
             </aside>
         </div>
     );
