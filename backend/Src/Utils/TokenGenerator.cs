@@ -9,12 +9,12 @@ namespace TecnoFix.Src.Utils;
 /// Clase para generar tokens JWT para usuarios autenticados.
 /// </summary>
 /// <param name="configuration"></param>
-public class GenerateTokenClass(IConfiguration configuration)
+public class TokenGenerator(IConfiguration configuration)
 {   
     //  Inyección de dependencias para la configuración de la aplicación
     private readonly IConfiguration _configuration = configuration;
     // Genera un token JWT para el usuario autenticado
-    public string GenerarToken(Usuario usuario)
+    public string GenerateToken(Usuario usuario)
     {
         // Elementos que se incluirán en el token JWT como claims (reclamaciones)
         var claims = new[]

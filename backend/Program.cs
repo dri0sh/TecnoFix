@@ -93,7 +93,7 @@ builder.Services.AddAuthentication(options =>
 });
 // Servicio de autorización
 builder.Services.AddAuthorization();
-builder.Services.AddScoped<TecnoFix.Src.Utils.GenerateTokenClass>();
+builder.Services.AddScoped<TecnoFix.Src.Utils.TokenGenerator>();
 
 var app = builder.Build();
 

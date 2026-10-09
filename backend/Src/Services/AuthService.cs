@@ -56,7 +56,7 @@ public class AuthService : IAuthService
         {
             Exito = true,
             Mensaje = "Inicio de sesión exitoso",
-            Token = new GenerateTokenClass(_configuration).GenerarToken(usuario),
+            Token = new TokenGenerator(_configuration).GenerateToken(usuario),
             Correo = usuario.Correo,
             Rol = usuario.RolUsuario?.Nombre ?? string.Empty
         };
@@ -81,7 +81,7 @@ public class AuthService : IAuthService
             };
         }
 
-        var rutNormalizado = ValidatorRut.ValidarRut(request.Rut);
+        var rutNormalizado = RutValidator.ValidateRut(request.Rut);
 
         if (rutNormalizado is null)
         {

@@ -5,43 +5,43 @@ namespace TecnoFix.Src.Utils
     /// <summary>
     /// Contiene métodos para validar y normalizar RUT chilenos.
     /// </summary>
-    public static class ValidatorRut
+    public static class RutValidator
     {
         /// <summary>
         /// Valida el formato y el dígito verificador de un RUT.
         /// Retorna el RUT normalizado si es válido.
         /// Retorna null si el RUT no es válido.
         /// </summary>
-        public static string? ValidarRut(string rutCrudo)
+        public static string? ValidateRut(string rawRut)
         {
             // El RUT debe ingresarse sin puntos ni guion.
-            if (string.IsNullOrWhiteSpace(rutCrudo))
+            if (string.IsNullOrWhiteSpace(rawRut))
                 return null;
 
-            if (rutCrudo.Contains('.') || rutCrudo.Contains('-'))
+            if (rawRut.Contains('.') || rawRut.Contains('-'))
                 return null;
 
             // El RUT debe contener solamente números y una K
             // como posible dígito verificador.
-            if (!Regex.IsMatch(rutCrudo, @"^\d+[0-9Kk]$"))
+            if (!Regex.IsMatch(rawRut, @"^\d+[0-9Kk]$"))
                 return null;
 
-            var rut = rutCrudo.ToUpperInvariant();
+            var rut = rawRut.ToUpperInvariant();
 
             // Separamos el cuerpo del dígito verificador.
-            var cuerpo = rut[..^1];
-            var dvIngresado = rut[^1];
+            var body = rut[..^1];
+            var providedCheckDigit = rut[^1];
 
-            if (!long.TryParse(cuerpo, out _))
+            if (!long.TryParse(body, out _))
                 return null;
 
             int suma = 0;
             int multiplicador = 2;
 
             // Calculamos el dígito verificador según el algoritmo chileno.
-            for (int i = cuerpo.Length - 1; i >= 0; i--)
+            for (int i = body.Length - 1; i >= 0; i--)
             {
-                suma += (cuerpo[i] - '0') * multiplicador;
+                suma += (body[i] - '0') * multiplicador;
 
                 multiplicador++;
 
@@ -49,16 +49,16 @@ namespace TecnoFix.Src.Utils
                     multiplicador = 2;
             }
 
-            int resto = 11 - (suma % 11);
+            int remainder = 11 - (suma % 11);
 
-            char dvCalculado = resto switch
+            char calculatedCheckDigit = remainder switch
             {
                 11 => '0',
                 10 => 'K',
-                _ => (char)('0' + resto)
+                _ => (char)('0' + remainder)
             };
 
-            if (dvCalculado != dvIngresado)
+            if (calculatedCheckDigit != providedCheckDigit)
                 return null;
 
             return rut;
