@@ -45,6 +45,21 @@ public static class DbSeeder
                 RoleId = adminRole.Id
             });
 
+                        await context.SaveChangesAsync();
+        }
+
+        // Tipos de equipo iniciales, para poder registrar órdenes (ORD-001) mientras
+        // se completa la gestión del catálogo (ADM-001). Solo se insertan si la tabla está vacía.
+        if (!await context.EquipmentTypes.AnyAsync())
+        {
+            context.EquipmentTypes.AddRange(
+                new EquipmentType { Name = "Notebook" },
+                new EquipmentType { Name = "Computador de escritorio" },
+                new EquipmentType { Name = "Teléfono celular" },
+                new EquipmentType { Name = "Tablet" },
+                new EquipmentType { Name = "Impresora" }
+            );
+
             await context.SaveChangesAsync();
         }
     }

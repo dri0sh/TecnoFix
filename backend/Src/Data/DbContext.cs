@@ -27,6 +27,22 @@ public class TecnoFixDbContext : DbContext
     /// </summary>
     public DbSet<Role> Roles => Set<Role>();
 
+
+    /// <summary>
+    /// Catálogo de tipos de equipo (ADM-001).
+    /// </summary>
+    public DbSet<EquipmentType> EquipmentTypes => Set<EquipmentType>();
+
+    /// <summary>
+    /// Órdenes de reparación (ORD-001).
+    /// </summary>
+    public DbSet<RepairOrder> RepairOrders => Set<RepairOrder>();
+
+    /// <summary>
+    /// Bitácora de las órdenes: un registro por cada cambio de estado.
+    /// </summary>
+    public DbSet<OrderLog> OrderLogs => Set<OrderLog>();
+
     /// <summary>
     /// Configura las entidades y relaciones de la base de datos.
     /// </summary>
@@ -116,6 +132,118 @@ public class TecnoFixDbContext : DbContext
             entity.HasOne(user => user.Role)
                 .WithMany(role => role.Users)
                 .HasForeignKey(user => user.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+                // Configuración del catálogo de tipos de equipo (ADM-001).
+        modelBuilder.Entity<EquipmentType>(entity =>
+        {
+            entity.ToTable("EquipmentTypes");
+
+            entity.HasKey(type => type.Id);
+
+            entity.Property(type => type.Name)
+                .HasMaxLength(60)
+                .IsRequired();
+
+            entity.Property(type => type.Description)
+                .HasMaxLength(250);
+
+            // Habilitado por defecto. HasSentinel(true) evita que EF ignore un "false" explícito.
+            entity.Property(type => type.IsEnabled)
+                .HasDefaultValue(true)
+                .HasSentinel(true);
+
+            // El nombre del tipo de equipo debe ser único (ADM-001).
+            entity.HasIndex(type => type.Name)
+                .IsUnique();
+        });
+
+        // Configuración de la orden de reparación (ORD-001).
+        modelBuilder.Entity<RepairOrder>(entity =>
+        {
+            entity.ToTable("RepairOrders");
+
+            entity.HasKey(order => order.Id);
+
+            // El número de orden debe ser único (ORD-001).
+            entity.HasIndex(order => order.OrderNumber)
+                .IsUnique();
+
+            entity.Property(order => order.BrandModel)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(order => order.SerialNumber)
+                .HasMaxLength(60);
+
+            entity.Property(order => order.ReportedFault)
+                .HasMaxLength(1000)
+                .IsRequired();
+
+            entity.Property(order => order.Accessories)
+                .HasMaxLength(250);
+
+            // El estado se guarda como texto ("Received") para que la tabla sea legible.
+            entity.Property(order => order.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(order => order.ReceivedAt)
+                .IsRequired();
+
+            // Hay dos llaves foráneas hacia Usuarios (el cliente y quien registró),
+            // por eso se declaran explícitamente. Restrict impide borrar un usuario con órdenes.
+            entity.HasOne(order => order.Client)
+                .WithMany()
+                .HasForeignKey(order => order.ClientId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(order => order.RegisteredBy)
+                .WithMany()
+                .HasForeignKey(order => order.RegisteredById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Restrict: no se puede borrar un tipo de equipo con órdenes (ADM-001 solo lo deshabilita).
+            entity.HasOne(order => order.EquipmentType)
+                .WithMany()
+                .HasForeignKey(order => order.EquipmentTypeId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Configuración de la bitácora de las órdenes.
+        modelBuilder.Entity<OrderLog>(entity =>
+        {
+            entity.ToTable("OrderLogs");
+
+            entity.HasKey(log => log.Id);
+
+            entity.Property(log => log.PreviousStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20);
+
+            entity.Property(log => log.NewStatus)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.Property(log => log.Comment)
+                .HasMaxLength(500)
+                .IsRequired();
+
+            entity.Property(log => log.CreatedAt)
+                .IsRequired();
+
+            // Si se borrara una orden, se borran sus eventos (Cascade).
+            entity.HasOne(log => log.RepairOrder)
+                .WithMany(order => order.Logs)
+                .HasForeignKey(log => log.RepairOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(log => log.Responsible)
+                .WithMany()
+                .HasForeignKey(log => log.ResponsibleId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
