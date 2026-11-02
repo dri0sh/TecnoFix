@@ -21,7 +21,7 @@ namespace backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TecnoFix.Src.Model.Rol", b =>
+            modelBuilder.Entity("TecnoFix.Src.Model.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -29,17 +29,18 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Nombre")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("character varying(30)");
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("Nombre");
 
                     b.HasKey("Id");
 
                     b.ToTable("Roles", (string)null);
                 });
 
-            modelBuilder.Entity("TecnoFix.Src.Model.Usuario", b =>
+            modelBuilder.Entity("TecnoFix.Src.Model.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -47,38 +48,53 @@ namespace backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Correo")
+                    b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("Correo");
 
-                    b.Property<int>("IdRol")
-                        .HasColumnType("integer");
+                    b.Property<bool>("IsEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("Habilitado");
 
-                    b.Property<string>("Nombre")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("character varying(150)");
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("Nombre");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("text")
+                        .HasColumnName("PasswordHash");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("Telefono");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("integer")
+                        .HasColumnName("IdRol");
 
                     b.Property<string>("Rut")
-                        .IsRequired()
                         .HasMaxLength(10)
-                        .HasColumnType("character varying(10)");
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("Rut");
 
-                    b.Property<string>("Telefono")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<string>("Specialty")
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("Especialidad");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Correo")
+                    b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("IdRol");
+                    b.HasIndex("RoleId");
 
                     b.HasIndex("Rut")
                         .IsUnique();
@@ -86,20 +102,20 @@ namespace backend.Migrations
                     b.ToTable("Usuarios", (string)null);
                 });
 
-            modelBuilder.Entity("TecnoFix.Src.Model.Usuario", b =>
+            modelBuilder.Entity("TecnoFix.Src.Model.User", b =>
                 {
-                    b.HasOne("TecnoFix.Src.Model.Rol", "RolUsuario")
-                        .WithMany("Usuarios")
-                        .HasForeignKey("IdRol")
+                    b.HasOne("TecnoFix.Src.Model.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("RolUsuario");
+                    b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("TecnoFix.Src.Model.Rol", b =>
+            modelBuilder.Entity("TecnoFix.Src.Model.Role", b =>
                 {
-                    b.Navigation("Usuarios");
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

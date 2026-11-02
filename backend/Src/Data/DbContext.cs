@@ -70,16 +70,28 @@ public class TecnoFixDbContext : DbContext
                 .HasMaxLength(256)
                 .IsRequired();
 
-            // Rut mantiene el mismo nombre en código y base de datos.
+            // RUT opcional: solo lo ingresa el cliente (USU-002).
+            // Registrar técnico (USU-003) no lo solicita.
             entity.Property(user => user.Rut)
                 .HasColumnName("Rut")
-                .HasMaxLength(10)
-                .IsRequired();
+                .HasMaxLength(10);
 
-            // PhoneNumber corresponde a la columna Telefono en la base de datos.
+            // Teléfono opcional: solo lo ingresa el cliente (USU-002).
             entity.Property(user => user.PhoneNumber)
-                .HasColumnName("Telefono")
-                .IsRequired();
+                .HasColumnName("Telefono");
+
+            // Especialidad del técnico (USU-003).
+            entity.Property(user => user.Specialty)
+                .HasColumnName("Especialidad")
+                .HasMaxLength(60);
+
+            // El usuario queda habilitado por defecto (USU-003).
+            // HasDefaultValue(true): los usuarios que ya existen también quedan habilitados.
+            // HasSentinel(true): evita que EF ignore un "false" explícito al insertar.
+            entity.Property(user => user.IsEnabled)
+                .HasColumnName("Habilitado")
+                .HasDefaultValue(true)
+                .HasSentinel(true);
 
             // PasswordHash mantiene el mismo nombre en código y base de datos.
             entity.Property(user => user.PasswordHash)
@@ -91,7 +103,9 @@ public class TecnoFixDbContext : DbContext
                 .HasColumnName("IdRol")
                 .IsRequired();
 
-            // Se establecen índices únicos para correo electrónico y RUT.
+            // Índices únicos para correo electrónico y RUT.
+            // En PostgreSQL un índice único admite varios NULL,
+            // por lo que los técnicos sin RUT no generan conflicto.
             entity.HasIndex(user => user.Email)
                 .IsUnique();
 

@@ -21,14 +21,26 @@ public class User
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// Rol Único Tributario (RUT) del usuario.
+    /// RUT del usuario. Solo lo ingresa el cliente (USU-002);
+    /// el técnico y el administrador no lo tienen.
     /// </summary>
-    public string Rut { get; set; } = string.Empty;
+    public string? Rut { get; set; }
 
     /// <summary>
-    /// Número de teléfono del usuario.
+    /// Teléfono de contacto. Solo lo ingresa el cliente (USU-002).
     /// </summary>
-    public string PhoneNumber { get; set; } = string.Empty;
+    public string? PhoneNumber { get; set; }
+
+    /// <summary>
+    /// Especialidad del técnico (USU-003). Es nula para clientes y administradores.
+    /// </summary>
+    public string? Specialty { get; set; }
+
+    /// <summary>
+    /// Indica si el usuario está habilitado.
+    /// El técnico queda habilitado por defecto al registrarse (USU-003).
+    /// </summary>
+    public bool IsEnabled { get; set; } = true;
 
     /// <summary>
     /// Hash de la contraseña del usuario.
