@@ -40,18 +40,20 @@ export interface PasswordChangeResponseDto {
     message: string;
 }
 
-// Errores genéricos de ASP.NET (400, 401, 404, 500, etc.)
+// Errores del backend: "message" general, "fieldErrors" con un error por campo
+// y "errors" (formato de la validación automática de ASP.NET)
 export interface ApiErrorResponse {
     message?: string;
+    fieldErrors?: Record<string, string>;
     errors?: Record<string, string[]>;
 }
 
-// Datos que se solicitan para registrar un técnico (USU-003)
+// Datos que se solicitan para registrar un técnico (USU-003):
+// nombre y apellidos, correo electrónico y especialidad
 export interface TechnicianRegistrationRequestDto {
     name: string;
-    rut: string;
     email: string;
-    phoneNumber: string;
+    specialty: string;
 }
 
 // Respuesta del backend al registrar un técnico

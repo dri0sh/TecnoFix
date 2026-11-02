@@ -7,6 +7,22 @@ import type { ApiErrorResponse } from "../Types/AuthType.ts";
  */
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string) || "http://localhost:5174/api";
 
+
+/**
+ * Error devuelto por el backend. Además del mensaje general, puede traer
+ * los errores de cada campo (clave = nombre del campo) para mostrarlos
+ * bajo el campo correspondiente del formulario.
+ */
+export class ApiError extends Error {
+    readonly fieldErrors: Record<string, string>;
+
+    constructor(message: string, fieldErrors: Record<string, string> = {}) {
+        super(message);
+        this.name = "ApiError";
+        this.fieldErrors = fieldErrors;
+    }
+}
+
 /**
  * Extrae el mensaje de error entregado por el backend.
  *
@@ -48,8 +64,9 @@ export async function ApiFetch<TResponse>(path: string, options: RequestInit = {
 
     const body = await response.json().catch(() => null);
 
-    if (!response.ok) {const errorMessage = ExtractErrorMessage(body);
-        throw new Error(errorMessage);
+    if (!response.ok) {
+        const errorMessage = ExtractErrorMessage(body);
+        throw new ApiError(errorMessage, body?.fieldErrors ?? {});
     }
 
     return body as TResponse;

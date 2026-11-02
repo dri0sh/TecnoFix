@@ -62,6 +62,18 @@ export function RegisterTechnician(
     );
 }
 
+
+/**
+ * Obtiene las especialidades que se pueden asignar a un técnico (USU-003).
+ * La lista se define solo en el backend, para no duplicarla en el frontend.
+ * Requiere una sesión de administrador.
+ *
+ * @returns Lista de especialidades.
+ */
+export function GetTechnicianSpecialties(): Promise<string[]> {
+    return ApiFetch<string[]>("/auth/technician-specialties");
+}
+
 /**
  * Realiza la petición al backend para registrar a un nuevo cliente en el sistema.
  *

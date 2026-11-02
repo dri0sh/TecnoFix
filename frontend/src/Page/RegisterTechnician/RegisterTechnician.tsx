@@ -1,48 +1,85 @@
-import { useState, type FormEvent } from "react";
-import { RegisterTechnician as RegisterTechnicianApi } from "../../Api/Auth";
+import { useEffect, useState, type FormEvent } from "react";
+import { GetTechnicianSpecialties, RegisterTechnician as RegisterTechnicianApi } from "../../Api/Auth";
+import { ApiError } from "../../Api/Client";
 import "./RegisterTechnician.css";
 
+// Campos del formulario (se usan como clave de los errores)
+type TechnicianField = "name" | "email" | "specialty";
+
+// Error de cada campo del formulario
+type FieldErrors = Partial<Record<TechnicianField, string>>;
+
+// Formato de correo: texto@dominio.extensión (el mismo que valida el backend)
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+// Solo letras (incluye tildes, ñ y ü) y espacios (el mismo que valida el backend)
+const PERSON_NAME_REGEX = /^[\p{L} ]+$/u;
+
+const CONNECTION_ERROR_MESSAGE = "No se pudo conectar con el servidor. Intenta nuevamente.";
+
+/**
+ * Vista para que el administrador registre un nuevo técnico (USU-003).
+ * Solicita nombre y apellidos, correo electrónico y especialidad.
+ * El frontend valida para avisar antes, pero el backend vuelve a validar todo.
+ */
 export function RegisterTechnician() {
     const [name, setName] = useState("");
-    const [rut, setRut] = useState("");
     const [email, setEmail] = useState("");
-    const [phoneNumber, setPhoneNumber] = useState("");
+    const [specialty, setSpecialty] = useState("");
+    const [specialties, setSpecialties] = useState<string[]>([]);
+
+    const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
-    function ValidateForm(): boolean {
-        if (name.trim() === "") {
-            setErrorMessage("Debe completar el campo Nombre");
-            return false;
+    // Al abrir la vista se cargan las especialidades desde el backend
+    useEffect(() => {
+        GetTechnicianSpecialties()
+            .then(setSpecialties)
+            .catch((error: unknown) => setErrorMessage(GetErrorMessage(error)));
+    }, []);
+
+    /**
+     * Revisa todos los campos y devuelve el error de cada uno.
+     * Se revisan todos a la vez para marcar todos los campos con problemas.
+     */
+    function ValidateForm(cleanName: string, cleanEmail: string): FieldErrors {
+        const errors: FieldErrors = {};
+
+        if (cleanName === "") {
+            errors.name = "Debe completar el campo Nombre y apellidos";
+        } else if (!PERSON_NAME_REGEX.test(cleanName)) {
+            errors.name = "El nombre solo puede contener letras y espacios";
         }
 
-        if (rut.trim() === "") {
-            setErrorMessage("Debe completar el campo RUT");
-            return false;
+        if (cleanEmail === "") {
+            errors.email = "Debe completar el campo Correo electrónico";
+        } else if (!EMAIL_REGEX.test(cleanEmail)) {
+            errors.email = "El correo electrónico no tiene un formato válido";
         }
 
-        if (email.trim() === "") {
-            setErrorMessage("Debe completar el campo Correo electrónico"
-);
-            return false;
+        if (specialty === "") {
+            errors.specialty = "Debe completar el campo Especialidad";
         }
 
-        if (phoneNumber.trim() === "") {
-            setErrorMessage("Debe completar el campo Teléfono");
-            return false;
-        }
-
-        return true;
+        return errors;
     }
 
     async function HandleSubmit(event: FormEvent) {
         event.preventDefault();
 
+        setFieldErrors({});
         setErrorMessage(null);
         setSuccessMessage(null);
 
-        if (!ValidateForm()) {
+        const cleanName = name.trim();
+        const cleanEmail = email.trim();
+
+        const errors = ValidateForm(cleanName, cleanEmail);
+
+        if (Object.keys(errors).length > 0) {
+            setFieldErrors(errors);
             return;
         }
 
@@ -50,38 +87,42 @@ export function RegisterTechnician() {
 
         try {
             const response = await RegisterTechnicianApi({
-                name,
-                rut,
-                email,
-                phoneNumber
+                name: cleanName,
+                email: cleanEmail,
+                specialty
             });
 
             setSuccessMessage(response.message);
 
             setName("");
-            setRut("");
             setEmail("");
-            setPhoneNumber("");
+            setSpecialty("");
         } catch (error) {
-            if (error instanceof Error && !(error instanceof TypeError)) {
-                setErrorMessage(error.message);
+            // Si el backend devolvió errores por campo, se muestran bajo cada campo
+            if (error instanceof ApiError && Object.keys(error.fieldErrors).length > 0) {
+                setFieldErrors(error.fieldErrors as FieldErrors);
             } else {
-                setErrorMessage("No se pudo conectar con el servidor. Intenta nuevamente.");
+                setErrorMessage(GetErrorMessage(error));
             }
         } finally {
             setIsLoading(false);
         }
     }
 
+    /** Clase del campo: se marca en rojo si tiene error. */
+    function InputClass(field: TechnicianField): string {
+        return "formPage__input" + (fieldErrors[field] ? " formPage__input--invalid" : "");
+    }
+
     return (
         <div className="formPage">
             <main className="formPage__content">
                 <h1 className="formPage__title">
-                    Registrar Técnico
+                    Registrar técnico
                 </h1>
 
                 <p className="formPage__subtitle">
-                    Ingresa los datos del nuevo técnico.
+                    Ingresa los datos del nuevo técnico. Su contraseña temporal se enviará a su correo electrónico.
                 </p>
 
                 {errorMessage && (
@@ -91,7 +132,7 @@ export function RegisterTechnician() {
                 )}
 
                 {successMessage && (
-                    <p className="formPage__success" role="alert">
+                    <p className="formPage__success" role="status">
                         {successMessage}
                     </p>
                 )}
@@ -106,41 +147,26 @@ export function RegisterTechnician() {
                             className="formPage__label"
                             htmlFor="name"
                         >
-                            Nombre completo
+                            Nombre y apellidos
                         </label>
 
                         <input
                             id="name"
                             type="text"
-                            className="formPage__input"
+                            className={InputClass("name")}
                             value={name}
                             onChange={(event) =>
                                 setName(event.target.value)
                             }
-                            placeholder="Juan Pérez"
-                            required
+                            placeholder="Juan Pérez Soto"
+                            aria-invalid={Boolean(fieldErrors.name)}
                         />
-                    </div>
 
-                    <div className="formPage__field">
-                        <label
-                            className="formPage__label"
-                            htmlFor="rut"
-                        >
-                            RUT
-                        </label>
-
-                        <input
-                            id="rut"
-                            type="text"
-                            className="formPage__input"
-                            value={rut}
-                            onChange={(event) =>
-                                setRut(event.target.value)
-                            }
-                            placeholder="12345678K"
-                            required
-                        />
+                        {fieldErrors.name && (
+                            <p className="formPage__fieldError" role="alert">
+                                {fieldErrors.name}
+                            </p>
+                        )}
                     </div>
 
                     <div className="formPage__field">
@@ -154,35 +180,52 @@ export function RegisterTechnician() {
                         <input
                             id="email"
                             type="email"
-                            className="formPage__input"
+                            className={InputClass("email")}
                             value={email}
                             onChange={(event) =>
                                 setEmail(event.target.value)
                             }
-                            placeholder="correo@ejemplo.cl"
-                            required
+                            placeholder="tecnico@correo.cl"
+                            aria-invalid={Boolean(fieldErrors.email)}
                         />
+
+                        {fieldErrors.email && (
+                            <p className="formPage__fieldError" role="alert">
+                                {fieldErrors.email}
+                            </p>
+                        )}
                     </div>
 
                     <div className="formPage__field">
                         <label
                             className="formPage__label"
-                            htmlFor="phoneNumber"
+                            htmlFor="specialty"
                         >
-                            Teléfono
+                            Especialidad
                         </label>
 
-                        <input
-                            id="phoneNumber"
-                            type="tel"
-                            className="formPage__input"
-                            value={phoneNumber}
+                        <select
+                            id="specialty"
+                            className={InputClass("specialty") + " formPage__select"}
+                            value={specialty}
                             onChange={(event) =>
-                                setPhoneNumber(event.target.value)
+                                setSpecialty(event.target.value)
                             }
-                            placeholder="+56 912345678"
-                            required
-                        />
+                            aria-invalid={Boolean(fieldErrors.specialty)}
+                        >
+                            <option value="">Selecciona una especialidad</option>
+                            {specialties.map((item) => (
+                                <option key={item} value={item}>
+                                    {item}
+                                </option>
+                            ))}
+                        </select>
+
+                        {fieldErrors.specialty && (
+                            <p className="formPage__fieldError" role="alert">
+                                {fieldErrors.specialty}
+                            </p>
+                        )}
                     </div>
 
                     <button
@@ -192,10 +235,20 @@ export function RegisterTechnician() {
                     >
                         {isLoading
                             ? "Registrando..."
-                            : "Registrar Técnico"}
+                            : "Registrar técnico"}
                     </button>
                 </form>
             </main>
         </div>
     );
+}
+
+/** Convierte cualquier error en un mensaje para el usuario. */
+function GetErrorMessage(error: unknown): string {
+    // Un TypeError significa que no hubo conexión con el servidor
+    if (error instanceof Error && !(error instanceof TypeError)) {
+        return error.message;
+    }
+
+    return CONNECTION_ERROR_MESSAGE;
 }
