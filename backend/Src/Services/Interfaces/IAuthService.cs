@@ -22,13 +22,20 @@ public interface IAuthService
     /// <returns>Resultado del registro del cliente.</returns>
     Task<ClientRegistrationResponseDto> RegisterClientAsync(ClientRegistrationRequestDto request);
 
+    
+    
     /// <summary>
-    /// Registra un nuevo técnico en el sistema, genera una contraseña provisoria
-    /// y la envía por correo electrónico.
+    /// Registra un nuevo técnico (USU-003): valida los datos, genera una contraseña
+    /// temporal y la envía al correo del técnico.
     /// </summary>
-    /// <param name="request">Datos del nuevo técnico.</param>
-    /// <returns>Mensaje indicando el resultado de la operación.</returns>
-    Task<string> RegisterTechnicianAsync(TechnicianRegistrationRequestDto request);
+    /// <param name="request">Datos ingresados por el administrador.</param>
+    /// <returns>Resultado del registro, con los errores por campo si los hay.</returns>
+    Task<TechnicianRegistrationResponseDto> RegisterTechnicianAsync(TechnicianRegistrationRequestDto request);
+
+    /// <summary>
+    /// Entrega la lista de especialidades que se pueden asignar a un técnico.
+    /// </summary>
+    IReadOnlyList<string> GetTechnicianSpecialties();
 
     /// <summary>
     /// Cambia la contraseña del usuario autenticado.

@@ -90,33 +90,45 @@ public class AuthController(IAuthService authService) : ControllerBase
         return Ok(result);
     }
 
+
+
     /// <summary>
-    /// Registra a un nuevo técnico en el sistema.
+    /// Entrega las especialidades disponibles para el formulario de registrar técnico.
     /// </summary>
-    /// <param name="request">Datos del nuevo técnico.</param>
-    /// <returns>Resultado del registro.</returns>
+    /// <returns>Lista de especialidades.</returns>
+    [Authorize(Roles = "Administrador")]
+    [HttpGet("technician-specialties")]
+    public ActionResult<IReadOnlyList<string>> GetTechnicianSpecialties()
+    {
+        return Ok(_authService.GetTechnicianSpecialties());
+    }
+
+    /// <summary>
+    /// Registra un nuevo técnico (USU-003). Solo el administrador puede hacerlo.
+    /// </summary>
+    /// <param name="request">Nombre y apellidos, correo electrónico y especialidad.</param>
+    /// <returns>
+    /// 200 si se registró, 400 si hay datos inválidos o falló el correo,
+    /// 409 si el correo ya existe. Los errores incluyen "message" y "fieldErrors" por campo.
+    /// </returns>
+    [Authorize(Roles = "Administrador")]
     [HttpPost("register-technician")]
-    //[Authorize(Roles = "Administrador")]
     public async Task<IActionResult> RegisterTechnician(
         [FromBody] TechnicianRegistrationRequestDto request)
     {
-        try
-        {
-            var result = await _authService.RegisterTechnicianAsync(request);
+        var result = await _authService.RegisterTechnicianAsync(request);
 
-            return Ok(new
-            {
-                message = result
-            });
-        }
-        catch (Exception ex)
+        if (result.Success)
         {
-            return BadRequest(new
-            {
-                message = ex.Message
-            });
+            return Ok(new { message = result.Message });
         }
+
+        var errorBody = new { message = result.Message, fieldErrors = result.FieldErrors };
+
+        return result.IsDuplicateEmail ? Conflict(errorBody) : BadRequest(errorBody);
     }
+
+    
 
     /// <summary>
     /// Cambia la contraseña del usuario autenticado.

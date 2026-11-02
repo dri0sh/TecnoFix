@@ -174,53 +174,159 @@ public class AuthService : IAuthService
         };
     }
 
+    
+    
     /// <summary>
-    /// Registra un nuevo técnico en el sistema.
+    /// Entrega la lista de especialidades que se pueden asignar a un técnico.
     /// </summary>
-    /// <param name="request">Datos del nuevo técnico.</param>
-    /// <returns>Mensaje indicando el resultado de la operación.</returns>
-    public async Task<string> RegisterTechnicianAsync(
+    public IReadOnlyList<string> GetTechnicianSpecialties() => TechnicianSpecialties.All;
+
+    /// <summary>
+    /// Registra un nuevo técnico en el sistema (USU-003).
+    /// </summary>
+    /// <param name="request">Nombre y apellidos, correo electrónico y especialidad.</param>
+    /// <returns>Resultado del registro, con los errores por campo si los hay.</returns>
+    public async Task<TechnicianRegistrationResponseDto> RegisterTechnicianAsync(
         TechnicianRegistrationRequestDto request)
     {
-        if (await _context.Users.AnyAsync(user => user.Email == request.Email))
+        // Se limpian los datos antes de validar. "?? string.Empty" cubre el caso
+        // en que el campo no viene en la petición (llega como null).
+        var name = (request.Name ?? string.Empty).Trim();
+        var email = (request.Email ?? string.Empty).Trim().ToLowerInvariant();
+        var specialty = (request.Specialty ?? string.Empty).Trim();
+
+        // 1. Formato de los campos: se revisan todos para informar todos los errores juntos
+        var fieldErrors = ValidateTechnicianFields(name, email, specialty);
+
+        if (fieldErrors.Count > 0)
         {
-            throw new Exception("El correo ya se encuentra registrado en el sistema.");
+            return new TechnicianRegistrationResponseDto
+            {
+                Success = false,
+                Message = fieldErrors.Values.First(),
+                FieldErrors = fieldErrors
+            };
         }
 
-        if (await _context.Users.AnyAsync(user => user.Rut == request.Rut))
+        // 2. El correo debe ser único en el sistema (mensaje exacto de la ERS)
+        if (await _context.Users.AnyAsync(user => user.Email == email))
         {
-            throw new Exception("El RUT ya se encuentra registrado en el sistema.");
+            const string DUPLICATE_EMAIL_MESSAGE = "El correo electrónico ingresado ya se encuentra registrado";
+
+            return new TechnicianRegistrationResponseDto
+            {
+                Success = false,
+                Message = DUPLICATE_EMAIL_MESSAGE,
+                FieldErrors = new Dictionary<string, string> { ["email"] = DUPLICATE_EMAIL_MESSAGE },
+                IsDuplicateEmail = true
+            };
         }
 
-        var technicianRole = await _context.Roles
-            .FirstOrDefaultAsync(role => role.Name == "Tecnico") ?? throw new Exception("No se encontró el rol de Técnico en la base de datos.");
+        var technicianRole = await _context.Roles.FirstOrDefaultAsync(role => role.Name == "Tecnico");
 
-        var temporaryPassword = PasswordGenerator.GenerateRandomPassword(10);
-
-        var newTechnician = new User
+        if (technicianRole is null)
         {
-            Name = request.Name,
-            Rut = request.Rut,
-            Email = request.Email,
-            PhoneNumber = request.PhoneNumber,
+            return new TechnicianRegistrationResponseDto
+            {
+                Success = false,
+                Message = "No se encontró el rol de técnico en la base de datos."
+            };
+        }
+
+        // 3. Contraseña temporal: el generador cumple las reglas de cambiar contraseña
+        //    (al menos 8 caracteres, una letra y un número)
+        var temporaryPassword = PasswordGenerator.GenerateRandomPassword();
+
+        var technician = new User
+        {
+            Name = name,
+            Email = email,
+            Specialty = specialty,
+            IsEnabled = true, // El técnico queda habilitado por defecto (USU-003)
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(temporaryPassword),
             RoleId = technicianRole.Id
         };
 
-        _context.Users.Add(newTechnician);
-        await _context.SaveChangesAsync();
+        // 4. Se guarda el técnico y se envía el correo dentro de una transacción:
+        //    si el correo falla, se deshace el registro para no dejar un técnico
+        //    que no tiene cómo conocer su contraseña.
+        await using var transaction = await _context.Database.BeginTransactionAsync();
 
-        var emailMessage = $"Hola {newTechnician.Name},\n\n" +
-            "Has sido registrado como Técnico en el sistema TecnoFix.\n" +
-            $"Tu contraseña provisoria de acceso es: {temporaryPassword}\n\n" +
-            "Por favor, cámbiala inmediatamente al ingresar por primera vez.";
+        try
+        {
+            _context.Users.Add(technician);
+            await _context.SaveChangesAsync();
 
-        await _emailSender.SendEmailAsync(
-            newTechnician.Email,
-            "Bienvenido a TecnoFix - Credenciales de Técnico",
-            emailMessage);
+            // Mismo formato del correo de registrar cliente (hallazgo C6)
+            var emailBody = $"""
+                <div style="font-family: Arial, sans-serif; font-size: 14px; color: #333; max-width: 480px;">
+                    <h2 style="color: #1d4ed8;">Bienvenido a TecnoFix, {technician.Name}</h2>
+                    <p>Tu cuenta fue creada exitosamente. Esta es tu contraseña temporal:</p>
+                    <p style="font-size: 18px; font-weight: bold; letter-spacing: 1px;">{temporaryPassword}</p>
+                    <p>Te recomendamos cambiarla después de tu primer inicio de sesión.</p>
+                    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+                    <p style="font-size: 12px; color: #888;">Este es un correo automático, por favor no respondas.</p>
+                </div>
+                """;
 
-        return "Técnico registrado exitosamente.";
+            await _emailSender.SendEmailAsync(technician.Email, "Tu contraseña temporal - TecnoFix", emailBody);
+
+            await transaction.CommitAsync();
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync();
+
+            return new TechnicianRegistrationResponseDto
+            {
+                Success = false,
+                Message = "No se pudo registrar el técnico (falló el guardado o el envío del correo). Intente nuevamente."
+            };
+        }
+
+        return new TechnicianRegistrationResponseDto
+        {
+            Success = true,
+            Message = "Técnico registrado exitosamente. La contraseña temporal fue enviada a su correo."
+        };
+    }
+
+    /// <summary>
+    /// Valida los campos de registrar técnico según la tarjeta USU-003.
+    /// </summary>
+    /// <returns>Diccionario con el error de cada campo inválido (vacío si todo está correcto).</returns>
+    private static Dictionary<string, string> ValidateTechnicianFields(string name, string email, string specialty)
+    {
+        var errors = new Dictionary<string, string>();
+
+        if (name.Length == 0)
+        {
+            errors["name"] = InputValidator.RequiredFieldMessage("Nombre y apellidos");
+        }
+        else if (!InputValidator.IsValidPersonName(name))
+        {
+            errors["name"] = "El nombre solo puede contener letras y espacios";
+        }
+
+        if (email.Length == 0)
+        {
+            errors["email"] = InputValidator.RequiredFieldMessage("Correo electrónico");
+        }
+        else if (!InputValidator.IsValidEmail(email))
+        {
+            errors["email"] = "El correo electrónico no tiene un formato válido";
+        }
+
+        if (specialty.Length == 0)
+        {
+            errors["specialty"] = InputValidator.RequiredFieldMessage("Especialidad");
+        }
+        else if (!TechnicianSpecialties.IsValid(specialty))
+        {
+            errors["specialty"] = "La especialidad seleccionada no es válida";
+        }
+
+        return errors;
     }
 
     /// <summary>
