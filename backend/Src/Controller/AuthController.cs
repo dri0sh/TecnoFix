@@ -157,7 +157,8 @@ public class AuthController(IAuthService authService) : ControllerBase
         {
             return BadRequest(new
             {
-                message = result.Message
+                message = result.Message,
+                fieldErrors = result.FieldErrors
             });
         }
 

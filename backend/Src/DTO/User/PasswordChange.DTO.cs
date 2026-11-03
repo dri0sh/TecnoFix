@@ -40,4 +40,9 @@ public class PasswordChangeResponseDto
     /// Mensaje correspondiente al resultado de la operación.
     /// </summary>
     public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Contiene los errores asociados a campos específicos del formulario.
+    /// </summary>
+    public Dictionary<string, string> FieldErrors { get; set; } = [];
 }

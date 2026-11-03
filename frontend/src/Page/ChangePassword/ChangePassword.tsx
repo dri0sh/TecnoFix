@@ -92,7 +92,7 @@ export function ChangePassword() {
         try {
             const response = await ChangePasswordApi({currentPassword, newPassword, confirmNewPassword});
 
-            if (response.success) { setSuccessMessage(`${response.message}. Serás redirigido al inicio de sesión.`);
+            if (response.success) { setSuccessMessage(`${response.message}. Serás redirigido al inicio de sesión. Redirigiendo`);
 
                 setCurrentPassword("");
                 setNewPassword("");
@@ -156,6 +156,11 @@ export function ChangePassword() {
                 {successMessage && (
                     <p className="formPage__success" role="status">
                         {successMessage}
+                        <span className="formPage__loadingDots" aria-hidden="true">
+                            <span>.</span>
+                            <span>.</span>
+                            <span>.</span>
+                        </span>
                     </p>
                 )}
 

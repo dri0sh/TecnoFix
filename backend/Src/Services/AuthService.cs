@@ -351,14 +351,16 @@ public class AuthService : IAuthService
             };
         }
 
-        if (!BCrypt.Net.BCrypt.Verify(
-                request.CurrentPassword,
-                user.PasswordHash))
+        if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, user.PasswordHash))
         {
             return new PasswordChangeResponseDto
             {
                 Success = false,
-                Message = "La contraseña actual es incorrecta"
+                Message = "La contraseña actual es incorrecta",
+                FieldErrors = new Dictionary<string, string>
+                {
+                    ["currentPassword"] = "La contraseña actual es incorrecta"
+                }
             };
         }
 
@@ -369,7 +371,11 @@ public class AuthService : IAuthService
             return new PasswordChangeResponseDto
             {
                 Success = false,
-                Message = "La contraseña debe tener al menos 8 caracteres, una letra y un número"
+                Message = "La contraseña debe tener al menos 8 caracteres, una letra y un número",
+                FieldErrors = new Dictionary<string, string>
+                {
+                    ["newPassword"] = "La contraseña debe tener al menos 8 caracteres, una letra y un número"
+                }
             };
         }
 
@@ -378,7 +384,11 @@ public class AuthService : IAuthService
             return new PasswordChangeResponseDto
             {
                 Success = false,
-                Message = "Las contraseñas ingresadas no coinciden"
+                Message = "Las contraseñas ingresadas no coinciden",
+                FieldErrors = new Dictionary<string, string>
+                {
+                    ["confirmNewPassword"] = "Las contraseñas ingresadas no coinciden"
+                }
             };
         }
 
@@ -387,7 +397,13 @@ public class AuthService : IAuthService
             return new PasswordChangeResponseDto
             {
                 Success = false,
-                Message = "La nueva contraseña debe ser distinta de la actual"
+                Message =
+                    "La nueva contraseña debe ser distinta de la actual",
+                FieldErrors = new Dictionary<string, string>
+                {
+                    ["newPassword"] =
+                        "La nueva contraseña debe ser distinta de la actual"
+                }
             };
         }
 
