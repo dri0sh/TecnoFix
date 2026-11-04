@@ -23,6 +23,8 @@ builder.Services.AddDbContext<TecnoFixDbContext>(
 // Registro de los servicios de autenticación
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailSender, SendGridEmailSender>();
+// Servicio de órdenes de reparación (ORD-001)
+builder.Services.AddScoped<IRepairOrderService, RepairOrderService>();
 
 // Configuración para MVC
 builder.Services.AddControllers();

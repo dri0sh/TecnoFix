@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ChangePassword } from "./Page/ChangePassword/ChangePassword";
 import { RegisterTechnician } from "./Page/RegisterTechnician/RegisterTechnician";
+import { RegisterOrder } from "./Page/RegisterOrder/RegisterOrder";
 import { Login } from "./Page/Login/Login";
 import { RegisterClient } from "./Page/RegisterClient/RegisterClient";
 import { ProtectedRoute } from "./Components/ProtectedRoute";
@@ -60,6 +61,20 @@ function App() {
                             allowedRoles={["administrador"]}
                         >
                             <RegisterTechnician />
+                        </ProtectedRoute>
+                    }
+                />
+                
+                                <Route
+                    path="/register-order"
+                    element={
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "administrador",
+                                "tecnico"
+                            ]}
+                        >
+                            <RegisterOrder />
                         </ProtectedRoute>
                     }
                 />

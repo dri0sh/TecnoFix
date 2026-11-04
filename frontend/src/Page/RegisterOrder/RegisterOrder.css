@@ -1,0 +1,13 @@
+/* Estilos propios de registrar orden. El resto del formulario usa los mismos
+   estilos de registrar técnico, para mantener un único estilo visual (NF01). */
+
+/* Área de texto para la descripción de la falla */
+
+.formPage__textarea {
+  height: auto;
+  min-height: 7.5rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  line-height: 1.45;
+  resize: vertical;
+}

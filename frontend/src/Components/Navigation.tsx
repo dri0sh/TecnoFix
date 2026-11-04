@@ -42,6 +42,13 @@ export function Navigation() {
                     </Link>
                 )}
 
+
+                {(normalizedRole === "tecnico" || normalizedRole === "administrador") && (
+                    <Link to="/register-order">
+                        Registrar orden
+                    </Link>
+                )}
+
                 <button
                     type="button"
                     className="navigation__logout"
