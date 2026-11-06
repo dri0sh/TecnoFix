@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using TecnoFix.Src.DTO.Usuario;
-using TecnoFix.Src.Services;
+using TecnoFix.Src.DTO.User;
+using TecnoFix.Src.Services.Interfaces;
 
 namespace TecnoFix.Src.Controllers;
 /// <summary>
@@ -21,13 +21,13 @@ public class AuthController(IAuthService authService) : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto request)
     {
-        if (string.IsNullOrWhiteSpace(request.Correo) || string.IsNullOrWhiteSpace(request.Password))
+        if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
             return BadRequest(new { mensaje = "Debe completar correo y contraseña" });
         
         // Llamando al servicio de autenticación para validar las credenciales del usuario
         var resultado = await _authService.LoginAsync(request);
 
-        if (resultado is null || (string.IsNullOrEmpty(resultado.Name) && string.IsNullOrEmpty(resultado.Rol)))
+        if (resultado is null || !resultado.Success)
             return Unauthorized(new { mensaje = resultado?.Message ?? "Correo o contraseña incorrectos" });
 
         Response.Cookies.Append("access_token", resultado.Token, new CookieOptions
@@ -39,17 +39,20 @@ public class AuthController(IAuthService authService) : ControllerBase
         });
 
         return Ok(
-            new { usuario = resultado.Name,
-            rol = resultado.Rol
-        }); 
+             new
+            {
+        usuario = resultado.Email,
+        rol = resultado.Role,
+        mensaje = resultado.Message
+    });
     }
     
     // Registrando un nuevo cliente en el sistema
     [HttpPost("register")]
-public async Task<ActionResult<RegistrarClienteResponseDto>> RegistrarCliente(
-    [FromBody] RegistrarClienteRequestDto request)
+public async Task<ActionResult<ClientRegistrationResponseDto>> RegisterClient(
+    [FromBody] ClientRegistrationRequestDto request)
 {
-    var resultado = await _authService.RegistrarClienteAsync(request);
+    var resultado = await _authService.RegisterClientAsync(request);
 
     if (resultado is null)
     {
@@ -59,23 +62,17 @@ public async Task<ActionResult<RegistrarClienteResponseDto>> RegistrarCliente(
         });
     }
 
-    // Si el correo o RUT ya están registrados,
-    // informamos un conflicto con los datos existentes.
-    if (resultado.Mensaje.Contains("ya se encuentra registrado"))
+    if (resultado.Message.Contains("ya se encuentra registrado"))
     {
         return Conflict(resultado);
     }
 
-    // Si el RUT tiene un formato incorrecto o no es válido,
-    // informamos que los datos enviados no son correctos.
-    if (resultado.Mensaje.Contains("RUT"))
+    if (resultado.Message.Contains("RUT"))
     {
         return BadRequest(resultado);
     }
 
-    // Si el envío del correo falló, no se debe considerar
-    // exitoso el registro del cliente.
-    if (resultado.Mensaje.Contains("falló el envío del correo"))
+    if (resultado.Message.Contains("falló el envío del correo"))
     {
         return BadRequest(resultado);
     }
