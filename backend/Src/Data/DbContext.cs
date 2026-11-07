@@ -205,6 +205,12 @@ public class TecnoFixDbContext : DbContext
                 .HasForeignKey(order => order.RegisteredById)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Técnico responsable (opcional): se asigna en ORD-002 al abrir la orden para diagnosticar.
+            entity.HasOne(order => order.ResponsibleTechnician)
+                .WithMany()
+                .HasForeignKey(order => order.ResponsibleTechnicianId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Restrict: no se puede borrar un tipo de equipo con órdenes (ADM-001 solo lo deshabilita).
             entity.HasOne(order => order.EquipmentType)
                 .WithMany()

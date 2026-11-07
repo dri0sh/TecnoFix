@@ -65,6 +65,15 @@ public class RepairOrder
     public int RegisteredById { get; set; }
     public User RegisteredBy { get; set; } = default!;
 
+
+    /// <summary>
+    /// Técnico responsable de la orden: el que la abre para diagnosticarla.
+    /// Es nulo mientras la orden está en «Recibida» («Sin asignar») y, una vez asignado,
+    /// no cambia aunque otro técnico actualice el estado.
+    /// </summary>
+    public int? ResponsibleTechnicianId { get; set; }
+    public User? ResponsibleTechnician { get; set; }
+
     /// <summary>
     /// Bitácora de la orden: un evento por cada cambio de estado.
     /// </summary>

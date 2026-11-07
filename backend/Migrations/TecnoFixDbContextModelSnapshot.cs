@@ -129,6 +129,9 @@ namespace backend.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<int?>("ResponsibleTechnicianId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
@@ -148,6 +151,8 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.HasIndex("RegisteredById");
+
+                    b.HasIndex("ResponsibleTechnicianId");
 
                     b.ToTable("RepairOrders", (string)null);
                 });
@@ -272,11 +277,18 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TecnoFix.Src.Model.User", "ResponsibleTechnician")
+                        .WithMany()
+                        .HasForeignKey("ResponsibleTechnicianId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Client");
 
                     b.Navigation("EquipmentType");
 
                     b.Navigation("RegisteredBy");
+
+                    b.Navigation("ResponsibleTechnician");
                 });
 
             modelBuilder.Entity("TecnoFix.Src.Model.User", b =>
