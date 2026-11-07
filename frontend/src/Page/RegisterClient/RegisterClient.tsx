@@ -1,41 +1,43 @@
+
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { RegisterClient as RegisterClientApi } from "../../Api/Auth";
 import "./RegisterClient.css";
+import { ApiError } from "../../Api/Client";
 
 export function RegisterClient() {
     const [name, setName] = useState("");
     const [rut, setRut] = useState("");
     const [email, setEmail] = useState("");
     const [phoneNumber, setPhoneNumber] = useState("");
+
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     function ValidateForm(): boolean {
+        const errors: Record<string, string> = {};
+
         if (name.trim() === "") {
-            setErrorMessage("Debe completar el campo Nombre");
-            return false;
+            errors["name"] = "Debe completar el campo Nombre";
         }
 
         if (rut.trim() === "") {
-            setErrorMessage("Debe completar el campo RUT");
-            return false;
+            errors["rut"] = "Debe completar el campo RUT";
         }
 
         if (email.trim() === "") {
-            setErrorMessage(
-                "Debe completar el campo Correo electrónico"
-            );
-            return false;
+            errors["email"] = "Debe completar el campo Correo electrónico";
         }
 
         if (phoneNumber.trim() === "") {
-            setErrorMessage("Debe completar el campo Teléfono");
-            return false;
+            errors["phoneNumber"] = "Debe completar el campo Teléfono";
         }
 
-        return true;
+        setFieldErrors(errors);
+
+        return Object.keys(errors).length === 0;
     }
 
     async function HandleSubmit(event: FormEvent) {
@@ -43,6 +45,7 @@ export function RegisterClient() {
 
         setErrorMessage(null);
         setSuccessMessage(null);
+        setFieldErrors({});
 
         if (!ValidateForm()) {
             return;
@@ -65,10 +68,29 @@ export function RegisterClient() {
             setEmail("");
             setPhoneNumber("");
         } catch (error) {
-            if (error instanceof Error && !(error instanceof TypeError)) {
-                setErrorMessage(error.message);
+            if (error instanceof ApiError) {
+                const backendErrors = error.fieldErrors;
+
+                const mappedErrors: Record<string, string> = {
+                    name: backendErrors.Name ?? backendErrors.name ?? "",
+                    rut: backendErrors.Rut ?? backendErrors.rut ?? "",
+                    email: backendErrors.Correo ?? backendErrors.email ?? "",
+                    phoneNumber: backendErrors.Telefono ?? backendErrors.phoneNumber ?? ""
+                };
+
+                const filteredErrors = Object.fromEntries(
+                    Object.entries(mappedErrors).filter(([, value]) => value !== "")
+                );
+
+                setFieldErrors(filteredErrors);
+
+                if (Object.keys(filteredErrors).length === 0) {
+                    setErrorMessage(error.message);
+                }
             } else {
-                setErrorMessage("No se pudo conectar con el servidor. Intenta nuevamente.");
+                setErrorMessage(
+                    "No se pudo conectar con el servidor. Intenta nuevamente."
+                );
             }
         } finally {
             setIsLoading(false);
@@ -78,6 +100,7 @@ export function RegisterClient() {
     return (
         <div className="formPage">
             <main className="formPage__content">
+
                 <h1 className="formPage__title">
                     Crear Cuenta
                 </h1>
@@ -103,11 +126,10 @@ export function RegisterClient() {
                     className="formPage__form"
                     noValidate
                 >
+
+                    {/* Nombre */}
                     <div className="formPage__field">
-                        <label
-                            className="formPage__label"
-                            htmlFor="name"
-                        >
+                        <label className="formPage__label" htmlFor="name">
                             Nombre completo
                         </label>
 
@@ -116,19 +138,24 @@ export function RegisterClient() {
                             type="text"
                             className="formPage__input"
                             value={name}
-                            onChange={(event) =>
-                                setName(event.target.value)
-                            }
+                            onChange={(event) => {
+                                setName(event.target.value);
+                                setFieldErrors(prev => ({ ...prev, name: "" }));
+                            }}
                             placeholder="Ingresa tu nombre."
                             required
                         />
+
+                        {fieldErrors.name && (
+                            <p className="formPage__error" role="alert">
+                                {fieldErrors.name}
+                            </p>
+                        )}
                     </div>
 
+                    {/* RUT */}
                     <div className="formPage__field">
-                        <label
-                            className="formPage__label"
-                            htmlFor="rut"
-                        >
+                        <label className="formPage__label" htmlFor="rut">
                             RUT (sin puntos ni guion)
                         </label>
 
@@ -137,19 +164,24 @@ export function RegisterClient() {
                             type="text"
                             className="formPage__input"
                             value={rut}
-                            onChange={(event) =>
-                                setRut(event.target.value)
-                            }
+                            onChange={(event) => {
+                                setRut(event.target.value);
+                                setFieldErrors(prev => ({ ...prev, rut: "" }));
+                            }}
                             placeholder="12345678K"
                             required
                         />
+
+                        {fieldErrors.rut && (
+                            <p className="formPage__error" role="alert">
+                                {fieldErrors.rut}
+                            </p>
+                        )}
                     </div>
 
+                    {/* Correo electrónico */}
                     <div className="formPage__field">
-                        <label
-                            className="formPage__label"
-                            htmlFor="email"
-                        >
+                        <label className="formPage__label" htmlFor="email">
                             Correo electrónico
                         </label>
 
@@ -158,19 +190,24 @@ export function RegisterClient() {
                             type="email"
                             className="formPage__input"
                             value={email}
-                            onChange={(event) =>
-                                setEmail(event.target.value)
-                            }
+                            onChange={(event) => {
+                                setEmail(event.target.value);
+                                setFieldErrors(prev => ({ ...prev, email: "" }));
+                            }}
                             placeholder="correo@ejemplo.cl"
                             required
                         />
+
+                        {fieldErrors.email && (
+                            <p className="formPage__error" role="alert">
+                                {fieldErrors.email}
+                            </p>
+                        )}
                     </div>
 
+                    {/* Teléfono */}
                     <div className="formPage__field">
-                        <label
-                            className="formPage__label"
-                            htmlFor="phoneNumber"
-                        >
+                        <label className="formPage__label" htmlFor="phoneNumber">
                             Teléfono
                         </label>
 
@@ -179,12 +216,19 @@ export function RegisterClient() {
                             type="tel"
                             className="formPage__input"
                             value={phoneNumber}
-                            onChange={(event) =>
-                                setPhoneNumber(event.target.value)
-                            }
+                            onChange={(event) => {
+                                setPhoneNumber(event.target.value);
+                                setFieldErrors(prev => ({ ...prev, phoneNumber: "" }));
+                            }}
                             placeholder="+56 9 1234 5678"
                             required
                         />
+
+                        {fieldErrors.phoneNumber && (
+                            <p className="formPage__error" role="alert">
+                                {fieldErrors.phoneNumber}
+                            </p>
+                        )}
                     </div>
 
                     <button
@@ -192,10 +236,9 @@ export function RegisterClient() {
                         className="formPage__button"
                         disabled={isLoading}
                     >
-                        {isLoading
-                            ? "Creando cuenta..."
-                            : "Crear Cuenta"}
+                        {isLoading ? "Creando cuenta..." : "Crear Cuenta"}
                     </button>
+
                 </form>
 
                 <p className="formFooter">
@@ -204,6 +247,7 @@ export function RegisterClient() {
                         Iniciar Sesión
                     </Link>
                 </p>
+
             </main>
         </div>
     );
