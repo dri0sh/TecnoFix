@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using TecnoFix.Src.DTO.Order;
 using TecnoFix.Src.Services.Interfaces;
 
-namespace TecnoFix.Src.Controller;
+namespace TecnoFix.Src.Controllers;
 
 /// <summary>
 /// Controlador de las órdenes de reparación.
