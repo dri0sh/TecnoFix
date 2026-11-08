@@ -6,6 +6,7 @@ using System.Text;
 using TecnoFix.Src.Data;
 using TecnoFix.Src.Services;
 using TecnoFix.Src.Services.Interfaces;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +26,25 @@ builder.Services.AddScoped<IEmailSender, SendGridEmailSender>();
 builder.Services.AddScoped<IRepairOrderService, RepairOrderService>();
 
 // Configuración para MVC
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var fieldErrors = context.ModelState
+                .Where(entry => entry.Value?.Errors.Count > 0)
+                .ToDictionary(
+                    entry => entry.Key,
+                    entry => entry.Value!.Errors.First().ErrorMessage
+                );
+
+            return new BadRequestObjectResult(new
+            {
+                message = "Debe corregir los campos indicados.",
+                fieldErrors
+            });
+        };
+    });
 builder.Services.AddEndpointsApiExplorer();
 
 // Configuración de Swagger
