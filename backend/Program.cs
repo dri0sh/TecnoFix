@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,22 +14,22 @@ builder.Configuration.AddJsonFile(
     optional: true,
     reloadOnChange: true);
 
-builder.Services.AddOpenApi();
-
 // Conexión a la base de datos
 builder.Services.AddDbContext<TecnoFixDbContext>(
     options => options.UseNpgsql(
         builder.Configuration.GetConnectionString("TecnoFixConnection")));
 
-// Registro de los servicios de autenticación
+// Registro de servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailSender, SendGridEmailSender>();
-// Servicio de órdenes de reparación (ORD-001)
 builder.Services.AddScoped<IRepairOrderService, RepairOrderService>();
 
 // Configuración para MVC
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+// Configuración de Swagger
+builder.Services.AddSwaggerGen();
 
 // Configuración de CORS
 const string CORS_POLICY_NAME = "CorsPolicy";
@@ -48,7 +49,6 @@ builder.Services.AddCors(options =>
 // Configuración de autenticación mediante JWT
 builder.Services.AddAuthentication(options =>
 {
-    // Configura el esquema de autenticación predeterminado para JWT Bearer.
     options.DefaultAuthenticateScheme =
         JwtBearerDefaults.AuthenticationScheme;
 
@@ -57,18 +57,13 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    // Configura los parámetros de validación del token JWT.
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        // Habilita la validación del emisor, audiencia,
-        // tiempo de vida y clave de firma del token.
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
 
-        // Establece el emisor, audiencia y clave de firma
-        // válidos para la validación del token.
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
@@ -76,7 +71,7 @@ builder.Services.AddAuthentication(options =>
                 builder.Configuration["Jwt:SecretKey"]!))
     };
 
-    // Extrae el token JWT desde la cookie de autenticación.
+    // Extrae el token JWT desde la cookie de autenticación
     options.Events = new JwtBearerEvents
     {
         OnMessageReceived = context =>
@@ -96,12 +91,14 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Configura el pipeline de solicitudes HTTP.
+// Configuración de Swagger solo en desarrollo
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
+// Migraciones y datos iniciales
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<TecnoFixDbContext>();
@@ -110,6 +107,7 @@ using (var scope = app.Services.CreateScope())
     await DbSeeder.SeedAsync(context);
 }
 
+// Configuración del pipeline HTTP
 app.UseHttpsRedirection();
 app.UseCors(CORS_POLICY_NAME);
 

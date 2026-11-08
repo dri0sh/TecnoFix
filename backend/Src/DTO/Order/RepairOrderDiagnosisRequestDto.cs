@@ -1,4 +1,3 @@
-
 using System.ComponentModel.DataAnnotations;
 
 namespace TecnoFix.Src.DTO.Order;
@@ -27,6 +26,7 @@ public class RepairOrderDiagnosisRequestDto
     /// </summary>
     [Required(ErrorMessage = "Debe completar el campo del costo de mano de obra.")]
     [Range(typeof(decimal), "0", "9999999999.99",
+        ParseLimitsInInvariantCulture = true,
         ErrorMessage = "El costo ingresado no es válido")]
     public decimal? LaborCost { get; set; }
 
@@ -35,6 +35,7 @@ public class RepairOrderDiagnosisRequestDto
     /// </summary>
     [Required(ErrorMessage = "Debe completar el campo del costo de repuestos.")]
     [Range(typeof(decimal), "0", "9999999999.99",
+        ParseLimitsInInvariantCulture = true,
         ErrorMessage = "El costo ingresado no es válido")]
     public decimal? PartsCost { get; set; }
 }
