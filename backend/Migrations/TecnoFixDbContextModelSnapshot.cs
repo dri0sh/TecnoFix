@@ -115,8 +115,16 @@ namespace backend.Migrations
                     b.Property<int>("EquipmentTypeId")
                         .HasColumnType("integer");
 
+                    b.Property<decimal?>("LaborCost")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
                     b.Property<int>("OrderNumber")
                         .HasColumnType("integer");
+
+                    b.Property<decimal?>("PartsCost")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
 
                     b.Property<DateTime>("ReceivedAt")
                         .HasColumnType("timestamp with time zone");
@@ -140,6 +148,14 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TechnicalDiagnosis")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<decimal?>("TotalCost")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
 
                     b.HasKey("Id");
 

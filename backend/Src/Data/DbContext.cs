@@ -216,6 +216,23 @@ public class TecnoFixDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(order => order.EquipmentTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+                // Datos del diagnóstico y presupuesto (ORD-002).
+            entity.Property(order => order.TechnicalDiagnosis)
+                .HasColumnType("character varying(2000)")
+                .HasMaxLength(2000);
+
+            entity.Property(order => order.LaborCost)
+                .HasColumnType("numeric(12,2)")
+                .HasPrecision(12, 2);
+
+           entity.Property(order => order.PartsCost)
+                .HasColumnType("numeric(12,2)")
+                .HasPrecision(12, 2);
+
+            entity.Property(order => order.TotalCost)
+                .HasColumnType("numeric(12,2)")
+                .HasPrecision(12, 2);
         });
 
         // Configuración de la bitácora de las órdenes.
