@@ -22,7 +22,7 @@ public interface IRepairOrderService
         int orderId,
         int technicianId);
 
-    Task<bool> RegisterDiagnosisAndBudgetAsync(
-        RepairOrderDiagnosisRequestDto request,
-        int technicianId);
+    Task<RepairOrderDiagnosisResponseDto> RegisterDiagnosisAndBudgetAsync(
+    RepairOrderDiagnosisRequestDto request,
+    int technicianId);
 }

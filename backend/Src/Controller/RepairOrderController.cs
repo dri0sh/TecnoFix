@@ -107,35 +107,41 @@ public class RepairOrderController(IRepairOrderService repairOrderService) : Con
     /// <summary>
     /// Registra el diagnóstico técnico y el presupuesto de una orden.
     /// </summary>
-    [Authorize(Roles = "Tecnico,Administrador")]
-    [HttpPost("diagnosis/budget")]
-    public async Task<IActionResult> RegisterDiagnosisAndBudget(
-        [FromBody] RepairOrderDiagnosisRequestDto request)
+    
+[Authorize(Roles = "Tecnico,Administrador")]
+[HttpPost("diagnosis/budget")]
+public async Task<IActionResult> RegisterDiagnosisAndBudget(
+    [FromBody] RepairOrderDiagnosisRequestDto request)
+{
+    var userId = GetCurrentUserId();
+
+    if (userId is null)
     {
-        var userId = GetCurrentUserId();
-
-        if (userId is null)
+        return Unauthorized(new
         {
-            return Unauthorized(new { message = "No se pudo identificar al usuario autenticado" });
-        }
-
-        var success = await _repairOrderService.RegisterDiagnosisAndBudgetAsync(
-            request,
-            userId.Value);
-
-        if (!success)
-        {
-            return BadRequest(new
-            {
-                message = "No se pudo registrar el diagnóstico y presupuesto. Verifique los datos y el estado de la orden."
-            });
-        }
-
-        return Ok(new
-        {
-            message = "El diagnóstico y presupuesto se registraron correctamente."
+            message = "No se pudo identificar al usuario autenticado"
         });
     }
+
+    var result = await _repairOrderService.RegisterDiagnosisAndBudgetAsync(
+        request,
+        userId.Value);
+
+    if (!result.Success)
+    {
+        return BadRequest(new
+        {
+            message = result.Message,
+            fieldErrors = result.FieldErrors
+        });
+    }
+
+    return Ok(new
+    {
+        message = result.Message
+    });
+}
+
 
     /// <summary>
     /// Obtiene el id del usuario autenticado desde el token.
