@@ -220,4 +220,119 @@ public class RepairOrderService(TecnoFixDbContext context) : IRepairOrderService
     /// </summary>
     private static bool IsUniqueViolation(DbUpdateException ex) =>
         ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation };
+
+        /// <summary>
+    /// Obtiene las órdenes recibidas o en diagnóstico.
+    /// </summary>
+    public async Task<List<RepairOrderDiagnosisListDto>> GetOrdersForDiagnosisAsync()
+    {
+        return await _context.RepairOrders
+            .Where(order =>
+                order.Status == OrderStatus.Received ||
+                order.Status == OrderStatus.InDiagnosis)
+            .OrderBy(order => order.ReceivedAt)
+            .Select(order => new RepairOrderDiagnosisListDto
+            {
+                Id = order.Id,
+                OrderNumber = order.OrderNumber.ToString(),
+                ClientName = order.Client.Name,
+                EquipmentType = order.EquipmentType.Name,
+                BrandModel = order.BrandModel,
+                ReportedFault = order.ReportedFault,
+                ReceivedAt = order.ReceivedAt,
+                Status = order.Status.ToDisplayName()
+            })
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Cambia el estado de una orden a En diagnóstico.
+    /// </summary>
+    public async Task<bool> StartDiagnosisAsync(int orderId, int technicianId)
+    {
+        var order = await _context.RepairOrders
+            .FirstOrDefaultAsync(order => order.Id == orderId);
+
+        if (order == null ||
+            (order.Status != OrderStatus.Received &&
+             order.Status != OrderStatus.InDiagnosis))
+        {
+            return false;
+        }
+
+        if (order.Status == OrderStatus.InDiagnosis)
+        {
+            return true;
+        }
+
+        var previousStatus = order.Status;
+        var now = DateTime.UtcNow;
+
+        order.Status = OrderStatus.InDiagnosis;
+        order.ResponsibleTechnicianId = technicianId;
+
+        order.Logs.Add(new OrderLog
+        {
+            CreatedAt = now,
+            ResponsibleId = technicianId,
+            PreviousStatus = previousStatus,
+            NewStatus = OrderStatus.InDiagnosis,
+            Comment = "El técnico inició el diagnóstico de la orden."
+        });
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
+    /// <summary>
+    /// Registra el diagnóstico y presupuesto de una orden.
+    /// </summary>
+    public async Task<bool> RegisterDiagnosisAndBudgetAsync(
+        RepairOrderDiagnosisRequestDto request,
+        int technicianId)
+    {
+        var order = await _context.RepairOrders
+            .FirstOrDefaultAsync(order => order.Id == request.OrderId);
+
+        if (order == null || order.Status != OrderStatus.InDiagnosis)
+        {
+            return false;
+        }
+
+        var diagnosis = (request.TechnicalDiagnosis ?? string.Empty).Trim();
+
+        if (string.IsNullOrWhiteSpace(diagnosis) ||
+            request.LaborCost == null ||
+            request.PartsCost == null ||
+            request.LaborCost < 0 ||
+            request.PartsCost < 0)
+        {
+            return false;
+        }
+
+        var previousStatus = order.Status;
+        var now = DateTime.UtcNow;
+
+        order.TechnicalDiagnosis = diagnosis;
+        order.LaborCost = request.LaborCost.Value;
+        order.PartsCost = request.PartsCost.Value;
+        order.TotalCost = request.LaborCost.Value + request.PartsCost.Value;
+        order.Status = OrderStatus.Budgeted;
+        order.ResponsibleTechnicianId = technicianId;
+
+        order.Logs.Add(new OrderLog
+        {
+            CreatedAt = now,
+            ResponsibleId = technicianId,
+            PreviousStatus = previousStatus,
+            NewStatus = OrderStatus.Budgeted,
+            Comment = "Diagnóstico y presupuesto registrados. Total: " +
+                      order.TotalCost.Value.ToString("F2")
+        });
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
 }

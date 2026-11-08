@@ -78,4 +78,27 @@ public class RepairOrder
     /// Bitácora de la orden: un evento por cada cambio de estado.
     /// </summary>
     public ICollection<OrderLog> Logs { get; set; } = [];
+
+    /// <summary>
+    /// Diagnóstico técnico registrado por el técnico.
+    /// Queda nulo hasta que se realice el diagnóstico.
+    /// </summary>
+    public string? TechnicalDiagnosis { get; set; }
+
+    /// <summary>
+    /// Costo de mano de obra.
+    /// Queda nulo hasta que se registre el presupuesto.
+    /// </summary>
+    public decimal? LaborCost { get; set; }
+
+    /// <summary>
+    /// Costo de los repuestos.
+    /// Queda nulo hasta que se registre el presupuesto.
+    /// </summary>
+    public decimal? PartsCost { get; set; }
+
+    /// <summary>
+    /// Costo total: mano de obra más repuestos.
+    /// </summary>
+    public decimal? TotalCost { get; set; }
 }
