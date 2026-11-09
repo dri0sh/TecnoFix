@@ -14,8 +14,8 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const HOME_ROUTE = "/change-password";
 const REGISTER_ROUTE = "/register-client";
 
-// AJUSTAR: debe tener el mismo valor que ROLE_STORAGE_KEY de Navigation y ProtectedRoute
-const ROLE_STORAGE_KEY = "rol";
+
+const ROLE_STORAGE_KEY = "role";
 
 /** Mensaje para un campo obligatorio vacío. */
 function GetEmptyFieldMessage(fieldName: string): string {
