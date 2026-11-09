@@ -220,4 +220,171 @@ public class RepairOrderService(TecnoFixDbContext context) : IRepairOrderService
     /// </summary>
     private static bool IsUniqueViolation(DbUpdateException ex) =>
         ex.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation };
+
+        /// <summary>
+    /// Obtiene las órdenes recibidas o en diagnóstico.
+    /// </summary>
+    public async Task<List<RepairOrderDiagnosisListDto>> GetOrdersForDiagnosisAsync()
+    {
+        return await _context.RepairOrders
+            .Where(order =>
+                order.Status == OrderStatus.Received ||
+                order.Status == OrderStatus.InDiagnosis)
+            .OrderBy(order => order.ReceivedAt)
+            .Select(order => new RepairOrderDiagnosisListDto
+            {
+                Id = order.Id,
+                OrderNumber = order.OrderNumber.ToString(),
+                ClientName = order.Client.Name,
+                EquipmentType = order.EquipmentType.Name,
+                BrandModel = order.BrandModel,
+                ReportedFault = order.ReportedFault,
+                ReceivedAt = order.ReceivedAt,
+                Status = order.Status.ToDisplayName()
+            })
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Cambia el estado de una orden a En diagnóstico.
+    /// </summary>
+    
+    public async Task<bool> StartDiagnosisAsync(int orderId, int technicianId)
+    {
+    var order = await _context.RepairOrders
+        .FirstOrDefaultAsync(order => order.Id == orderId);
+
+    // Solo se pueden iniciar órdenes que estén recibidas.
+    if (order == null || order.Status != OrderStatus.Received)
+    {
+        return false;
+    }
+
+    var previousStatus = order.Status;
+    var now = DateTime.UtcNow;
+
+    // Actualizar estado y técnico responsable.
+    order.Status = OrderStatus.InDiagnosis;
+    order.ResponsibleTechnicianId = technicianId;
+
+    // Registrar el cambio en la bitácora.
+    order.Logs.Add(new OrderLog
+    {
+        CreatedAt = now,
+        ResponsibleId = technicianId,
+        PreviousStatus = previousStatus,
+        NewStatus = OrderStatus.InDiagnosis,
+        Comment = "El técnico inició el diagnóstico de la orden."
+    });
+
+    await _context.SaveChangesAsync();
+
+    return true;
+    }
+
+
+    /// <summary>
+    /// Registra el diagnóstico y presupuesto de una orden.
+    /// </summary>
+    
+public async Task<RepairOrderDiagnosisResponseDto> RegisterDiagnosisAndBudgetAsync(
+    RepairOrderDiagnosisRequestDto request,
+    int technicianId)
+{
+    var result = new RepairOrderDiagnosisResponseDto();
+
+    // Validar el diagnóstico técnico.
+    var diagnosis = (request.TechnicalDiagnosis ?? string.Empty).Trim();
+
+    if (string.IsNullOrWhiteSpace(diagnosis))
+    {
+        result.FieldErrors["technicalDiagnosis"] =
+            "Debe completar el campo del diagnóstico técnico.";
+    }
+
+    // Validar costo de mano de obra.
+    if (request.LaborCost == null)
+    {
+        result.FieldErrors["laborCost"] =
+            "Debe completar el campo del costo de mano de obra.";
+    }
+    else if (request.LaborCost < 0)
+    {
+        result.FieldErrors["laborCost"] = "El costo ingresado no es válido";
+    }
+
+    // Validar costo de repuestos.
+    if (request.PartsCost == null)
+    {
+        result.FieldErrors["partsCost"] =
+            "Debe completar el campo del costo de repuestos.";
+    }
+    else if (request.PartsCost < 0)
+    {
+        result.FieldErrors["partsCost"] = "El costo ingresado no es válido";
+    }
+
+    if (result.FieldErrors.Count > 0)
+    {
+        result.Success = false;
+        result.Message = result.FieldErrors.Values.First();
+        return result;
+    }
+
+    var order = await _context.RepairOrders
+        .FirstOrDefaultAsync(order => order.Id == request.OrderId);
+
+    if (order == null)
+    {
+        result.Success = false;
+        result.Message = "La orden seleccionada no existe.";
+        return result;
+    }
+
+    if (order.Status != OrderStatus.InDiagnosis)
+    {
+        result.Success = false;
+        result.Message = "La orden debe estar en diagnóstico para registrar el presupuesto.";
+        return result;
+    }
+
+    // Calcular y validar el costo total.
+    var totalCost = request.LaborCost!.Value + request.PartsCost!.Value;
+
+    if (totalCost > 9999999999.99m)
+    {
+        result.Success = false;
+        result.Message = "El costo ingresado no es válido";
+        result.FieldErrors["totalCost"] = "El costo ingresado no es válido";
+        return result;
+    }
+
+    var previousStatus = order.Status;
+    var now = DateTime.UtcNow;
+
+    order.TechnicalDiagnosis = diagnosis;
+    order.LaborCost = request.LaborCost.Value;
+    order.PartsCost = request.PartsCost.Value;
+    order.TotalCost = totalCost;
+    order.Status = OrderStatus.Budgeted;
+    order.ResponsibleTechnicianId = technicianId;
+
+    // Registrar el evento en la bitácora.
+    order.Logs.Add(new OrderLog
+    {
+        CreatedAt = now,
+        ResponsibleId = technicianId,
+        PreviousStatus = previousStatus,
+        NewStatus = OrderStatus.Budgeted,
+        Comment = "Diagnóstico y presupuesto registrados. Total: " +
+                  totalCost.ToString("F2")
+    });
+
+    await _context.SaveChangesAsync();
+
+    result.Success = true;
+    result.Message = "El diagnóstico y presupuesto se registraron correctamente.";
+
+    return result;
+}
 }
