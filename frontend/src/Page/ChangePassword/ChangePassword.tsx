@@ -137,7 +137,7 @@ export function ChangePassword() {
     }
 
     return (
-        <div className="formPage">
+        <div className="formPage changePasswordPage">
             <main className="formPage__content">
                 <h1 className="formPage__title">
                     Cambiar contraseña

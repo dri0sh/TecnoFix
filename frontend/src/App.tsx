@@ -7,6 +7,7 @@ import { RegisterClient } from "./Page/RegisterClient/RegisterClient";
 import { ProtectedRoute } from "./Components/ProtectedRoute";
 import { AccessDenied } from "./Page/AccessDenied/AccessDenied"
 import { Navigation } from "./Components/Navigation";
+import { Diagnosis } from "./Page/Diagnosis/Diagnosis";
 
 function App() {
     return (
@@ -93,6 +94,14 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="/diagnosis"
+                    element={
+                        <ProtectedRoute allowedRoles={["administrador", "tecnico"]}>
+                        <Diagnosis />
+                    </ProtectedRoute>
+            }
+        />
             </Routes>
         </BrowserRouter>
     );

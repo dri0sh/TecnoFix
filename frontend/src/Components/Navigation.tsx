@@ -48,6 +48,10 @@ export function Navigation() {
                         Registrar orden
                     </Link>
                 )}
+                
+                {(normalizedRole === "tecnico" || normalizedRole === "administrador") && (
+                     <Link to="/diagnosis">Diagnóstico y presupuesto</Link>
+            )}
 
                 <button
                     type="button"
