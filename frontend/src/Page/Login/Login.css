@@ -1,10 +1,15 @@
-/* USU-001 · Iniciar sesión · Estilos de la vista.
-   La identidad visual (colores) es provisoria: se acuerda con el cliente (NF01).
-   Las variables están en un solo lugar para cambiar los colores fácilmente. */
+/* Estilos de la vista de inicio de sesión (USU-001).
+   Todo está acotado a .loginPage para no afectar a otras páginas.
+   La identidad visual (colores) es provisoria: se acuerda con el cliente (NF01). */
+
+/* Fondo de la página. Si el cliente no quiere fondo, usar: transparent o #ffffff */
+:root {
+  --login-page-background: #f7f7fc;
+}
 
 .loginPage {
   --primary-color: #3a35e0;
-  --panel-color: #9b98ff;
+  --primary-soft-color: #ecebff;
   --text-color: #111111;
   --muted-text-color: #6b6b78;
   --border-color: #2b2b33;
@@ -13,13 +18,14 @@
   --font-family: "Lato", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 
   display: flex;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   min-height: 100vh;
-  gap: 2.5rem;
-  padding: 1.75rem;
+  padding: 1.5rem;
   font-family: var(--font-family);
   color: var(--text-color);
-  background: var(--background-color);
+  background: var(--login-page-background);
   text-align: left;
 }
 
@@ -29,64 +35,109 @@
   box-sizing: border-box;
 }
 
-.loginPage .formColumn {
-  flex: 1;
+/* Tarjeta blanca */
+
+.loginPage__card {
+  width: 100%;
+  max-width: 28rem;
+  padding: 2.5rem 2.25rem;
+  background: var(--background-color);
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(58, 53, 224, 0.08), 0 2px 6px rgba(17, 17, 17, 0.05);
+}
+
+/* Marca */
+
+.loginPage__brand {
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
 }
 
-.loginPage .content {
-  width: 100%;
-  max-width: 34rem;
-  margin: auto 0;
+.loginPage__icon {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 12px;
+  color: var(--primary-color);
+  background: var(--primary-soft-color);
 }
 
-.loginPage h1 {
-  margin: 0 0 0.6rem;
-  font-size: clamp(2.2rem, 4.2vw, 3.3rem);
+.loginPage__name {
+  font-size: 1.4rem;
   font-weight: 900;
-  line-height: 1.05;
+  letter-spacing: 0.01em;
 }
 
-.loginPage .subtitle {
-  margin: 0 0 2.2rem;
-  font-size: 1.15rem;
+/* Título y subtítulo */
+
+.loginPage__title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.8rem, 5vw, 2.3rem);
+  font-weight: 900;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.loginPage__subtitle {
+  margin: 0 0 2rem;
+  font-size: 1.05rem;
   color: var(--muted-text-color);
+  text-align: center;
 }
 
-/* Campo con la etiqueta sobre el borde */
-.loginPage .field {
+/* Mensaje de error general */
+
+.loginPage__error {
+  margin: 0 0 1.6rem;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--error-color);
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--error-color);
+}
+
+/* Campo con etiqueta flotante sobre el borde (diseño original) */
+
+.loginPage__field {
   position: relative;
   margin-bottom: 1.9rem;
 }
 
-.loginPage .field label {
+.loginPage__label {
   position: absolute;
   top: -0.7rem;
   left: 1rem;
   padding: 0 0.35rem;
-  background: var(--background-color);
   font-size: 1rem;
   font-weight: 600;
+  background: var(--background-color);
 }
 
-.loginPage .inputContainer {
+.loginPage__inputWrapper {
   display: flex;
   align-items: center;
   border: 1.5px solid var(--border-color);
   border-radius: 14px;
 }
 
-.loginPage .inputContainer:focus-within {
+.loginPage__inputWrapper:focus-within {
   outline: 3px solid var(--primary-color);
   outline-offset: 2px;
 }
 
-.loginPage .inputContainer.invalid {
+/* Campo con error: borde en el color de error (NF01) */
+
+.loginPage__inputWrapper--invalid {
   border-color: var(--error-color);
 }
 
-.loginPage input {
+.loginPage__input {
   flex: 1;
   min-width: 0;
   height: 3.6rem;
@@ -98,101 +149,93 @@
   border: 0;
 }
 
-.loginPage input:focus {
+.loginPage__input:focus {
   outline: none;
 }
 
-.loginPage input::placeholder {
+.loginPage__input::placeholder {
   color: var(--muted-text-color);
 }
 
-.loginPage .fieldActions {
+.loginPage__actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding-right: 0.9rem;
 }
 
-.loginPage .showPassword {
-  background: none;
-  border: 0;
+.loginPage__toggle {
   padding: 0.3rem;
-  cursor: pointer;
   font: inherit;
   font-size: 0.85rem;
   color: var(--muted-text-color);
+  background: none;
+  border: 0;
+  cursor: pointer;
 }
 
-/* Mensajes de error (NF01) */
-.loginPage .errorMessage {
+/* Mensaje de error bajo cada campo, en #f56558 (NF01) */
+
+.loginPage__fieldError {
   margin: 0.45rem 0 0 0.4rem;
   font-size: 0.9rem;
   font-weight: 700;
   color: var(--error-color);
 }
 
-.loginPage .errorMessage:empty {
-  display: none;
-}
-
-.loginPage #generalError {
-  margin: 0 0 1.6rem;
-  padding: 0.8rem 1rem;
-  border: 1.5px solid var(--error-color);
-  border-radius: 14px;
-}
-
-.loginPage #generalError:empty {
-  display: none;
-}
-
 /* Ayuda en línea tipo tooltip (NF03) */
-.loginPage .help {
+
+.loginPage__help {
   position: relative;
   display: flex;
 }
 
-.loginPage .helpButton {
+.loginPage__helpButton {
   width: 1.3rem;
   height: 1.3rem;
   padding: 0;
-  border: 1.5px solid var(--muted-text-color);
-  border-radius: 50%;
-  background: none;
-  color: var(--muted-text-color);
   font-size: 0.75rem;
   font-weight: 700;
   line-height: 1;
+  color: var(--muted-text-color);
+  background: none;
+  border: 1.5px solid var(--muted-text-color);
+  border-radius: 50%;
   cursor: help;
 }
 
-.loginPage .helpText {
+.loginPage__helpText {
   position: absolute;
   right: -0.5rem;
   bottom: calc(100% + 0.55rem);
+  z-index: 1;
   width: 15rem;
+  max-width: 70vw;
   padding: 0.6rem 0.8rem;
-  background: #1c1c24;
-  color: var(--background-color);
-  border-radius: 8px;
   font-size: 0.82rem;
-  line-height: 1.4;
   font-weight: 400;
+  line-height: 1.4;
+  color: var(--background-color);
+  background: #1c1c24;
+  border-radius: 8px;
   visibility: hidden;
   opacity: 0;
   transition: opacity 0.12s;
 }
 
-.loginPage .help:hover .helpText,
-.loginPage .help:focus-within .helpText {
+.loginPage__help:hover .loginPage__helpText,
+.loginPage__help:focus-within .loginPage__helpText {
   visibility: visible;
   opacity: 1;
 }
 
-.loginPage .primaryButton {
+/* Botón principal */
+
+.loginPage__button {
   width: 100%;
   height: 3.6rem;
   margin-top: 0.4rem;
+  padding: 0 1rem;
   font: inherit;
   font-size: 1.15rem;
   font-weight: 700;
@@ -202,68 +245,61 @@
   border: 0;
   border-radius: 14px;
   cursor: pointer;
+  transition: filter 0.12s, opacity 0.12s;
 }
 
-.loginPage .primaryButton:hover {
+.loginPage__button:hover {
   filter: brightness(1.12);
 }
 
-.loginPage .primaryButton:disabled {
+.loginPage__button:disabled {
   opacity: 0.65;
   cursor: progress;
 }
 
-.loginPage .primaryButton:focus-visible {
+.loginPage__button:focus-visible {
   outline: 3px solid var(--primary-color);
   outline-offset: 2px;
 }
 
-.loginPage .formFooter {
+/* Pie con enlace de registro */
+
+.loginPage__footer {
   margin: 1.8rem 0 0;
-  text-align: center;
   font-size: 1.05rem;
   color: var(--muted-text-color);
-}
-
-.loginPage .formFooter a {
-  color: var(--primary-color);
-  font-weight: 700;
-}
-
-/* Columna derecha: panel ilustrado */
-.loginPage .panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 2rem 2.5rem;
-  border-radius: 22px;
-  background: var(--panel-color);
-  color: var(--background-color);
-}
-
-.loginPage .panel p {
-  max-width: 24rem;
   text-align: center;
-  font-size: 1.35rem;
-  font-style: italic;
-  line-height: 1.4;
 }
 
-@media (max-width: 860px) {
+.loginPage__footer a {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* Adaptación para pantallas pequeñas */
+
+@media (max-width: 480px) {
   .loginPage {
-    flex-direction: column;
-    padding: 1.25rem;
+    align-items: flex-start;
+    padding: 1rem;
   }
 
-  .loginPage .panel {
-    display: none;
+  .loginPage__card {
+    margin-top: 1rem;
+    padding: 1.75rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .loginPage__footer {
+    font-size: 1rem;
   }
 }
+
+/* Accesibilidad */
 
 @media (prefers-reduced-motion: reduce) {
-  .loginPage .helpText {
+  .loginPage__helpText,
+  .loginPage__button {
     transition: none;
   }
 }
