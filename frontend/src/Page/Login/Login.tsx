@@ -92,87 +92,91 @@ export function Login() {
         }
     }
 
-    return (
-        <div className="paginaLogin">
-            <main className="columnaFormulario">
-                <div className="contenido">
-                    <h1>Iniciar sesión</h1>
-                    <p className="subtitulo">Ingresa con tu correo electrónico y tu contraseña.</p>
-
-                    {/* Error general (credenciales incorrectas) */}
-                    <p id="errorGeneral" className="mensajeError" role="alert">{errorGeneral}</p>
-
-                    <form onSubmit={manejarEnvio} noValidate>
-                        <div className="campo">
-                            <label htmlFor="correo">Correo electrónico</label>
-                            <div className={"entradaContenedor" + (errorCorreo ? " invalido" : "")}>
-                                <input
-                                    id="correo"
-                                    name="correo"
-                                    type="email"
-                                    autoComplete="username"
-                                    placeholder="usuario@correo.cl"
-                                    value={correo}
-                                    onChange={(e) => setCorreo(e.target.value)}
-                                />
-                                <div className="accionesCampo">
-                                    <span className="ayuda">
-                                        <button type="button" className="ayudaBoton" aria-describedby="ayudaCorreo" aria-label="Ayuda: correo electrónico">?</button>
-                                        <span id="ayudaCorreo" className="ayudaTexto" role="tooltip">
-                                            Es el correo con el que te registraste, por ejemplo usuario@correo.cl.
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                            <p className="mensajeError" role="alert">{errorCorreo}</p>
-                        </div>
-
-                        <div className="campo">
-                            <label htmlFor="contrasena">Contraseña</label>
-                            <div className={"entradaContenedor" + (errorContrasena ? " invalido" : "")}>
-                                <input
-                                    id="contrasena"
-                                    name="contrasena"
-                                    type={verContrasena ? "text" : "password"}
-                                    autoComplete="current-password"
-                                    placeholder="Ingresa tu contraseña"
-                                    value={contrasena}
-                                    onChange={(e) => setContrasena(e.target.value)}
-                                />
-                                <div className="accionesCampo">
-                                    <button
-                                        type="button"
-                                        className="verContrasena"
-                                        aria-pressed={verContrasena}
-                                        onClick={() => setVerContrasena(!verContrasena)}
-                                    >
-                                        {verContrasena ? "Ocultar" : "Ver"}
-                                    </button>
-                                    <span className="ayuda">
-                                        <button type="button" className="ayudaBoton" aria-describedby="ayudaContrasena" aria-label="Ayuda: contraseña">?</button>
-                                        <span id="ayudaContrasena" className="ayudaTexto" role="tooltip">
-                                            Si es tu primer ingreso, usa la contraseña temporal que te llegó por correo.
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-                            <p className="mensajeError" role="alert">{errorContrasena}</p>
-                        </div>
-
-                        <button type="submit" className="botonPrincipal" disabled={cargando}>
-                            {cargando ? "Ingresando..." : "Iniciar sesión"}
-                        </button>
-                    </form>
-
-                    {/* Enlace a USU-002 (registro de cliente). Ruta provisoria. */}
-                    <p className="pieFormulario">¿No tienes cuenta? <Link to="/registro-cliente">Regístrate</Link></p>
+        return (
+        <main className="login-pagina">
+            <section className="login-tarjeta">
+                {/* Marca: ícono de servicio técnico + nombre */}
+                <div className="login-marca">
+                    <span className="login-icono" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                        </svg>
+                    </span>
+                    <span className="login-nombre">TecnoFix</span>
                 </div>
-            </main>
 
-            <aside className="panel" aria-hidden="true">
-                {/* Espacio reservado para una foto o ilustración real, a definir con el cliente (NF01) */}
-                <p>Sigue el estado de tu reparación paso a paso con TecnoFix.</p>
-            </aside>
-        </div>
+                <h1>Iniciar sesión</h1>
+                <p className="subtitulo">Ingresa con tu correo electrónico y tu contraseña.</p>
+
+                {/* Error general (credenciales incorrectas) */}
+                <p id="errorGeneral" className="mensajeError" role="alert">{errorGeneral}</p>
+
+                <form onSubmit={manejarEnvio} noValidate>
+                    <div className="campo">
+                        <label htmlFor="correo">Correo electrónico</label>
+                        <div className={"entradaContenedor" + (errorCorreo ? " invalido" : "")}>
+                            <input
+                                id="correo"
+                                name="correo"
+                                type="email"
+                                autoComplete="username"
+                                placeholder="usuario@correo.cl"
+                                value={correo}
+                                onChange={(e) => setCorreo(e.target.value)}
+                            />
+                            <div className="accionesCampo">
+                                <span className="ayuda">
+                                    <button type="button" className="ayudaBoton" aria-describedby="ayudaCorreo" aria-label="Ayuda: correo electrónico">?</button>
+                                    <span id="ayudaCorreo" className="ayudaTexto" role="tooltip">
+                                        Es el correo con el que te registraste, por ejemplo usuario@correo.cl.
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <p className="mensajeError" role="alert">{errorCorreo}</p>
+                    </div>
+
+                    <div className="campo">
+                        <label htmlFor="contrasena">Contraseña</label>
+                        <div className={"entradaContenedor" + (errorContrasena ? " invalido" : "")}>
+                            <input
+                                id="contrasena"
+                                name="contrasena"
+                                type={verContrasena ? "text" : "password"}
+                                autoComplete="current-password"
+                                placeholder="Ingresa tu contraseña"
+                                value={contrasena}
+                                onChange={(e) => setContrasena(e.target.value)}
+                            />
+                            <div className="accionesCampo">
+                                <button
+                                    type="button"
+                                    className="verContrasena"
+                                    aria-pressed={verContrasena}
+                                    onClick={() => setVerContrasena(!verContrasena)}
+                                >
+                                    {verContrasena ? "Ocultar" : "Ver"}
+                                </button>
+                                <span className="ayuda">
+                                    <button type="button" className="ayudaBoton" aria-describedby="ayudaContrasena" aria-label="Ayuda: contraseña">?</button>
+                                    <span id="ayudaContrasena" className="ayudaTexto" role="tooltip">
+                                        Si es tu primer ingreso, usa la contraseña temporal que te llegó por correo.
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+                        <p className="mensajeError" role="alert">{errorContrasena}</p>
+                    </div>
+
+                    <button type="submit" className="botonPrincipal" disabled={cargando}>
+                        {cargando ? "Ingresando..." : "Iniciar sesión"}
+                    </button>
+                </form>
+
+                {/* Enlace a USU-002 (registro de cliente). Ruta provisoria. */}
+                <p className="pieFormulario">¿No tienes cuenta? <Link to="/registro-cliente">Regístrate</Link></p>
+            </section>
+        </main>
     );
 }
