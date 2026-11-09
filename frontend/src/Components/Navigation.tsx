@@ -37,9 +37,15 @@ export function Navigation() {
                 )}
 
                 {normalizedRole === "administrador" && (
-                    <Link to="/register-technician">
-                        Registrar Técnico
-                    </Link>
+                    <>
+                        <Link to="/register-technician">
+                            Registrar Técnico
+                        </Link>
+
+                        <Link to="/equipment-types">
+                            Tipos de equipo
+                        </Link>
+                    </>    
                 )}
 
 

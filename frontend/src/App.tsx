@@ -7,6 +7,7 @@ import { RegisterClient } from "./Page/RegisterClient/RegisterClient";
 import { ProtectedRoute } from "./Components/ProtectedRoute";
 import { AccessDenied } from "./Page/AccessDenied/AccessDenied"
 import { Navigation } from "./Components/Navigation";
+import { EquipmentTypes } from "./Page/EquipmentTypes/EquipmentTypes";
 
 function App() {
     return (
@@ -90,6 +91,16 @@ function App() {
                             ]}
                         >
                             <AccessDenied />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/equipment-types"
+                    element={
+                        <ProtectedRoute
+                            allowedRoles={["administrador"]}
+                        >
+                            <EquipmentTypes />
                         </ProtectedRoute>
                     }
                 />
