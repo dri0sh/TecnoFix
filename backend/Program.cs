@@ -25,6 +25,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailSender, SendGridEmailSender>();
 // Servicio de órdenes de reparación (ORD-001)
 builder.Services.AddScoped<IRepairOrderService, RepairOrderService>();
+// Servicio de gestión del catálogo de tipos de equipo (ADM-001)
+builder.Services.AddScoped<IEquipmentTypeService, EquipmentTypeService>();
 
 // Configuración para MVC
 builder.Services.AddControllers();
