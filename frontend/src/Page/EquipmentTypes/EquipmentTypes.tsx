@@ -6,21 +6,18 @@ import {
     UpdateEquipmentType
 } from "../../Api/EquipmentType";
 import { ApiError } from "../../Api/Client";
+import {
+    ConfirmAction,
+    ShowError,
+    ShowSuccessToast
+} from "../../Utils/Alert";
 import type { EquipmentTypeDto } from "../../Types/EquipmentType";
-import { ConfirmDialog } from "../../Components/ConfirmDialog/ConfirmDialog";
 import "../RegisterTechnician/RegisterTechnician.css";
 import "./EquipmentTypes.css";
 
 type EquipmentTypeField = "name";
 
 type FieldErrors = Partial<Record<EquipmentTypeField, string>>;
-
-type ConfirmAction =
-    | "create"
-    | "update"
-    | "enable"
-    | "disable"
-    | null;
 
 const CONNECTION_ERROR_MESSAGE = "No se pudo conectar con el servidor. Intenta nuevamente.";
 
@@ -37,14 +34,8 @@ export function EquipmentTypes() {
 
     const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
-
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
-
-    const [confirmAction, setConfirmAction] = useState<ConfirmAction>(null);
-
-    const [selectedType, setSelectedType] = useState<EquipmentTypeDto | null>(null);
 
     useEffect(() => {LoadEquipmentTypes();}, []);
 
@@ -83,7 +74,6 @@ export function EquipmentTypes() {
     function HandleNewType() {
         ResetForm();
         setErrorMessage(null);
-        setSuccessMessage(null);
     }
 
     /**
@@ -96,7 +86,6 @@ export function EquipmentTypes() {
 
         setFieldErrors({});
         setErrorMessage(null);
-        setSuccessMessage(null);
     }
 
     /**
@@ -110,14 +99,14 @@ export function EquipmentTypes() {
     /**
      * Valida el formulario y solicita confirmación antes de guardar.
      */
-    function HandleSubmit(event: FormEvent) {
+    async function HandleSubmit(event: FormEvent) {
         event.preventDefault();
 
         setFieldErrors({});
         setErrorMessage(null);
-        setSuccessMessage(null);
 
         const cleanName = name.trim();
+        const cleanDescription = description.trim();
 
         const errors = ValidateForm(cleanName);
 
@@ -126,69 +115,48 @@ export function EquipmentTypes() {
             return;
         }
 
-        setConfirmAction(editingId === null ? "create" : "update");
-    }
+        const isEditing = editingId !== null;
 
-    /**
-     * Solicita confirmación para cambiar el estado de un tipo.
-     */
-    function HandleStatusChange(type: EquipmentTypeDto) {
-        setSelectedType(type);
-        setErrorMessage(null);
-        setSuccessMessage(null);
+        const confirmed = await ConfirmAction(
+            isEditing ? "Se actualizará el tipo de equipo con los siguientes datos:"
+                : "Se registrará el tipo de equipo con los siguientes datos:",
+            {
+                "Nombre": cleanName,
+                "Descripción": cleanDescription || "No informada"
+            }
+        );
 
-        setConfirmAction(type.isEnabled ? "disable" : "enable");
-    }
-
-    /**
-     * Ejecuta la operación previamente confirmada.
-     */
-    async function HandleConfirm() {
-        if (!confirmAction) return;
-
+        if (!confirmed) {
+            return;
+        }
+    
         setIsSaving(true);
-        setErrorMessage(null);
-        setSuccessMessage(null);
 
         try {
-            if (confirmAction === "create") {
+            if (editingId === null) {
                 const response = await CreateEquipmentType({
-                    name: name.trim(),
-                    description: description.trim() || null
+                    name: cleanName,
+                    description: cleanDescription || null
                 });
-
-                setSuccessMessage(response.message || "Tipo de equipo registrado correctamente.");
 
                 ResetForm();
                 await LoadEquipmentTypes();
-            }
 
-            if (confirmAction === "update" && editingId !== null) {
-                const response = await UpdateEquipmentType(editingId, {
-                    name: name.trim(),
-                    description: description.trim() || null
-                });
-
-                setSuccessMessage(response.message || "Tipo de equipo actualizado correctamente.");
-
-                ResetForm();
-                await LoadEquipmentTypes();
-            }
-
-            if ((confirmAction === "enable" || confirmAction === "disable") && selectedType !== null) {
-                const isEnabled = confirmAction === "enable";
-
-                const response = await SetEquipmentTypeStatus(selectedType.id, { isEnabled });
-
-                setSuccessMessage(
-                    response.message ||
-                    (
-                        isEnabled ? "Tipo de equipo habilitado correctamente." : "Tipo de equipo deshabilitado correctamente."
-                    )
+                void ShowSuccessToast(
+                    response.message || "Tipo de equipo registrado correctamente."
                 );
+            } else {
+                const response = await UpdateEquipmentType(editingId, {
+                    name: cleanName,
+                    description: cleanDescription || null
+                });
 
-                setSelectedType(null);
+                ResetForm();
                 await LoadEquipmentTypes();
+
+                void ShowSuccessToast(
+                    response.message || "Tipo de equipo actualizado correctamente."
+                );
             }
         } catch (error) {
             if (
@@ -197,22 +165,56 @@ export function EquipmentTypes() {
             ) {
                 setFieldErrors(error.fieldErrors as FieldErrors);
             } else {
-                setErrorMessage(GetErrorMessage(error));
+                await ShowError(GetErrorMessage(error));
             }
         } finally {
             setIsSaving(false);
-            setConfirmAction(null);
         }
     }
 
     /**
-     * Cancela cualquier confirmación pendiente.
+     * Solicita confirmación para cambiar el estado de un tipo.
      */
-    function HandleCancelConfirmation() {
-        if (isSaving) return;
+    async function HandleStatusChange(type: EquipmentTypeDto) {
+        const isEnabling = !type.isEnabled;
+        const action = isEnabling ? "habilitar" : "deshabilitar";
 
-        setConfirmAction(null);
-        setSelectedType(null);
+        setErrorMessage(null);
+
+        const confirmed = await ConfirmAction(`Se procederá a ${action} el tipo de equipo "${type.name}".`,
+        {
+            "Tipo de equipo": type.name,
+            "Estado actual": type.isEnabled ? "Habilitado" : "Deshabilitado"
+        });
+
+        if (!confirmed) {
+            return;
+        }
+
+        setIsSaving(true);
+
+        try {
+            const response = await SetEquipmentTypeStatus(
+                type.id,
+                {
+                    isEnabled: isEnabling
+                }
+            );
+
+            await LoadEquipmentTypes();
+
+            void ShowSuccessToast(
+                response.message ||
+                (
+                    isEnabling ? "Tipo de equipo habilitado correctamente."
+                    : "Tipo de equipo deshabilitado correctamente."
+                )
+            );
+        } catch (error) {
+            await ShowError(GetErrorMessage(error));
+        } finally {
+            setIsSaving(false);
+        }
     }
 
     /**
@@ -228,59 +230,6 @@ export function EquipmentTypes() {
     /** Clase del campo según su estado de validación. */
     function InputClass(field: EquipmentTypeField): string {
         return ("formPage__input" + (fieldErrors[field] ? " formPage__input--invalid" : ""));
-    }
-
-    /** Obtiene el título de la confirmación actual. */
-    function GetConfirmationTitle(): string {
-        switch (confirmAction) {
-            case "create":
-                return "Registrar tipo de equipo";
-            case "update":
-                return "Guardar cambios";
-            case "enable":
-                return "Habilitar tipo de equipo";
-            case "disable":
-                return "Deshabilitar tipo de equipo";
-            default:
-                return "";
-        }
-    }
-
-    /** Obtiene el mensaje de la confirmación actual. */
-    function GetConfirmationMessage(): string {
-        if (confirmAction === "create") {
-            return `¿Estás seguro de que deseas registrar el tipo de equipo "${name.trim()}"?`;
-        }
-
-        if (confirmAction === "update") {
-            return `¿Estás seguro de que deseas guardar los cambios del tipo de equipo "${name.trim()}"?`;
-        }
-
-        if (
-            (confirmAction === "enable" || confirmAction === "disable") && selectedType !== null) 
-            {
-            const action = confirmAction === "enable" ? "habilitar" : "deshabilitar";
-
-            return `¿Estás seguro de que deseas ${action} el tipo de equipo "${selectedType.name}"?`;
-        }
-
-        return "";
-    }
-
-    /** Texto del botón de confirmación. */
-    function GetConfirmationButtonText(): string {
-        switch (confirmAction) {
-            case "create":
-                return "Registrar";
-            case "update":
-                return "Guardar cambios";
-            case "enable":
-                return "Habilitar";
-            case "disable":
-                return "Deshabilitar";
-            default:
-                return "Confirmar";
-        }
     }
 
     return (
@@ -313,12 +262,6 @@ export function EquipmentTypes() {
                 {errorMessage && (
                     <p className="formPage__error" role="alert">
                         {errorMessage}
-                    </p>
-                )}
-
-                {successMessage && (
-                    <p className="formPage__success" role="status">
-                        {successMessage}
                     </p>
                 )}
 
@@ -398,9 +341,11 @@ export function EquipmentTypes() {
                                 className="formPage__button"
                                 disabled={isSaving}
                             >
-                                {editingId === null
-                                    ? "Registrar tipo"
-                                    : "Guardar cambios"}
+                                {isSaving
+                                    ? "Procesando..."
+                                    : editingId === null
+                                        ? "Registrar tipo"
+                                        : "Guardar cambios"}
                             </button>
 
                             {editingId !== null && (
@@ -525,22 +470,6 @@ export function EquipmentTypes() {
                     </section>
                 </div>
             </main>
-
-            <ConfirmDialog
-                isOpen={confirmAction !== null}
-                title={GetConfirmationTitle()}
-                message={GetConfirmationMessage()}
-                confirmText={GetConfirmationButtonText()}
-                cancelText="Cancelar"
-                isLoading={isSaving}
-                variant={
-                    confirmAction === "disable"
-                        ? "danger"
-                        : "primary"
-                }
-                onConfirm={HandleConfirm}
-                onCancel={HandleCancelConfirmation}
-            />
         </div>
     );
 }

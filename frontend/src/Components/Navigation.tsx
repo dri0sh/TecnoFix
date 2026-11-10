@@ -30,7 +30,7 @@ export function Navigation() {
                     Cambiar contraseña
                 </Link>
 
-                {(normalizedRole === "tecnico" || normalizedRole === "administrador") && (
+                {(normalizedRole === "tecnico") && (
                     <Link to="/register-client">
                         Registrar Cliente
                     </Link>
