@@ -3,6 +3,7 @@ import { ChangePassword as ChangePasswordApi } from "../../Api/Auth";
 import { ApiError } from "../../Api/Client";
 import { useNavigate } from "react-router-dom";
 import { ClearSession } from "../../Utils/Auth";
+import { ConfirmAction } from "../../Utils/Alert";
 import "./ChangePassword.css";
 
 // Campos del formulario (se usan como clave de los errores)
@@ -84,6 +85,12 @@ export function ChangePassword() {
 
         if (Object.keys(errors).length > 0) {
             setFieldErrors(errors);
+            return;
+        }
+
+        const confirmed = await ConfirmAction("Se cambiará tu contraseña y deberás iniciar sesión nuevamente.");
+
+        if (!confirmed) {
             return;
         }
 
