@@ -266,6 +266,7 @@ public class RepairOrderService(TecnoFixDbContext context) : IRepairOrderService
     // Actualizar estado y técnico responsable.
     order.Status = OrderStatus.InDiagnosis;
     order.ResponsibleTechnicianId = technicianId;
+    
 
     // Registrar el cambio en la bitácora.
     order.Logs.Add(new OrderLog
@@ -299,14 +300,14 @@ public async Task<RepairOrderDiagnosisResponseDto> RegisterDiagnosisAndBudgetAsy
     if (string.IsNullOrWhiteSpace(diagnosis))
     {
         result.FieldErrors["technicalDiagnosis"] =
-            "Debe completar el campo del diagnóstico técnico.";
+            "Debe completar el campo diagnóstico técnico.";
     }
 
     // Validar costo de mano de obra.
     if (request.LaborCost == null)
     {
         result.FieldErrors["laborCost"] =
-            "Debe completar el campo del costo de mano de obra.";
+            "Debe completar el campo costo de mano de obra.";
     }
     else if (request.LaborCost < 0)
     {
@@ -317,7 +318,7 @@ public async Task<RepairOrderDiagnosisResponseDto> RegisterDiagnosisAndBudgetAsy
     if (request.PartsCost == null)
     {
         result.FieldErrors["partsCost"] =
-            "Debe completar el campo del costo de repuestos.";
+            "Debe completar el campo costo de repuestos.";
     }
     else if (request.PartsCost < 0)
     {
@@ -367,7 +368,6 @@ public async Task<RepairOrderDiagnosisResponseDto> RegisterDiagnosisAndBudgetAsy
     order.PartsCost = request.PartsCost.Value;
     order.TotalCost = totalCost;
     order.Status = OrderStatus.Budgeted;
-    order.ResponsibleTechnicianId = technicianId;
 
     // Registrar el evento en la bitácora.
     order.Logs.Add(new OrderLog
