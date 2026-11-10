@@ -27,6 +27,20 @@ export function RegisterRepairOrder(
     });
 }
 
+
+/**
+ * Registra un nuevo tipo de equipo desde el formulario de registrar orden (ORD-001).
+ * Queda habilitado en el catálogo de tipos de equipo (ADM-001).
+ *
+ * @param name Nombre del nuevo tipo de equipo.
+ */
+export function AddEquipmentTypeFromOrder(name: string): Promise<{ message: string }> {
+    return ApiFetch<{ message: string }>("/orders/equipment-types", {
+        method: "POST",
+        body: JSON.stringify({ name })
+    });
+}
+
 /**
  * Obtiene las órdenes pendientes de diagnóstico (ORD-002).
  */

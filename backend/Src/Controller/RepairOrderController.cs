@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TecnoFix.Src.DTO.Order;
+using TecnoFix.Src.DTO.EquipmentType;
 using TecnoFix.Src.Services.Interfaces;
 
 namespace TecnoFix.Src.Controller;
@@ -12,11 +13,15 @@ namespace TecnoFix.Src.Controller;
 /// Controlador de las órdenes de reparación.
 /// </summary>
 /// <param name="repairOrderService">Servicio de órdenes inyectado.</param>
+/// <param name="equipmentTypeService">Servicio del catálogo de tipos de equipo (ADM-001).</param>
 [ApiController]
 [Route("api/orders")]
-public class RepairOrderController(IRepairOrderService repairOrderService) : ControllerBase
+public class RepairOrderController(
+    IRepairOrderService repairOrderService,
+    IEquipmentTypeService equipmentTypeService) : ControllerBase
 {
     private readonly IRepairOrderService _repairOrderService = repairOrderService;
+    private readonly IEquipmentTypeService _equipmentTypeService = equipmentTypeService;
 
     /// <summary>
     /// Entrega los listados del formulario: clientes y tipos de equipo habilitados.
@@ -56,6 +61,27 @@ public class RepairOrderController(IRepairOrderService repairOrderService) : Con
             status = result.Status,
             receivedAt = result.ReceivedAt
         });
+    }
+
+    /// <summary>
+    /// Registra un nuevo tipo de equipo desde el formulario de registrar orden (ORD-001).
+    /// Reutiliza el servicio del catálogo (ADM-001), así el tipo queda habilitado en el catálogo.
+    /// </summary>
+    /// <returns>200 si se agregó, 400 si el nombre es inválido, 409 si ya existe.</returns>
+    [Authorize(Roles = "Tecnico,Administrador")]
+    [HttpPost("equipment-types")]
+    public async Task<IActionResult> AddEquipmentType([FromBody] EquipmentTypeRequestDto request)
+    {
+        var result = await _equipmentTypeService.CreateAsync(request);
+
+        if (result.Success)
+        {
+            return Ok(new { message = result.Message, equipmentType = result.EquipmentType });
+        }
+
+        var errorBody = new { message = result.Message, fieldErrors = result.FieldErrors };
+
+        return result.IsDuplicateName ? Conflict(errorBody) : BadRequest(errorBody);
     }
 
     // --------------------------------------------------

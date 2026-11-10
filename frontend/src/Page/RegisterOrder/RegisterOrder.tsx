@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { GetRepairOrderFormOptions, RegisterRepairOrder } from "../../Api/Order";
+import { AddEquipmentTypeFromOrder, GetRepairOrderFormOptions, RegisterRepairOrder } from "../../Api/Order";
 import { ApiError } from "../../Api/Client";
-import { ConfirmAction } from "../../Utils/Alert";
+import { AskNewOption, ConfirmAction, ShowSuccessToast } from "../../Utils/Alert";
 import type { SelectOptionDto } from "../../Types/OrderType";
 import "../RegisterTechnician/RegisterTechnician.css";
 import "./RegisterOrder.css";
@@ -39,7 +39,6 @@ export function RegisterOrder() {
 
     const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     // Al abrir la vista se cargan los clientes y los tipos de equipo habilitados
@@ -89,7 +88,6 @@ export function RegisterOrder() {
 
         setFieldErrors({});
         setErrorMessage(null);
-        setSuccessMessage(null);
 
         const errors = ValidateForm();
 
@@ -128,7 +126,7 @@ export function RegisterOrder() {
                 accessories: accessories.trim() || null
             });
 
-            setSuccessMessage(response.message);
+            void ShowSuccessToast(response.message);
             ResetForm();
         } catch (error) {
             // Si el backend devolvió errores por campo, se muestran bajo cada campo
@@ -140,6 +138,50 @@ export function RegisterOrder() {
         } finally {
             setIsLoading(false);
         }
+    }
+
+    /**
+     * Agrega un tipo de equipo nuevo y lo deja seleccionado (ORD-001).
+     * El tipo queda registrado y habilitado en el catálogo (ADM-001).
+     */
+    async function HandleAddEquipmentType() {
+        const name = await AskNewOption(
+            "Agregar tipo de equipo",
+            "Nombre del nuevo tipo de equipo",
+            async (value) => {
+                if (value === "") {
+                    return "Debe completar el campo Tipo de equipo";
+                }
+
+                try {
+                    await AddEquipmentTypeFromOrder(value);
+                    return null;
+                } catch (error) {
+                    return GetErrorMessage(error);
+                }
+            }
+        );
+
+        if (name === null) {
+            return;
+        }
+
+        // Se recarga la lista para obtener el id del tipo nuevo y dejarlo seleccionado
+        try {
+            const options = await GetRepairOrderFormOptions();
+            setEquipmentTypes(options.equipmentTypes);
+
+            const addedType = options.equipmentTypes.find((type) => type.label === name);
+
+            if (addedType) {
+                setEquipmentTypeId(String(addedType.id));
+                setFieldErrors((current) => ({ ...current, equipmentTypeId: undefined }));
+            }
+        } catch (error) {
+            setErrorMessage(GetErrorMessage(error));
+        }
+
+        void ShowSuccessToast("Tipo de equipo registrado correctamente");
     }
 
     /** Clase del campo: se marca en rojo si tiene error. */
@@ -177,12 +219,6 @@ export function RegisterOrder() {
                     </p>
                 )}
 
-                {successMessage && (
-                    <p className="formPage__success" role="status">
-                        {successMessage}
-                    </p>
-                )}
-
                 <form
                     onSubmit={HandleSubmit}
                     className="formPage__form"
@@ -216,20 +252,31 @@ export function RegisterOrder() {
                             Tipo de equipo
                         </label>
 
-                        <select
-                            id="equipmentTypeId"
-                            className={InputClass("equipmentTypeId", "formPage__select")}
-                            value={equipmentTypeId}
-                            onChange={(event) => setEquipmentTypeId(event.target.value)}
-                            aria-invalid={Boolean(fieldErrors.equipmentTypeId)}
-                        >
-                            <option value="">Selecciona un tipo de equipo</option>
-                            {equipmentTypes.map((type) => (
-                                <option key={type.id} value={type.id}>
-                                    {type.label}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="formPage__selectRow">
+                            <select
+                                id="equipmentTypeId"
+                                className={InputClass("equipmentTypeId", "formPage__select")}
+                                value={equipmentTypeId}
+                                onChange={(event) => setEquipmentTypeId(event.target.value)}
+                                aria-invalid={Boolean(fieldErrors.equipmentTypeId)}
+                            >
+                                <option value="">Selecciona un tipo de equipo</option>
+                                {equipmentTypes.map((type) => (
+                                    <option key={type.id} value={type.id}>
+                                        {type.label}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <button
+                                type="button"
+                                className="formPage__addButton"
+                                onClick={HandleAddEquipmentType}
+                                title="Agregar un tipo de equipo que no está en la lista"
+                            >
+                                + Agregar
+                            </button>
+                        </div>
 
                         {RenderFieldError("equipmentTypeId")}
                     </div>
