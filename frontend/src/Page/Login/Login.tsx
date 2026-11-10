@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { Login as LoginApi } from "../../Api/Auth";
 import "./Login.css";
 
@@ -14,8 +15,30 @@ const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const HOME_ROUTE = "/change-password";
 const REGISTER_ROUTE = "/register-client";
 
-
+// AJUSTAR: debe tener el mismo valor que ROLE_STORAGE_KEY de Navigation y ProtectedRoute
 const ROLE_STORAGE_KEY = "role";
+
+// Configuración del aviso emergente (toast) de SweetAlert2
+const TOAST = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        // Pausa el temporizador mientras el cursor está sobre el aviso
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+    }
+});
+
+/** Muestra el aviso de inicio de sesión exitoso. */
+function ShowLoginSuccessToast(): void {
+    TOAST.fire({
+        icon: "success",
+        title: "Sesión iniciada correctamente"
+    });
+}
 
 /** Mensaje para un campo obligatorio vacío. */
 function GetEmptyFieldMessage(fieldName: string): string {
@@ -88,6 +111,7 @@ export function Login() {
 
             // El rol se guarda en minúscula para coincidir con allowedRoles de App.tsx
             localStorage.setItem(ROLE_STORAGE_KEY, response.role.toLowerCase());
+            ShowLoginSuccessToast();
             navigate(GetHomeRoute());
         } catch (error) {
             setErrorMessage(GetErrorMessage(error));
