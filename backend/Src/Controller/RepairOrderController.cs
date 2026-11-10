@@ -77,7 +77,7 @@ public class RepairOrderController(IRepairOrderService repairOrderService) : Con
     /// <summary>
     /// Inicia el diagnóstico de una orden y cambia su estado a En diagnóstico.
     /// </summary>
-    [Authorize(Roles = "Tecnico,Administrador")]
+    [Authorize(Roles = "Tecnico")]
     [HttpPut("{orderId:int}/start-diagnosis")]
     public async Task<IActionResult> StartDiagnosis(int orderId)
     {
@@ -108,7 +108,7 @@ public class RepairOrderController(IRepairOrderService repairOrderService) : Con
     /// Registra el diagnóstico técnico y el presupuesto de una orden.
     /// </summary>
     
-[Authorize(Roles = "Tecnico,Administrador")]
+[Authorize(Roles = "Tecnico")]
 [HttpPost("diagnosis/budget")]
 public async Task<IActionResult> RegisterDiagnosisAndBudget(
     [FromBody] RepairOrderDiagnosisRequestDto request)
