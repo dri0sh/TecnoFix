@@ -136,7 +136,7 @@ export function RegisterClient() {
                         <input
                             id="name"
                             type="text"
-                            className="formPage__input"
+                            className={`formPage__input ${fieldErrors.name ? "formPage__input--invalid" : ""}`}
                             value={name}
                             onChange={(event) => {
                                 setName(event.target.value);
@@ -147,7 +147,7 @@ export function RegisterClient() {
                         />
 
                         {fieldErrors.name && (
-                            <p className="formPage__error" role="alert">
+                            <p className="formPage__fieldError" role="alert">
                                 {fieldErrors.name}
                             </p>
                         )}
@@ -162,7 +162,7 @@ export function RegisterClient() {
                         <input
                             id="rut"
                             type="text"
-                            className="formPage__input"
+                            className={`formPage__input ${fieldErrors.rut ? "formPage__input--invalid" : ""}`}
                             value={rut}
                             onChange={(event) => {
                                 setRut(event.target.value);
@@ -173,8 +173,8 @@ export function RegisterClient() {
                         />
 
                         {fieldErrors.rut && (
-                            <p className="formPage__error" role="alert">
-                                {fieldErrors.rut}
+                            <p className="formPage__fieldError" role="alert">
+                              {fieldErrors.rut}
                             </p>
                         )}
                     </div>
@@ -188,7 +188,7 @@ export function RegisterClient() {
                         <input
                             id="email"
                             type="email"
-                            className="formPage__input"
+                            className={`formPage__input ${fieldErrors.email ? "formPage__input--invalid" : ""}`}
                             value={email}
                             onChange={(event) => {
                                 setEmail(event.target.value);
@@ -199,8 +199,8 @@ export function RegisterClient() {
                         />
 
                         {fieldErrors.email && (
-                            <p className="formPage__error" role="alert">
-                                {fieldErrors.email}
+                            <p className="formPage__fieldError" role="alert">
+                                 {fieldErrors.email}
                             </p>
                         )}
                     </div>
@@ -214,7 +214,7 @@ export function RegisterClient() {
                         <input
                             id="phoneNumber"
                             type="tel"
-                            className="formPage__input"
+                            className={`formPage__input ${fieldErrors.phoneNumber ? "formPage__input--invalid" : ""}`}
                             value={phoneNumber}
                             onChange={(event) => {
                                 setPhoneNumber(event.target.value);
@@ -225,7 +225,7 @@ export function RegisterClient() {
                         />
 
                         {fieldErrors.phoneNumber && (
-                            <p className="formPage__error" role="alert">
+                            <p className="formPage__fieldError" role="alert">
                                 {fieldErrors.phoneNumber}
                             </p>
                         )}
