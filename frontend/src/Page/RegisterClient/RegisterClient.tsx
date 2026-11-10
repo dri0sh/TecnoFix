@@ -4,6 +4,11 @@ import { Link } from "react-router-dom";
 import { RegisterClient as RegisterClientApi } from "../../Api/Auth";
 import "./RegisterClient.css";
 import { ApiError } from "../../Api/Client";
+import {
+    ConfirmAction,
+    ShowSuccessToast,
+    ShowError
+} from "../../Utils/Alert";
 
 export function RegisterClient() {
     const [name, setName] = useState("");
@@ -41,61 +46,79 @@ export function RegisterClient() {
     }
 
     async function HandleSubmit(event: FormEvent) {
-        event.preventDefault();
+    event.preventDefault();
 
-        setErrorMessage(null);
-        setSuccessMessage(null);
-        setFieldErrors({});
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    setFieldErrors({});
 
-        if (!ValidateForm()) {
-            return;
-        }
-
-        setIsLoading(true);
-
-        try {
-            const response = await RegisterClientApi({
-                name,
-                email,
-                rut,
-                phoneNumber
-            });
-
-            setSuccessMessage(response.message);
-
-            setName("");
-            setRut("");
-            setEmail("");
-            setPhoneNumber("");
-        } catch (error) {
-            if (error instanceof ApiError) {
-                const backendErrors = error.fieldErrors;
-
-                const mappedErrors: Record<string, string> = {
-                    name: backendErrors.Name ?? backendErrors.name ?? "",
-                    rut: backendErrors.Rut ?? backendErrors.rut ?? "",
-                    email: backendErrors.Correo ?? backendErrors.email ?? "",
-                    phoneNumber: backendErrors.Telefono ?? backendErrors.phoneNumber ?? ""
-                };
-
-                const filteredErrors = Object.fromEntries(
-                    Object.entries(mappedErrors).filter(([, value]) => value !== "")
-                );
-
-                setFieldErrors(filteredErrors);
-
-                if (Object.keys(filteredErrors).length === 0) {
-                    setErrorMessage(error.message);
-                }
-            } else {
-                setErrorMessage(
-                    "No se pudo conectar con el servidor. Intenta nuevamente."
-                );
-            }
-        } finally {
-            setIsLoading(false);
-        }
+    if (!ValidateForm()) {
+        return;
     }
+
+    // Primera confirmación: mostrar los datos antes de registrar.
+    const confirmed = await ConfirmAction(
+        "¿Deseas registrar este cliente?",
+        {
+            "Nombre completo": name,
+            "RUT": rut,
+            "Correo electrónico": email,
+            "Teléfono": phoneNumber
+        }
+    );
+
+    // Si el usuario cancela, no se registra.
+    if (!confirmed) {
+        return;
+    }
+
+    setIsLoading(true);
+
+    try {
+        const response = await RegisterClientApi({
+            name,
+            email,
+            rut,
+            phoneNumber
+        });
+
+        // Segunda confirmación: informar que el registro fue exitoso.
+        await ShowSuccessToast(response.message);
+
+        setName("");
+        setRut("");
+        setEmail("");
+        setPhoneNumber("");
+
+    } catch (error) {
+        if (error instanceof ApiError) {
+            const backendErrors = error.fieldErrors;
+
+            const mappedErrors: Record<string, string> = {
+                name: backendErrors.Name ?? backendErrors.name ?? "",
+                rut: backendErrors.Rut ?? backendErrors.rut ?? "",
+                email: backendErrors.Email ?? backendErrors.Correo ?? backendErrors.email ?? "",
+                phoneNumber: backendErrors.PhoneNumber ?? backendErrors.Telefono ?? backendErrors.phoneNumber ?? ""
+            };
+
+            const filteredErrors = Object.fromEntries(
+                Object.entries(mappedErrors).filter(([, value]) => value !== "")
+            );
+
+            setFieldErrors(filteredErrors);
+
+            if (Object.keys(filteredErrors).length === 0) {
+                await ShowError(error.message);
+            }
+        } else {
+            await ShowError(
+                "No se pudo conectar con el servidor. Intenta nuevamente."
+            );
+        }
+    } finally {
+        setIsLoading(false);
+    }
+}
 
     return (
         <div className="formPage">
@@ -136,7 +159,7 @@ export function RegisterClient() {
                         <input
                             id="name"
                             type="text"
-                            className="formPage__input"
+                            className={`formPage__input ${fieldErrors.name ? "formPage__input--invalid" : ""}`}
                             value={name}
                             onChange={(event) => {
                                 setName(event.target.value);
@@ -147,7 +170,7 @@ export function RegisterClient() {
                         />
 
                         {fieldErrors.name && (
-                            <p className="formPage__error" role="alert">
+                            <p className="formPage__fieldError" role="alert">
                                 {fieldErrors.name}
                             </p>
                         )}
@@ -162,7 +185,7 @@ export function RegisterClient() {
                         <input
                             id="rut"
                             type="text"
-                            className="formPage__input"
+                            className={`formPage__input ${fieldErrors.rut ? "formPage__input--invalid" : ""}`}
                             value={rut}
                             onChange={(event) => {
                                 setRut(event.target.value);
@@ -173,8 +196,8 @@ export function RegisterClient() {
                         />
 
                         {fieldErrors.rut && (
-                            <p className="formPage__error" role="alert">
-                                {fieldErrors.rut}
+                            <p className="formPage__fieldError" role="alert">
+                              {fieldErrors.rut}
                             </p>
                         )}
                     </div>
@@ -188,7 +211,7 @@ export function RegisterClient() {
                         <input
                             id="email"
                             type="email"
-                            className="formPage__input"
+                            className={`formPage__input ${fieldErrors.email ? "formPage__input--invalid" : ""}`}
                             value={email}
                             onChange={(event) => {
                                 setEmail(event.target.value);
@@ -199,8 +222,8 @@ export function RegisterClient() {
                         />
 
                         {fieldErrors.email && (
-                            <p className="formPage__error" role="alert">
-                                {fieldErrors.email}
+                            <p className="formPage__fieldError" role="alert">
+                                 {fieldErrors.email}
                             </p>
                         )}
                     </div>
@@ -214,7 +237,7 @@ export function RegisterClient() {
                         <input
                             id="phoneNumber"
                             type="tel"
-                            className="formPage__input"
+                            className={`formPage__input ${fieldErrors.phoneNumber ? "formPage__input--invalid" : ""}`}
                             value={phoneNumber}
                             onChange={(event) => {
                                 setPhoneNumber(event.target.value);
@@ -225,7 +248,7 @@ export function RegisterClient() {
                         />
 
                         {fieldErrors.phoneNumber && (
-                            <p className="formPage__error" role="alert">
+                            <p className="formPage__fieldError" role="alert">
                                 {fieldErrors.phoneNumber}
                             </p>
                         )}

@@ -65,6 +65,21 @@
   color: var(--error-color);
 }
 
+/* Borde rojo cuando un campo tiene errores */
+
+.formPage__input--invalid {
+  border-color: var(--error-color);
+}
+
+/* Mensaje de error debajo de cada campo */
+
+.formPage__fieldError {
+  margin: 0.45rem 0 0 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--error-color);
+}
+
 /* Mensaje de éxito */
 
 .formPage__success {
