@@ -20,7 +20,7 @@ public class TechnicianRegistrationRequestDto
     public string? Email { get; set; }
 
     /// <summary>
-    /// Especialidad del técnico. Debe ser una de las definidas en TechnicianSpecialties.
+    /// Especialidad del técnico. Debe existir en la tabla Specialties.
     /// </summary>
     public string? Specialty { get; set; }
 }
@@ -50,4 +50,47 @@ public class TechnicianRegistrationResponseDto
     /// Indica que el error corresponde a un correo ya registrado (se responde 409 Conflict).
     /// </summary>
     public bool IsDuplicateEmail { get; set; }
+}
+
+
+/// <summary>
+/// Datos para agregar una nueva especialidad de técnico (USU-003).
+/// </summary>
+public class SpecialtyRequestDto
+{
+    /// <summary>
+    /// Nombre de la nueva especialidad.
+    /// </summary>
+    public string? Name { get; set; }
+}
+
+/// <summary>
+/// Resultado de agregar una especialidad.
+/// </summary>
+public class SpecialtyResponseDto
+{
+    /// <summary>
+    /// Indica si la especialidad quedó registrada.
+    /// </summary>
+    public bool Success { get; set; }
+
+    /// <summary>
+    /// Mensaje general del resultado.
+    /// </summary>
+    public string Message { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Nombre guardado, para que el frontend la deje seleccionada.
+    /// </summary>
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// Errores de validación por campo (clave: name).
+    /// </summary>
+    public Dictionary<string, string> FieldErrors { get; set; } = [];
+
+    /// <summary>
+    /// Indica que la especialidad ya existe (se responde 409 Conflict).
+    /// </summary>
+    public bool IsDuplicateName { get; set; }
 }

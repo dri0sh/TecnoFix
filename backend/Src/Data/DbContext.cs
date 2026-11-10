@@ -33,6 +33,12 @@ public class TecnoFixDbContext : DbContext
     /// </summary>
     public DbSet<EquipmentType> EquipmentTypes => Set<EquipmentType>();
 
+
+    /// <summary>
+    /// Catálogo de especialidades de los técnicos (USU-003).
+    /// </summary>
+    public DbSet<Specialty> Specialties => Set<Specialty>();
+
     /// <summary>
     /// Órdenes de reparación (ORD-001).
     /// </summary>
@@ -156,6 +162,22 @@ public class TecnoFixDbContext : DbContext
 
             // El nombre del tipo de equipo debe ser único (ADM-001).
             entity.HasIndex(type => type.Name)
+                .IsUnique();
+        });
+
+        // Configuración del catálogo de especialidades (USU-003).
+        modelBuilder.Entity<Specialty>(entity =>
+        {
+            entity.ToTable("Specialties");
+
+            entity.HasKey(specialty => specialty.Id);
+
+            entity.Property(specialty => specialty.Name)
+                .HasMaxLength(60)
+                .IsRequired();
+
+            // El nombre de la especialidad debe ser único.
+            entity.HasIndex(specialty => specialty.Name)
                 .IsUnique();
         });
 

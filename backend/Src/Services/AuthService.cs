@@ -176,10 +176,74 @@ public class AuthService : IAuthService
 
     
     
-    /// <summary>
-    /// Entrega la lista de especialidades que se pueden asignar a un técnico.
+        /// <summary>
+    /// Entrega las especialidades registradas, en el orden en que se agregaron.
     /// </summary>
-    public IReadOnlyList<string> GetTechnicianSpecialties() => TechnicianSpecialties.All;
+    public async Task<List<string>> GetTechnicianSpecialtiesAsync()
+    {
+        return await _context.Specialties
+            .OrderBy(specialty => specialty.Id)
+            .Select(specialty => specialty.Name)
+            .ToListAsync();
+    }
+
+    /// <summary>
+    /// Agrega una nueva especialidad al catálogo (USU-003).
+    /// </summary>
+    /// <param name="request">Nombre de la nueva especialidad.</param>
+    /// <returns>Resultado, con el error del campo si lo hay.</returns>
+    public async Task<SpecialtyResponseDto> AddSpecialtyAsync(SpecialtyRequestDto request)
+    {
+        const int MAX_SPECIALTY_LENGTH = 60;
+        const string DUPLICATE_SPECIALTY_MESSAGE = "La especialidad ingresada ya se encuentra registrada";
+
+        var name = (request.Name ?? string.Empty).Trim();
+
+        string? error = null;
+
+        if (name.Length == 0)
+        {
+            error = InputValidator.RequiredFieldMessage("Especialidad");
+        }
+        else if (name.Length > MAX_SPECIALTY_LENGTH)
+        {
+            error = $"La especialidad no puede superar los {MAX_SPECIALTY_LENGTH} caracteres";
+        }
+
+        if (error is not null)
+        {
+            return new SpecialtyResponseDto
+            {
+                Success = false,
+                Message = error,
+                FieldErrors = new Dictionary<string, string> { ["name"] = error }
+            };
+        }
+
+        // Se compara sin distinguir mayúsculas: "Redes" y "redes" son la misma especialidad
+        var lowerName = name.ToLower();
+
+        if (await _context.Specialties.AnyAsync(specialty => specialty.Name.ToLower() == lowerName))
+        {
+            return new SpecialtyResponseDto
+            {
+                Success = false,
+                Message = DUPLICATE_SPECIALTY_MESSAGE,
+                FieldErrors = new Dictionary<string, string> { ["name"] = DUPLICATE_SPECIALTY_MESSAGE },
+                IsDuplicateName = true
+            };
+        }
+
+        _context.Specialties.Add(new Specialty { Name = name });
+        await _context.SaveChangesAsync();
+
+        return new SpecialtyResponseDto
+        {
+            Success = true,
+            Message = "Especialidad registrada correctamente",
+            Name = name
+        };
+    }
 
     /// <summary>
     /// Registra un nuevo técnico en el sistema (USU-003).
@@ -205,6 +269,19 @@ public class AuthService : IAuthService
                 Success = false,
                 Message = fieldErrors.Values.First(),
                 FieldErrors = fieldErrors
+            };
+        }
+
+        // La especialidad debe existir en el catálogo (incluye las agregadas por el administrador)
+        if (!await _context.Specialties.AnyAsync(item => item.Name == specialty))
+        {
+            const string INVALID_SPECIALTY_MESSAGE = "La especialidad seleccionada no es válida";
+
+            return new TechnicianRegistrationResponseDto
+            {
+                Success = false,
+                Message = INVALID_SPECIALTY_MESSAGE,
+                FieldErrors = new Dictionary<string, string> { ["specialty"] = INVALID_SPECIALTY_MESSAGE }
             };
         }
 
@@ -320,10 +397,6 @@ public class AuthService : IAuthService
         if (specialty.Length == 0)
         {
             errors["specialty"] = InputValidator.RequiredFieldMessage("Especialidad");
-        }
-        else if (!TechnicianSpecialties.IsValid(specialty))
-        {
-            errors["specialty"] = "La especialidad seleccionada no es válida";
         }
 
         return errors;

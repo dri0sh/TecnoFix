@@ -152,3 +152,8 @@
     font-size: 2.2rem;
   }
 }
+
+
+.swal2-validation-message {
+  color: var(--error-color);
+}

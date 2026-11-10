@@ -60,3 +60,40 @@ export async function ShowError(message: string): Promise<void> {
         confirmButtonColor: ERROR_COLOR
     });
 }
+
+
+// Ventana con un campo de texto para agregar una opción nueva a una lista
+// (especialidad, tipo de equipo). onSave la guarda y retorna el error, o null si se guardó.
+// Retorna el texto agregado, o null si el usuario cancela.
+export async function AskNewOption(
+    title: string,
+    label: string,
+    onSave: (value: string) => Promise<string | null>
+): Promise<string | null> {
+    const result = await Swal.fire({
+        title: title,
+        input: "text",
+        inputLabel: label,
+        showCancelButton: true,
+        confirmButtonText: "Agregar",
+        cancelButtonText: "Cancelar",
+        confirmButtonColor: PRIMARY_COLOR,
+        cancelButtonColor: CANCEL_COLOR,
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        allowOutsideClick: () => !Swal.isLoading(),
+        preConfirm: async (value: string) => {
+            const error = await onSave(value.trim());
+
+            // Si hay error, se muestra en la misma ventana y no se cierra
+            if (error) {
+                Swal.showValidationMessage(error);
+                return false;
+            }
+
+            return value.trim();
+        }
+    });
+
+    return result.isConfirmed ? result.value : null;
+}

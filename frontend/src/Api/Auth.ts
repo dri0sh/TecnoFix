@@ -74,6 +74,20 @@ export function GetTechnicianSpecialties(): Promise<string[]> {
     return ApiFetch<string[]>("/auth/technician-specialties");
 }
 
+
+/**
+ * Agrega una nueva especialidad de técnico (USU-003).
+ *
+ * @param name Nombre de la nueva especialidad.
+ * @returns Mensaje del backend y nombre guardado.
+ */
+export function AddTechnicianSpecialty(name: string): Promise<{ message: string; name: string }> {
+    return ApiFetch<{ message: string; name: string }>("/auth/technician-specialties", {
+        method: "POST",
+        body: JSON.stringify({ name })
+    });
+}
+
 /**
  * Realiza la petición al backend para registrar a un nuevo cliente en el sistema.
  *

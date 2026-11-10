@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { GetTechnicianSpecialties, RegisterTechnician as RegisterTechnicianApi } from "../../Api/Auth";
+import { AddTechnicianSpecialty, GetTechnicianSpecialties, RegisterTechnician as RegisterTechnicianApi } from "../../Api/Auth";
 import { ApiError } from "../../Api/Client";
-import { ConfirmAction } from "../../Utils/Alert";
+import { AskNewOption, ConfirmAction, ShowSuccessToast } from "../../Utils/Alert";
 import "./RegisterTechnician.css";
 
 // Campos del formulario (se usan como clave de los errores)
@@ -31,7 +31,6 @@ export function RegisterTechnician() {
 
     const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
     // Al abrir la vista se cargan las especialidades desde el backend
@@ -72,7 +71,6 @@ export function RegisterTechnician() {
 
         setFieldErrors({});
         setErrorMessage(null);
-        setSuccessMessage(null);
 
         const cleanName = name.trim();
         const cleanEmail = email.trim();
@@ -84,7 +82,7 @@ export function RegisterTechnician() {
             return;
         }
 
-        // Confirmación antes de registrar 
+        // Confirmación antes de registrar (NF01)
         const confirmed = await ConfirmAction("Se registrará el técnico con los siguientes datos:", {
             "Nombre y apellidos": cleanName,
             "Correo electrónico": cleanEmail,
@@ -104,7 +102,7 @@ export function RegisterTechnician() {
                 specialty
             });
 
-            setSuccessMessage(response.message);
+            void ShowSuccessToast(response.message);
 
             setName("");
             setEmail("");
@@ -119,6 +117,36 @@ export function RegisterTechnician() {
         } finally {
             setIsLoading(false);
         }
+    }
+
+    /** Agrega una especialidad nueva y la deja seleccionada (USU-003). */
+    async function HandleAddSpecialty() {
+        const newSpecialty = await AskNewOption(
+            "Agregar especialidad",
+            "Nombre de la nueva especialidad",
+            async (value) => {
+                if (value === "") {
+                    return "Debe completar el campo Especialidad";
+                }
+
+                try {
+                    await AddTechnicianSpecialty(value);
+                    return null;
+                } catch (error) {
+                    return GetErrorMessage(error);
+                }
+            }
+        );
+
+        if (newSpecialty === null) {
+            return;
+        }
+
+        setSpecialties((current) => [...current, newSpecialty]);
+        setSpecialty(newSpecialty);
+        setFieldErrors((current) => ({ ...current, specialty: undefined }));
+
+        void ShowSuccessToast("Especialidad registrada correctamente");
     }
 
     /** Clase del campo: se marca en rojo si tiene error. */
@@ -140,12 +168,6 @@ export function RegisterTechnician() {
                 {errorMessage && (
                     <p className="formPage__error" role="alert">
                         {errorMessage}
-                    </p>
-                )}
-
-                {successMessage && (
-                    <p className="formPage__success" role="status">
-                        {successMessage}
                     </p>
                 )}
 
@@ -216,22 +238,33 @@ export function RegisterTechnician() {
                             Especialidad
                         </label>
 
-                        <select
-                            id="specialty"
-                            className={InputClass("specialty") + " formPage__select"}
-                            value={specialty}
-                            onChange={(event) =>
-                                setSpecialty(event.target.value)
-                            }
-                            aria-invalid={Boolean(fieldErrors.specialty)}
-                        >
-                            <option value="">Selecciona una especialidad</option>
-                            {specialties.map((item) => (
-                                <option key={item} value={item}>
-                                    {item}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="formPage__selectRow">
+                            <select
+                                id="specialty"
+                                className={InputClass("specialty") + " formPage__select"}
+                                value={specialty}
+                                onChange={(event) =>
+                                    setSpecialty(event.target.value)
+                                }
+                                aria-invalid={Boolean(fieldErrors.specialty)}
+                            >
+                                <option value="">Selecciona una especialidad</option>
+                                {specialties.map((item) => (
+                                    <option key={item} value={item}>
+                                        {item}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <button
+                                type="button"
+                                className="formPage__addButton"
+                                onClick={HandleAddSpecialty}
+                                title="Agregar una especialidad que no está en la lista"
+                            >
+                                + Agregar
+                            </button>
+                        </div>
 
                         {fieldErrors.specialty && (
                             <p className="formPage__fieldError" role="alert">

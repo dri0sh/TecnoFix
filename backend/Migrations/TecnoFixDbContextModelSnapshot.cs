@@ -192,6 +192,27 @@ namespace backend.Migrations
                     b.ToTable("Roles", (string)null);
                 });
 
+            modelBuilder.Entity("TecnoFix.Src.Model.Specialty", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Specialties", (string)null);
+                });
+
             modelBuilder.Entity("TecnoFix.Src.Model.User", b =>
                 {
                     b.Property<int>("Id")

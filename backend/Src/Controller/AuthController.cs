@@ -91,16 +91,36 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
 
-
     /// <summary>
     /// Entrega las especialidades disponibles para el formulario de registrar técnico.
     /// </summary>
     /// <returns>Lista de especialidades.</returns>
     [Authorize(Roles = "Administrador")]
     [HttpGet("technician-specialties")]
-    public ActionResult<IReadOnlyList<string>> GetTechnicianSpecialties()
+    public async Task<ActionResult<List<string>>> GetTechnicianSpecialties()
     {
-        return Ok(_authService.GetTechnicianSpecialties());
+        return Ok(await _authService.GetTechnicianSpecialtiesAsync());
+    }
+
+    /// <summary>
+    /// Agrega una nueva especialidad de técnico (USU-003). Solo el administrador puede hacerlo.
+    /// </summary>
+    /// <param name="request">Nombre de la nueva especialidad.</param>
+    /// <returns>200 si se agregó, 400 si el nombre es inválido, 409 si ya existe.</returns>
+    [Authorize(Roles = "Administrador")]
+    [HttpPost("technician-specialties")]
+    public async Task<IActionResult> AddSpecialty([FromBody] SpecialtyRequestDto request)
+    {
+        var result = await _authService.AddSpecialtyAsync(request);
+
+        if (result.Success)
+        {
+            return Ok(new { message = result.Message, name = result.Name });
+        }
+
+        var errorBody = new { message = result.Message, fieldErrors = result.FieldErrors };
+
+        return result.IsDuplicateName ? Conflict(errorBody) : BadRequest(errorBody);
     }
 
     /// <summary>

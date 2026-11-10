@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TecnoFix.Src.Model;
+using TecnoFix.Src.Utils;
 
 namespace TecnoFix.Src.Data;
 
@@ -58,6 +59,16 @@ public static class DbSeeder
                 new EquipmentType { Name = "Teléfono celular" },
                 new EquipmentType { Name = "Tablet" },
                 new EquipmentType { Name = "Impresora" }
+            );
+
+            await context.SaveChangesAsync();
+        }
+
+        // Especialidades iniciales de los técnicos (USU-003). Solo se insertan si la tabla está vacía.
+        if (!await context.Specialties.AnyAsync())
+        {
+            context.Specialties.AddRange(
+                TechnicianSpecialties.All.Select(name => new Specialty { Name = name })
             );
 
             await context.SaveChangesAsync();

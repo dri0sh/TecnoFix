@@ -213,3 +213,31 @@
   background-repeat: no-repeat;
   background-position: right 1.3rem center;
 }
+
+
+/* Lista desplegable con botón para agregar una opción nueva */
+
+.formPage__selectRow {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.formPage__selectRow .formPage__select {
+  flex: 1;
+}
+
+.formPage__addButton {
+  flex-shrink: 0;
+  padding: 0 1.1rem;
+  font: inherit;
+  font-weight: 700;
+  color: var(--primary-color);
+  background: var(--background-color);
+  border: 1.5px solid var(--primary-color);
+  border-radius: 14px;
+  cursor: pointer;
+}
+
+.formPage__addButton:hover {
+  background: rgba(58, 53, 224, 0.08);
+}
