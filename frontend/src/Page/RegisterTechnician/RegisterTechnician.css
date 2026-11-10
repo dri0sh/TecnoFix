@@ -190,7 +190,7 @@
 
 /* Campo con error: borde en el color de error (NF01) */
 
-.formPage__input--invalid {
+.formPage__input.formPage__input--invalid {
   border-color: var(--error-color);
 }
 
