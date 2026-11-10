@@ -24,6 +24,8 @@ builder.Services.AddDbContext<TecnoFixDbContext>(
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailSender, SendGridEmailSender>();
 builder.Services.AddScoped<IRepairOrderService, RepairOrderService>();
+// Servicio de gestión del catálogo de tipos de equipo (ADM-001)
+builder.Services.AddScoped<IEquipmentTypeService, EquipmentTypeService>();
 
 // Configuración para MVC
 builder.Services.AddControllers()

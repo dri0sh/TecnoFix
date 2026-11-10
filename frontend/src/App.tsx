@@ -8,6 +8,7 @@ import { ProtectedRoute } from "./Components/ProtectedRoute";
 import { AccessDenied } from "./Page/AccessDenied/AccessDenied"
 import { Navigation } from "./Components/Navigation";
 import { Diagnosis } from "./Page/Diagnosis/Diagnosis";
+import { EquipmentTypes } from "./Page/EquipmentTypes/EquipmentTypes";
 
 function App() {
     return (
@@ -98,10 +99,20 @@ function App() {
                     path="/diagnosis"
                     element={
                         <ProtectedRoute allowedRoles={["administrador", "tecnico"]}>
-                        <Diagnosis />
+                            <Diagnosis />
                     </ProtectedRoute>
             }
         />
+                <Route
+                    path="/equipment-types"
+                    element={
+                        <ProtectedRoute
+                            allowedRoles={["administrador"]}
+                        >
+                            <EquipmentTypes />
+                        </ProtectedRoute>
+                    }
+                />
             </Routes>
         </BrowserRouter>
     );
