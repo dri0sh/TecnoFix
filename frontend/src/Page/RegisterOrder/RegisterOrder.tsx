@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { GetRepairOrderFormOptions, RegisterRepairOrder } from "../../Api/Order";
 import { ApiError } from "../../Api/Client";
+import { ConfirmAction } from "../../Utils/Alert";
 import type { SelectOptionDto } from "../../Types/OrderType";
 import "../RegisterTechnician/RegisterTechnician.css";
 import "./RegisterOrder.css";
@@ -94,6 +95,24 @@ export function RegisterOrder() {
 
         if (Object.keys(errors).length > 0) {
             setFieldErrors(errors);
+            return;
+        }
+
+        // Nombres del cliente y tipo de equipo seleccionados (las listas guardan el id)
+        const clientName = clients.find((client) => client.id === Number(clientId))?.label ?? "";
+        const equipmentTypeName = equipmentTypes.find((type) => type.id === Number(equipmentTypeId))?.label ?? "";
+
+        // Confirmación antes de registrar (NF01)
+        const confirmed = await ConfirmAction("Se registrará la orden con los siguientes datos:", {
+            "Cliente": clientName,
+            "Tipo de equipo": equipmentTypeName,
+            "Marca y modelo": brandModel.trim(),
+            "Número de serie": serialNumber.trim() || "No informado",
+            "Falla reportada": reportedFault.trim(),
+            "Accesorios entregados": accessories.trim() || "No informado"
+        });
+
+        if (!confirmed) {
             return;
         }
 

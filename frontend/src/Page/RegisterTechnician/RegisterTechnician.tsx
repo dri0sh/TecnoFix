@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { GetTechnicianSpecialties, RegisterTechnician as RegisterTechnicianApi } from "../../Api/Auth";
 import { ApiError } from "../../Api/Client";
+import { ConfirmAction } from "../../Utils/Alert";
 import "./RegisterTechnician.css";
 
 // Campos del formulario (se usan como clave de los errores)
@@ -80,6 +81,17 @@ export function RegisterTechnician() {
 
         if (Object.keys(errors).length > 0) {
             setFieldErrors(errors);
+            return;
+        }
+
+        // Confirmación antes de registrar 
+        const confirmed = await ConfirmAction("Se registrará el técnico con los siguientes datos:", {
+            "Nombre y apellidos": cleanName,
+            "Correo electrónico": cleanEmail,
+            "Especialidad": specialty
+        });
+
+        if (!confirmed) {
             return;
         }
 

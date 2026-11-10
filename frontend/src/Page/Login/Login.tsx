@@ -1,41 +1,63 @@
 import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import { Login as LoginApi } from "../../Api/Auth";
-import { SaveRole, NormalizeRole } from "../../Utils/Auth";
 import "./Login.css";
 
 // Mensajes exactos de la tarjeta USU-001
 const INVALID_EMAIL_MESSAGE = "El correo electrónico no tiene un formato válido";
-
 const CONNECTION_ERROR_MESSAGE = "No se pudo conectar con el servidor. Intenta nuevamente.";
 
-// Formato: algo@dominio.ext
+// Formato de correo: texto@dominio.extensión
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
+// Rutas definidas en App.tsx
+const HOME_ROUTE = "/change-password";
+const REGISTER_ROUTE = "/register-client";
+
+// AJUSTAR: debe tener el mismo valor que ROLE_STORAGE_KEY de Navigation y ProtectedRoute
+const ROLE_STORAGE_KEY = "role";
+
+// Configuración del aviso emergente (toast) de SweetAlert2
+const TOAST = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        // Pausa el temporizador mientras el cursor está sobre el aviso
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+    }
+});
+
+/** Muestra el aviso de inicio de sesión exitoso. */
+function ShowLoginSuccessToast(): void {
+    TOAST.fire({
+        icon: "success",
+        title: "Sesión iniciada correctamente"
+    });
+}
+
+/** Mensaje para un campo obligatorio vacío. */
 function GetEmptyFieldMessage(fieldName: string): string {
     return "Debe completar el campo " + fieldName;
 }
 
-// Pantalla de inicio según el rol (NF02).
-// Provisorio: todos van a cambiar contraseña hasta que existan las pantallas de cada rol.
-function GetStartRoute(role: string): string {
-    const normalizedRole = NormalizeRole(role);
-
-    if (normalizedRole === "administrador") {
-        return "/change-password";
-    }
-
-    if (normalizedRole === "tecnico") {
-        return "/change-password";
-    }
-
-    if (normalizedRole === "cliente") {
-        return "/change-password";
-    }
-
-    return "/login";
+/**
+ * Ruta de inicio según el rol (NF02).
+ * Provisorio: todos los roles van a cambiar contraseña hasta que existan sus pantallas.
+ */
+function GetHomeRoute(): string {
+    return HOME_ROUTE;
 }
 
+/**
+ * Vista de inicio de sesión (USU-001).
+ * Valida formato y campos vacíos antes de llamar al backend,
+ * que vuelve a validar las credenciales.
+ */
 export function Login() {
     const navigate = useNavigate();
 
@@ -44,60 +66,55 @@ export function Login() {
     const [showPassword, setShowPassword] = useState(false);
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
-    const [generalError, setGeneralError] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
     const [isLoading, setIsLoading] = useState(false);
 
-    // Revisa que los campos estén completos y con buen formato
-    function ValidateForm(trimmedEmail: string): boolean {
+    /** Revisa que los campos estén completos y el correo tenga formato válido. */
+    function ValidateForm(cleanEmail: string): boolean {
         let isValid = true;
 
-        if (trimmedEmail === "") {
+        if (cleanEmail === "") {
             setEmailError(GetEmptyFieldMessage("Correo electrónico"));
             isValid = false;
-        } else if (!EMAIL_REGEX.test(trimmedEmail)) {
+        } else if (!EMAIL_REGEX.test(cleanEmail)) {
             setEmailError(INVALID_EMAIL_MESSAGE);
             isValid = false;
         }
 
         if (password === "") {
-            setPasswordError(
-                GetEmptyFieldMessage("Contraseña")
-            );
+            setPasswordError(GetEmptyFieldMessage("Contraseña"));
             isValid = false;
         }
 
         return isValid;
     }
 
-    async function HandleSubmit(event: FormEvent<HTMLFormElement>) {
+    async function HandleSubmit(event: FormEvent) {
         event.preventDefault();
 
         setEmailError("");
         setPasswordError("");
-        setGeneralError("");
+        setErrorMessage("");
 
-        const trimmedEmail = email.trim();
+        const cleanEmail = email.trim();
 
-        if (!ValidateForm(trimmedEmail)) {
-            return;
-        }
+        if (!ValidateForm(cleanEmail)) return;
 
         setIsLoading(true);
 
         try {
-            const response = await LoginApi({email: trimmedEmail, password});
+            // Los nombres de las propiedades coinciden con LoginRequestDto
+            const response = await LoginApi({
+                email: cleanEmail,
+                password
+            });
 
-            SaveRole(response.role);
-            navigate(GetStartRoute(response.role));
+            // El rol se guarda en minúscula para coincidir con allowedRoles de App.tsx
+            localStorage.setItem(ROLE_STORAGE_KEY, response.role.toLowerCase());
+            ShowLoginSuccessToast();
+            navigate(GetHomeRoute());
         } catch (error) {
-            // Un TypeError significa que no hubo conexión con el servidor.
-            // Cualquier otro Error trae el mensaje del backend.
-            if (error instanceof Error && !(error instanceof TypeError)
-            ) {
-                setGeneralError(error.message);
-            } else {
-                setGeneralError(CONNECTION_ERROR_MESSAGE);
-            }
+            setErrorMessage(GetErrorMessage(error));
         } finally {
             setIsLoading(false);
         }
@@ -105,180 +122,141 @@ export function Login() {
 
     return (
         <div className="loginPage">
-            <main className="formColumn">
-                <div className="content">
-                    <h1>Iniciar sesión</h1>
+            <main className="loginPage__card">
+                {/* Marca: ícono de servicio técnico y nombre */}
+                <div className="loginPage__brand">
+                    <span className="loginPage__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+                            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                        </svg>
+                    </span>
+                    <span className="loginPage__name">TecnoFix</span>
+                </div>
 
-                    <p className="subtitle">
-                        Ingresa con tu correo electrónico y tu contraseña.
+                <h1 className="loginPage__title">Iniciar sesión</h1>
+
+                <p className="loginPage__subtitle">
+                    Ingresa con tu correo electrónico y tu contraseña.
+                </p>
+
+                {errorMessage && (
+                    <p className="loginPage__error" role="alert">
+                        {errorMessage}
                     </p>
+                )}
 
-                    {/* Error general (credenciales incorrectas) */}
-                    <p
-                        id="generalError"
-                        className="errorMessage"
-                        role="alert"
-                    >
-                        {generalError}
-                    </p>
+                <form onSubmit={HandleSubmit} className="loginPage__form" noValidate>
+                    <div className="loginPage__field">
+                        <label className="loginPage__label" htmlFor="email">
+                            Correo electrónico
+                        </label>
 
-                    <form onSubmit={HandleSubmit} noValidate>
-                        <div className="field">
-                            <label htmlFor="email">
-                                Correo electrónico
-                            </label>
+                        <div className={"loginPage__inputWrapper" + (emailError ? " loginPage__inputWrapper--invalid" : "")}>
+                            <input
+                                id="email"
+                                type="email"
+                                className="loginPage__input"
+                                autoComplete="username"
+                                placeholder="usuario@correo.cl"
+                                value={email}
+                                onChange={(event) => setEmail(event.target.value)}
+                                aria-invalid={Boolean(emailError)}
+                            />
 
-                            <div
-                                className={
-                                    "inputContainer" +
-                                    (emailError ? " invalid" : "")
-                                }
-                            >
-                                <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="username"
-                                    placeholder="usuario@correo.cl"
-                                    value={email}
-                                    onChange={(event) =>
-                                        setEmail(event.target.value)
-                                    }
-                                />
-
-                                <div className="fieldActions">
-                                    <span className="help">
-                                        <button
-                                            type="button"
-                                            className="helpButton"
-                                            aria-describedby="emailHelp"
-                                            aria-label="Ayuda: correo electrónico"
-                                        >
-                                            ?
-                                        </button>
-
-                                        <span
-                                            id="emailHelp"
-                                            className="helpText"
-                                            role="tooltip"
-                                        >
-                                            Es el correo con el que te
-                                            registraste, por ejemplo
-                                            usuario@correo.cl.
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
-
-                            <p
-                                className="errorMessage"
-                                role="alert"
-                            >
-                                {emailError}
-                            </p>
-                        </div>
-
-                        <div className="field">
-                            <label htmlFor="password">
-                                Contraseña
-                            </label>
-
-                            <div
-                                className={
-                                    "inputContainer" +
-                                    (passwordError ? " invalid" : "")
-                                }
-                            >
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type={
-                                        showPassword
-                                            ? "text"
-                                            : "password"
-                                    }
-                                    autoComplete="current-password"
-                                    placeholder="Ingresa tu contraseña"
-                                    value={password}
-                                    onChange={(event) =>
-                                        setPassword(event.target.value)
-                                    }
-                                />
-
-                                <div className="fieldActions">
+                            <div className="loginPage__actions">
+                                <span className="loginPage__help">
                                     <button
                                         type="button"
-                                        className="showPassword"
-                                        aria-pressed={showPassword}
-                                        onClick={() =>
-                                            setShowPassword(
-                                                !showPassword
-                                            )
-                                        }
+                                        className="loginPage__helpButton"
+                                        aria-describedby="emailHelp"
+                                        aria-label="Ayuda: correo electrónico"
                                     >
-                                        {showPassword
-                                            ? "Ocultar"
-                                            : "Ver"}
+                                        ?
                                     </button>
-
-                                    <span className="help">
-                                        <button
-                                            type="button"
-                                            className="helpButton"
-                                            aria-describedby="passwordHelp"
-                                            aria-label="Ayuda: contraseña"
-                                        >
-                                            ?
-                                        </button>
-
-                                        <span
-                                            id="passwordHelp"
-                                            className="helpText"
-                                            role="tooltip"
-                                        >
-                                            Si es tu primer ingreso, usa la
-                                            contraseña temporal que te llegó
-                                            por correo.
-                                        </span>
+                                    <span id="emailHelp" className="loginPage__helpText" role="tooltip">
+                                        Es el correo con el que te registraste, por ejemplo usuario@correo.cl.
                                     </span>
-                                </div>
+                                </span>
                             </div>
-
-                            <p
-                                className="errorMessage"
-                                role="alert"
-                            >
-                                {passwordError}
-                            </p>
                         </div>
 
-                        <button
-                            type="submit"
-                            className="primaryButton"
-                            disabled={isLoading}
-                        >
-                            {isLoading
-                                ? "Ingresando..."
-                                : "Iniciar sesión"}
-                        </button>
-                    </form>
+                        {emailError && (
+                            <p className="loginPage__fieldError" role="alert">
+                                {emailError}
+                            </p>
+                        )}
+                    </div>
 
-                    <p className="formFooter">
-                        ¿No tienes cuenta?{" "}
-                        <Link to="/register-client">
-                            Regístrate
-                        </Link>
-                    </p>
-                </div>
-            </main>
+                    <div className="loginPage__field">
+                        <label className="loginPage__label" htmlFor="password">
+                            Contraseña
+                        </label>
 
-            <aside className="panel" aria-hidden="true">
-                {/* Espacio reservado para una foto o ilustración real, a definir con el cliente (NF01) */}
-                <p>
-                    Sigue el estado de tu reparación paso a paso con
-                    TecnoFix.
+                        <div className={"loginPage__inputWrapper" + (passwordError ? " loginPage__inputWrapper--invalid" : "")}>
+                            <input
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                className="loginPage__input"
+                                autoComplete="current-password"
+                                placeholder="Ingresa tu contraseña"
+                                value={password}
+                                onChange={(event) => setPassword(event.target.value)}
+                                aria-invalid={Boolean(passwordError)}
+                            />
+
+                            <div className="loginPage__actions">
+                                <button
+                                    type="button"
+                                    className="loginPage__toggle"
+                                    aria-pressed={showPassword}
+                                    onClick={() => setShowPassword(!showPassword)}
+                                >
+                                    {showPassword ? "Ocultar" : "Ver"}
+                                </button>
+
+                                <span className="loginPage__help">
+                                    <button
+                                        type="button"
+                                        className="loginPage__helpButton"
+                                        aria-describedby="passwordHelp"
+                                        aria-label="Ayuda: contraseña"
+                                    >
+                                        ?
+                                    </button>
+                                    <span id="passwordHelp" className="loginPage__helpText" role="tooltip">
+                                        Si es tu primer ingreso, usa la contraseña temporal que te llegó por correo.
+                                    </span>
+                                </span>
+                            </div>
+                        </div>
+
+                        {passwordError && (
+                            <p className="loginPage__fieldError" role="alert">
+                                {passwordError}
+                            </p>
+                        )}
+                    </div>
+
+                    <button type="submit" className="loginPage__button" disabled={isLoading}>
+                        {isLoading ? "Ingresando..." : "Iniciar sesión"}
+                    </button>
+                </form>
+
+                <p className="loginPage__footer">
+                    ¿No tienes cuenta? <Link to={REGISTER_ROUTE}>Regístrate</Link>
                 </p>
-            </aside>
+            </main>
         </div>
     );
+}
+
+/** Convierte cualquier error en un mensaje para el usuario. */
+function GetErrorMessage(error: unknown): string {
+    // Un TypeError significa que no hubo conexión con el servidor
+    if (error instanceof Error && !(error instanceof TypeError)) {
+        return error.message;
+    }
+
+    return CONNECTION_ERROR_MESSAGE;
 }

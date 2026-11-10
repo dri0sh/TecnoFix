@@ -27,3 +27,31 @@ export interface RepairOrderCreateResponseDto {
     status: string;
     receivedAt: string;
 }
+
+
+// Orden disponible para realizar un diagnóstico (ORD-002)
+export interface RepairOrderDiagnosisListDto {
+    id: number;
+    orderNumber: string;
+    clientName: string;
+    equipmentType: string;
+    brandModel: string;
+    reportedFault: string;
+    receivedAt: string;
+    status: string;
+}
+
+// Datos enviados para registrar el diagnóstico y presupuesto (ORD-002)
+export interface RepairOrderDiagnosisRequestDto {
+    orderId: number;
+    technicalDiagnosis: string;
+    laborCost: number;
+    partsCost: number;
+}
+
+// Respuesta al registrar el diagnóstico y presupuesto (ORD-002)
+export interface RepairOrderDiagnosisResponseDto {
+    success: boolean;
+    message: string;
+    fieldErrors: Record<string, string>;
+}

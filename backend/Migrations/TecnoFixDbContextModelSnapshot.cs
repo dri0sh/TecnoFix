@@ -115,8 +115,16 @@ namespace backend.Migrations
                     b.Property<int>("EquipmentTypeId")
                         .HasColumnType("integer");
 
+                    b.Property<decimal?>("LaborCost")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
+
                     b.Property<int>("OrderNumber")
                         .HasColumnType("integer");
+
+                    b.Property<decimal?>("PartsCost")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
 
                     b.Property<DateTime>("ReceivedAt")
                         .HasColumnType("timestamp with time zone");
@@ -129,6 +137,9 @@ namespace backend.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
+                    b.Property<int?>("ResponsibleTechnicianId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("SerialNumber")
                         .HasMaxLength(60)
                         .HasColumnType("character varying(60)");
@@ -137,6 +148,14 @@ namespace backend.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("TechnicalDiagnosis")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<decimal?>("TotalCost")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)");
 
                     b.HasKey("Id");
 
@@ -148,6 +167,8 @@ namespace backend.Migrations
                         .IsUnique();
 
                     b.HasIndex("RegisteredById");
+
+                    b.HasIndex("ResponsibleTechnicianId");
 
                     b.ToTable("RepairOrders", (string)null);
                 });
@@ -272,11 +293,18 @@ namespace backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("TecnoFix.Src.Model.User", "ResponsibleTechnician")
+                        .WithMany()
+                        .HasForeignKey("ResponsibleTechnicianId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Client");
 
                     b.Navigation("EquipmentType");
 
                     b.Navigation("RegisteredBy");
+
+                    b.Navigation("ResponsibleTechnician");
                 });
 
             modelBuilder.Entity("TecnoFix.Src.Model.User", b =>

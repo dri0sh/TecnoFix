@@ -1,3 +1,4 @@
+
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
@@ -5,11 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using TecnoFix.Src.DTO.Order;
 using TecnoFix.Src.Services.Interfaces;
 
-namespace TecnoFix.Src.Controllers;
+namespace TecnoFix.Src.Controller;
 
 /// <summary>
 /// Controlador de las órdenes de reparación.
-/// Registrar una orden lo pueden hacer el técnico y el administrador (ORD-001, NF02).
 /// </summary>
 /// <param name="repairOrderService">Servicio de órdenes inyectado.</param>
 [ApiController]
@@ -31,14 +31,10 @@ public class RepairOrderController(IRepairOrderService repairOrderService) : Con
     /// <summary>
     /// Registra una nueva orden de reparación (ORD-001).
     /// </summary>
-    /// <param name="request">Datos del equipo recibido.</param>
-    /// <returns>200 con el número de orden, o 400 con "message" y "fieldErrors" por campo.</returns>
     [Authorize(Roles = "Tecnico,Administrador")]
     [HttpPost]
     public async Task<IActionResult> RegisterOrder([FromBody] RepairOrderCreateRequestDto request)
     {
-        // El responsable se obtiene del token, nunca del cuerpo de la petición,
-        // para que nadie pueda registrar una orden a nombre de otro usuario.
         var userId = GetCurrentUserId();
 
         if (userId is null)
@@ -62,9 +58,93 @@ public class RepairOrderController(IRepairOrderService repairOrderService) : Con
         });
     }
 
+    // --------------------------------------------------
+    // ORD-002: Diagnóstico y presupuesto
+    // --------------------------------------------------
+
     /// <summary>
-    /// Obtiene el id del usuario autenticado desde el token (claim "sub").
-    /// Según la configuración, ASP.NET lo entrega como NameIdentifier o como "sub": se revisan ambos.
+    /// Obtiene las órdenes recibidas o que están en diagnóstico.
+    /// </summary>
+    [Authorize(Roles = "Tecnico,Administrador")]
+    [HttpGet("diagnosis")]
+    public async Task<ActionResult<List<RepairOrderDiagnosisListDto>>> GetOrdersForDiagnosis()
+    {
+        var orders = await _repairOrderService.GetOrdersForDiagnosisAsync();
+
+        return Ok(orders);
+    }
+
+    /// <summary>
+    /// Inicia el diagnóstico de una orden y cambia su estado a En diagnóstico.
+    /// </summary>
+    [Authorize(Roles = "Tecnico")]
+    [HttpPut("{orderId:int}/start-diagnosis")]
+    public async Task<IActionResult> StartDiagnosis(int orderId)
+    {
+        var userId = GetCurrentUserId();
+
+        if (userId is null)
+        {
+            return Unauthorized(new { message = "No se pudo identificar al usuario autenticado" });
+        }
+
+        var success = await _repairOrderService.StartDiagnosisAsync(orderId, userId.Value);
+
+        if (!success)
+        {
+            return BadRequest(new
+            {
+                message = "No se pudo iniciar el diagnóstico de la orden."
+            });
+        }
+
+        return Ok(new
+        {
+            message = "El diagnóstico de la orden se inició correctamente."
+        });
+    }
+
+    /// <summary>
+    /// Registra el diagnóstico técnico y el presupuesto de una orden.
+    /// </summary>
+    
+[Authorize(Roles = "Tecnico")]
+[HttpPost("diagnosis/budget")]
+public async Task<IActionResult> RegisterDiagnosisAndBudget(
+    [FromBody] RepairOrderDiagnosisRequestDto request)
+{
+    var userId = GetCurrentUserId();
+
+    if (userId is null)
+    {
+        return Unauthorized(new
+        {
+            message = "No se pudo identificar al usuario autenticado"
+        });
+    }
+
+    var result = await _repairOrderService.RegisterDiagnosisAndBudgetAsync(
+        request,
+        userId.Value);
+
+    if (!result.Success)
+    {
+        return BadRequest(new
+        {
+            message = result.Message,
+            fieldErrors = result.FieldErrors
+        });
+    }
+
+    return Ok(new
+    {
+        message = result.Message
+    });
+}
+
+
+    /// <summary>
+    /// Obtiene el id del usuario autenticado desde el token.
     /// </summary>
     private int? GetCurrentUserId()
     {

@@ -65,8 +65,40 @@ public class RepairOrder
     public int RegisteredById { get; set; }
     public User RegisteredBy { get; set; } = default!;
 
+
+    /// <summary>
+    /// Técnico responsable de la orden: el que la abre para diagnosticarla.
+    /// Es nulo mientras la orden está en «Recibida» («Sin asignar») y, una vez asignado,
+    /// no cambia aunque otro técnico actualice el estado.
+    /// </summary>
+    public int? ResponsibleTechnicianId { get; set; }
+    public User? ResponsibleTechnician { get; set; }
+
     /// <summary>
     /// Bitácora de la orden: un evento por cada cambio de estado.
     /// </summary>
     public ICollection<OrderLog> Logs { get; set; } = [];
+
+    /// <summary>
+    /// Diagnóstico técnico registrado por el técnico.
+    /// Queda nulo hasta que se realice el diagnóstico.
+    /// </summary>
+    public string? TechnicalDiagnosis { get; set; }
+
+    /// <summary>
+    /// Costo de mano de obra.
+    /// Queda nulo hasta que se registre el presupuesto.
+    /// </summary>
+    public decimal? LaborCost { get; set; }
+
+    /// <summary>
+    /// Costo de los repuestos.
+    /// Queda nulo hasta que se registre el presupuesto.
+    /// </summary>
+    public decimal? PartsCost { get; set; }
+
+    /// <summary>
+    /// Costo total: mano de obra más repuestos.
+    /// </summary>
+    public decimal? TotalCost { get; set; }
 }
