@@ -9,6 +9,9 @@ import { AccessDenied } from "./Page/AccessDenied/AccessDenied"
 import { Navigation } from "./Components/Navigation";
 import { Diagnosis } from "./Page/Diagnosis/Diagnosis";
 import { EquipmentTypes } from "./Page/EquipmentTypes/EquipmentTypes";
+import { Home } from "./Page/Home/Home";
+import { HOME_ROUTE } from "./Utils/Menu";
+import { IsAuthenticated } from "./Utils/Auth";
 
 function App() {
     return (
@@ -18,12 +21,28 @@ function App() {
             <Routes>
                 <Route
                     path="/"
-                    element={<Navigate to="/login" replace />}
+                    element={<Navigate to={IsAuthenticated() ? HOME_ROUTE : "/login"} replace />}
                 />
 
                 <Route
                     path="/login"
                     element={<Login />}
+                />
+
+
+                <Route
+                    path="/home"
+                    element={
+                        <ProtectedRoute
+                            allowedRoles={[
+                                "administrador",
+                                "tecnico",
+                                "cliente"
+                            ]}
+                        >
+                            <Home />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Login as LoginApi } from "../../Api/Auth";
+import { HOME_ROUTE } from "../../Utils/Menu";
 import "./Login.css";
 
 // Mensajes exactos de la tarjeta USU-001
@@ -12,7 +13,6 @@ const CONNECTION_ERROR_MESSAGE = "No se pudo conectar con el servidor. Intenta n
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Rutas definidas en App.tsx
-const HOME_ROUTE = "/change-password";
 const REGISTER_ROUTE = "/register-client";
 
 // AJUSTAR: debe tener el mismo valor que ROLE_STORAGE_KEY de Navigation y ProtectedRoute

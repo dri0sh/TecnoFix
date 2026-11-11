@@ -1,11 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-    ClearSession,
-    NormalizeRole,
-    GetRole
-} from "../Utils/Auth";
+import { ClearSession, GetRole } from "../Utils/Auth";
+import { GetMenuOptions, HOME_ROUTE } from "../Utils/Menu";
 import "./Navigation.css";
 
+/**
+ * Barra de navegación superior. Muestra las opciones según el rol del usuario,
+ * a partir de la misma lista que usa la página de inicio (Utils/Menu.ts).
+ */
 export function Navigation() {
     const location = useLocation();
     const navigate = useNavigate();
@@ -17,47 +18,25 @@ export function Navigation() {
         return null;
     }
 
-    const normalizedRole = NormalizeRole(role);
+    const options = GetMenuOptions(role);
 
-    function Logout() {ClearSession(); navigate("/login", { replace: true });}
+    function Logout() {
+        ClearSession();
+        navigate("/login", { replace: true });
+    }
 
     return (
         <nav className="navigation">
-            <div className="navigation__brand">TecnoFix</div>
+            <Link to={HOME_ROUTE} className="navigation__brand">
+                TecnoFix
+            </Link>
 
             <div className="navigation__links">
-                <Link to="/change-password">
-                    Cambiar contraseña
-                </Link>
-
-                {(normalizedRole === "tecnico") && (
-                    <Link to="/register-client">
-                        Registrar Cliente
+                {options.map((option) => (
+                    <Link key={option.path} to={option.path}>
+                        {option.label}
                     </Link>
-                )}
-
-                {normalizedRole === "administrador" && (
-                    <>
-                        <Link to="/register-technician">
-                            Registrar Técnico
-                        </Link>
-
-                        <Link to="/equipment-types">
-                            Tipos de equipo
-                        </Link>
-                    </>    
-                )}
-
-
-                {(normalizedRole === "tecnico" || normalizedRole === "administrador") && (
-                    <Link to="/register-order">
-                        Registrar orden
-                    </Link>
-                )}
-                
-                {(normalizedRole === "tecnico" || normalizedRole === "administrador") && (
-                     <Link to="/diagnosis">Diagnóstico y presupuesto</Link>
-            )}
+                ))}
 
                 <button
                     type="button"

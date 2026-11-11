@@ -1,0 +1,50 @@
+/* Página de inicio: tarjetas con las opciones disponibles según el rol */
+
+/* Más ancho que los formularios para que quepan varias tarjetas por fila */
+.formPage__content.homePage__content {
+  max-width: 56rem;
+}
+
+.homePage__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+.homePage__card {
+  display: block;
+  padding: 1.3rem 1.4rem;
+  color: var(--text-color);
+  text-decoration: none;
+  background: var(--background-color);
+  border: 1.5px solid #e3e3e8;
+  border-radius: 14px;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s,
+    transform 0.12s;
+}
+
+.homePage__card:hover {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(58, 53, 224, 0.15);
+  transform: translateY(-2px);
+}
+
+.homePage__card:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.homePage__cardTitle {
+  margin: 0 0 0.4rem;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.homePage__cardDescription {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted-text-color);
+}
