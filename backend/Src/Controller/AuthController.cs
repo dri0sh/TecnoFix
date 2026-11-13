@@ -42,6 +42,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
+            Path = "/",
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
@@ -89,7 +90,6 @@ public class AuthController(IAuthService authService) : ControllerBase
 
         return Ok(result);
     }
-
 
     /// <summary>
     /// Entrega las especialidades disponibles para el formulario de registrar técnico.
@@ -148,8 +148,6 @@ public class AuthController(IAuthService authService) : ControllerBase
         return result.IsDuplicateEmail ? Conflict(errorBody) : BadRequest(errorBody);
     }
 
-    
-
     /// <summary>
     /// Cambia la contraseña del usuario autenticado.
     /// </summary>
@@ -191,10 +189,25 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// Cierra la sesión del usuario eliminando la cookie de autenticación.
     /// </summary>
     /// <returns>Resultado de la operación.</returns>
-    [HttpHead("logout")]
+    [HttpPost("logout")]
     public IActionResult Logout()
     {
-        Response.Cookies.Delete("access_token");
+        Response.Cookies.Delete("access_token", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/"
+        });
+
+        // Elimina también cookies creadas antes de establecer Path = "/".
+        Response.Cookies.Delete("access_token", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/api/auth"
+        });
 
         return Ok(new
         {

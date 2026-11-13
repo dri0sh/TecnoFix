@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ClearSession, GetRole } from "../Utils/Auth";
 import { GetMenuOptions, HOME_ROUTE } from "../Utils/Menu";
+import { Logout as LogoutRequest } from "../Api/Auth";
 import "./Navigation.css";
 
 /**
@@ -20,9 +21,19 @@ export function Navigation() {
 
     const options = GetMenuOptions(role);
 
-    function Logout() {
-        ClearSession();
-        navigate("/login", { replace: true });
+    async function Logout() {
+        try {
+            await LogoutRequest();
+
+            ClearSession();
+            navigate("/login", { replace: true });
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+
+            window.alert(
+                "No fue posible cerrar la sesión en el servidor. Inténtelo nuevamente."
+            );
+        }
     }
 
     return (
