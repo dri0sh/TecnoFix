@@ -12,7 +12,7 @@ namespace TecnoFix.Src.Services;
 /// Implementa el registro de órdenes de reparación (ORD-001).
 /// </summary>
 /// <param name="context">Contexto de acceso a la base de datos.</param>
-public class RepairOrderService(TecnoFixDbContext context) : IRepairOrderService
+public partial class RepairOrderService(TecnoFixDbContext context) : IRepairOrderService
 {
     private const string CLIENT_ROLE = "Cliente";
 
