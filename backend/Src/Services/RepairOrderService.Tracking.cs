@@ -36,6 +36,7 @@ public partial class RepairOrderService
             .AsNoTracking()
             .Include(item => item.EquipmentType)
             .Include(item => item.Logs)
+                .ThenInclude(log => log.Responsible)
             .FirstOrDefaultAsync(item => item.Id == orderId && item.ClientId == clientId);
 
         if (order is null)
