@@ -1,4 +1,4 @@
-using TecnoFix.Src.DTO.Usuario;
+using TecnoFix.Src.DTO.User;
 
 namespace TecnoFix.Src.Services.Interfaces;
 
@@ -20,21 +20,33 @@ public interface IAuthService
     /// </summary>
     /// <param name="request">Datos del nuevo cliente.</param>
     /// <returns>Resultado del registro del cliente.</returns>
-    Task<RegistrarClienteResponseDto> RegistrarClienteAsync(RegistrarClienteRequestDto request);
+    Task<ClientRegistrationResponseDto> RegisterClientAsync(ClientRegistrationRequestDto request);
 
     /// <summary>
-    /// Registra un nuevo técnico en el sistema, genera una contraseña provisoria
-    /// y la envía por correo electrónico.
+    /// Registra un nuevo técnico (USU-003): valida los datos, genera una contraseña
+    /// temporal y la envía al correo del técnico.
     /// </summary>
-    /// <param name="dto">Datos del nuevo técnico.</param>
-    /// <returns>Mensaje indicando el resultado de la operación.</returns>
-    Task<string> RegisterTecnicoAsync(TecnicoCreateDto dto);
+    /// <param name="request">Datos ingresados por el administrador.</param>
+    /// <returns>Resultado del registro, con los errores por campo si los hay.</returns>
+    Task<TechnicianRegistrationResponseDto> RegisterTechnicianAsync(TechnicianRegistrationRequestDto request);
+
+    /// <summary>
+    /// Entrega las especialidades registradas que se pueden asignar a un técnico.
+    /// </summary>
+    Task<List<string>> GetTechnicianSpecialtiesAsync();
+
+    /// <summary>
+    /// Agrega una nueva especialidad al catálogo (USU-003).
+    /// </summary>
+    /// <param name="request">Nombre de la nueva especialidad.</param>
+    /// <returns>Resultado, con el error del campo si lo hay.</returns>
+    Task<SpecialtyResponseDto> AddSpecialtyAsync(SpecialtyRequestDto request);
 
     /// <summary>
     /// Cambia la contraseña del usuario autenticado.
     /// </summary>
-    /// <param name="usuarioId">Identificador del usuario autenticado.</param>
+    /// <param name="userId">Identificador del usuario autenticado.</param>
     /// <param name="request">Datos necesarios para cambiar la contraseña.</param>
     /// <returns>Resultado del cambio de contraseña.</returns>
-    Task<CambiarPasswordResponseDto> CambiarPasswordAsync(int usuarioId, CambiarPasswordRequestDto request);
+    Task<PasswordChangeResponseDto> ChangePasswordAsync(int userId, PasswordChangeRequestDto request);
 }

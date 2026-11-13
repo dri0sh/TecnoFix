@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -5,119 +6,135 @@ using System.Text;
 using TecnoFix.Src.Data;
 using TecnoFix.Src.Services;
 using TecnoFix.Src.Services.Interfaces;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
-
-builder.Services.AddOpenApi();
+builder.Configuration.AddJsonFile(
+    "appsettings.Local.json",
+    optional: true,
+    reloadOnChange: true);
 
 // Conexión a la base de datos
-builder.Services.AddDbContext<TecnoFixDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("TecnoFixConnection")));
+builder.Services.AddDbContext<TecnoFixDbContext>(
+    options => options.UseNpgsql(
+        builder.Configuration.GetConnectionString("TecnoFixConnection")));
 
-// Publicar los servicios de autenticación
+// Registro de servicios
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IEmailSender, SendGridEmailSender>();
+builder.Services.AddScoped<IRepairOrderService, RepairOrderService>();
+// Servicio de gestión del catálogo de tipos de equipo (ADM-001)
+builder.Services.AddScoped<IEquipmentTypeService, EquipmentTypeService>();
 
 // Configuración para MVC
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .ConfigureApiBehaviorOptions(options =>
+    {
+        options.InvalidModelStateResponseFactory = context =>
+        {
+            var fieldErrors = context.ModelState
+                .Where(entry => entry.Value?.Errors.Count > 0)
+                .ToDictionary(
+                    entry => entry.Key,
+                    entry => entry.Value!.Errors.First().ErrorMessage
+                );
+
+            return new BadRequestObjectResult(new
+            {
+                message = "Debe corregir los campos indicados.",
+                fieldErrors
+            });
+        };
+    });
 builder.Services.AddEndpointsApiExplorer();
 
+// Configuración de Swagger
+builder.Services.AddSwaggerGen();
+
 // Configuración de CORS
-const string politicCors = "PoliticaCors";
+const string CORS_POLICY_NAME = "CorsPolicy";
+
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(politicCors, policy =>
+    options.AddPolicy(CORS_POLICY_NAME, policy =>
     {
-        policy.WithOrigins(builder.Configuration["UrlFront"]!)
-              .AllowAnyMethod()
-              .AllowAnyHeader()
-              .AllowCredentials();
+        policy.WithOrigins(
+                builder.Configuration["UrlFront"]!)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 
-// Configuración de token de usuario
+// Configuración de autenticación mediante JWT
 builder.Services.AddAuthentication(options =>
 {
-    // Configura el esquema de autenticación predeterminado para JWT Bearer
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
+    options.DefaultAuthenticateScheme =
+        JwtBearerDefaults.AuthenticationScheme;
 
+    options.DefaultChallengeScheme =
+        JwtBearerDefaults.AuthenticationScheme;
+})
 .AddJwtBearer(options =>
 {
-    // Configura los parámetros de validación del token JWT
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        // Habilita la validación del emisor, audiencia, tiempo de vida y clave de firma del token
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        // Establece el emisor, audiencia y clave de firma válidos para la validación del token
+
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!))
+        IssuerSigningKey = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(
+                builder.Configuration["Jwt:SecretKey"]!))
     };
-    // Configura un evento para extraer el token JWT de 
-    // las cookies en lugar de los encabezados de autorización
+
+    // Extrae el token JWT desde la cookie de autenticación
     options.Events = new JwtBearerEvents
-{
-    OnMessageReceived = context =>
     {
-
-        if (context.Request.Cookies.TryGetValue("access_token", out var token))
+        OnMessageReceived = context =>
         {
-            context.Token = token;
+            if (context.Request.Cookies.TryGetValue("access_token", out var token))
+            {
+                context.Token = token;
+            }
+
+            return Task.CompletedTask;
         }
-
-        return Task.CompletedTask;
-    },
-
-    OnTokenValidated = context =>
-    {
-        return Task.CompletedTask;
-    },
-
-    OnAuthenticationFailed = context =>
-    {
-        return Task.CompletedTask;
-    },
-
-    OnChallenge = context =>
-    {
-        return Task.CompletedTask;
-    }
-};
+    };
 });
+
 // Servicio de autorización
 builder.Services.AddAuthorization();
-builder.Services.AddScoped<TecnoFix.Src.Utils.GenerateTokenClass>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configuración de Swagger solo en desarrollo
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
+// Migraciones y datos iniciales
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<TecnoFixDbContext>();
-    await context.Database.MigrateAsync();     
-    await DbSeeder.SeedAsync(context);         
+
+    await context.Database.MigrateAsync();
+    await DbSeeder.SeedAsync(context);
 }
 
+// Configuración del pipeline HTTP
 app.UseHttpsRedirection();
-app.UseCors(politicCors);
+app.UseCors(CORS_POLICY_NAME);
 
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 app.Run();
-
-
-

@@ -1,41 +1,67 @@
+
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { eliminarSesion, normalizarRol, obtenerRol } from "../Utils/Auth";
+import { GetMenuOptions, HOME_ROUTE } from "../Utils/Menu";
+import { Logout as LogoutRequest } from "../Api/Auth";
+import { useAuth } from "../Context/AuthContext";
 import "./Navigation.css";
 
+/**
+ * Barra de navegación superior. Muestra las opciones según el rol
+ * del usuario autenticado mediante AuthContext.
+ */
 export function Navigation() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const rol = obtenerRol();
+    const { user, isLoading, clearSession } = useAuth();
 
-    // El login no debe mostrar navegación.
-    if (!rol || location.pathname === "/login") {
+    // Esperar la verificación de la sesión.
+    if (isLoading) {
         return null;
     }
 
-    const rolNormalizado = normalizarRol(rol);
+    const role = user?.role;
 
-    function cerrarSesion() {
-        eliminarSesion();
-        navigate("/login", { replace: true });
+    // El login y las sesiones no autenticadas no muestran navegación.
+    if (!role || location.pathname === "/login") {
+        return null;
+    }
+
+    const options = GetMenuOptions(role);
+
+    async function Logout() {
+        try {
+            await LogoutRequest();
+
+            clearSession();
+            navigate("/login", { replace: true });
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+
+            window.alert(
+                "No fue posible cerrar la sesión en el servidor. Inténtelo nuevamente."
+            );
+        }
     }
 
     return (
         <nav className="navigation">
-            <div className="navigation__brand">TecnoFix</div>
+            <Link to={HOME_ROUTE} className="navigation__brand">
+                TecnoFix
+            </Link>
 
             <div className="navigation__links">
-                <Link to="/cambiar-password">Cambiar contraseña</Link>
+                {options.map((option) => (
+                    <Link key={option.path} to={option.path}>
+                        {option.label}
+                    </Link>
+                ))}
 
-                {(rolNormalizado === "tecnico" || rolNormalizado === "administrador") && (
-                    <Link to="/registro-cliente">Registrar Cliente</Link>
-                )}
-
-                {rolNormalizado === "administrador" && (
-                    <Link to="/registro-tecnico">Registrar Técnico</Link>
-                )}
-
-                <button type="button" className="navigation__logout" onClick={cerrarSesion}>
+                <button
+                    type="button"
+                    className="navigation__logout"
+                    onClick={Logout}
+                >
                     Cerrar sesión
                 </button>
             </div>

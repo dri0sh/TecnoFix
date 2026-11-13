@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TecnoFix.Src.DTO.Usuario;
+using TecnoFix.Src.DTO.User;
 using TecnoFix.Src.Services.Interfaces;
 
 namespace TecnoFix.Src.Controller;
@@ -24,31 +24,65 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// <param name="request">Credenciales del usuario.</param>
     /// <returns>Información básica del usuario autenticado.</returns>
     [HttpPost("login")]
-    public async Task<ActionResult<LoginResponseDto>> Login([FromBody] LoginRequestDto request)
+    public async Task<ActionResult<LoginResponseDto>> Login(
+        [FromBody] LoginRequestDto request)
     {
-        var resultado = await _authService.LoginAsync(request);
+        var result = await _authService.LoginAsync(request);
 
-        if (!resultado.Exito)
+        if (!result.Success)
         {
             return Unauthorized(new
             {
-                mensaje = resultado.Mensaje
+                message = result.Message
             });
         }
 
-        Response.Cookies.Append("access_token", resultado.Token, new CookieOptions
+        Response.Cookies.Append("access_token", result.Token, new CookieOptions
         {
             HttpOnly = true,
-            Secure = Request.IsHttps,
-            SameSite = SameSiteMode.Lax,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/",
             Expires = DateTimeOffset.UtcNow.AddHours(1)
         });
 
         return Ok(new
         {
-            mensaje = resultado.Mensaje,
-            correo = resultado.Correo,
-            rol = resultado.Rol
+            message = result.Message,
+            email = result.Email,
+            role = result.Role
+        });
+    }
+
+    /// <summary>
+    /// Obtiene la información del usuario correspondiente a la sesión actual.
+    /// </summary>
+    /// <returns>Identidad y rol del usuario autenticado.</returns>
+    [Authorize]
+    [HttpGet("session")]
+    public IActionResult GetSession()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        var name = User.FindFirstValue(ClaimTypes.Name);
+        var role = User.FindFirstValue(ClaimTypes.Role);
+
+        if (string.IsNullOrWhiteSpace(userId) ||
+            string.IsNullOrWhiteSpace(name) ||
+            string.IsNullOrWhiteSpace(role))
+        {
+            return Unauthorized(new
+            {
+                message = "No se pudo identificar la sesión del usuario."
+            });
+        }
+
+        return Ok(new
+        {
+            userId,
+            name,
+            role
         });
     }
 
@@ -57,64 +91,93 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// </summary>
     /// <param name="request">Datos del nuevo cliente.</param>
     /// <returns>Resultado del registro.</returns>
-    [HttpPost("register-cliente")]
-    public async Task<ActionResult<RegistrarClienteResponseDto>> RegistrarCliente(
-        [FromBody] RegistrarClienteRequestDto request)
+    [HttpPost("register-client")]
+    public async Task<ActionResult<ClientRegistrationResponseDto>> RegisterClient(
+        [FromBody] ClientRegistrationRequestDto request)
     {
-        var resultado = await _authService.RegistrarClienteAsync(request);
+        var result = await _authService.RegisterClientAsync(request);
 
-        if (resultado is null)
+        if (result is null)
         {
             return BadRequest(new
             {
-                mensaje = "Error al registrar el cliente"
+                message = "Error al registrar el cliente"
             });
         }
 
-        if (resultado.Mensaje.Contains("ya se encuentra registrado"))
+        if (result.Message.Contains("ya se encuentra registrado"))
         {
-            return Conflict(resultado);
+            return Conflict(result);
         }
 
-        if (resultado.Mensaje.Contains("RUT"))
+        if (result.Message.Contains("RUT"))
         {
-            return BadRequest(resultado);
+            return BadRequest(result);
         }
 
-        if (resultado.Mensaje.Contains("falló el envío del correo"))
+        if (result.Message.Contains("falló el envío del correo"))
         {
-            return BadRequest(resultado);
+            return BadRequest(result);
         }
 
-        return Ok(resultado);
+        return Ok(result);
     }
 
     /// <summary>
-    /// Registra a un nuevo técnico en el sistema.
+    /// Entrega las especialidades disponibles para el formulario de registrar técnico.
     /// </summary>
-    /// <param name="dto">Datos del nuevo técnico.</param>
-    /// <returns>Resultado del registro.</returns>
-    [HttpPost("register-tecnico")]
-    //[Authorize(Roles = "Administrador")]
-    public async Task<IActionResult> RegisterTecnico(
-        [FromBody] TecnicoCreateDto dto)
+    /// <returns>Lista de especialidades.</returns>
+    [Authorize(Roles = "Administrador")]
+    [HttpGet("technician-specialties")]
+    public async Task<ActionResult<List<string>>> GetTechnicianSpecialties()
     {
-        try
-        {
-            var resultado = await _authService.RegisterTecnicoAsync(dto);
+        return Ok(await _authService.GetTechnicianSpecialtiesAsync());
+    }
 
-            return Ok(new
-            {
-                mensaje = resultado
-            });
-        }
-        catch (Exception ex)
+    /// <summary>
+    /// Agrega una nueva especialidad de técnico (USU-003). Solo el administrador puede hacerlo.
+    /// </summary>
+    /// <param name="request">Nombre de la nueva especialidad.</param>
+    /// <returns>200 si se agregó, 400 si el nombre es inválido, 409 si ya existe.</returns>
+    [Authorize(Roles = "Administrador")]
+    [HttpPost("technician-specialties")]
+    public async Task<IActionResult> AddSpecialty([FromBody] SpecialtyRequestDto request)
+    {
+        var result = await _authService.AddSpecialtyAsync(request);
+
+        if (result.Success)
         {
-            return BadRequest(new
-            {
-                mensaje = ex.Message
-            });
+            return Ok(new { message = result.Message, name = result.Name });
         }
+
+        var errorBody = new { message = result.Message, fieldErrors = result.FieldErrors };
+
+        return result.IsDuplicateName ? Conflict(errorBody) : BadRequest(errorBody);
+    }
+
+    /// <summary>
+    /// Registra un nuevo técnico (USU-003). Solo el administrador puede hacerlo.
+    /// </summary>
+    /// <param name="request">Nombre y apellidos, correo electrónico y especialidad.</param>
+    /// <returns>
+    /// 200 si se registró, 400 si hay datos inválidos o falló el correo,
+    /// 409 si el correo ya existe. Los errores incluyen "message" y "fieldErrors" por campo.
+    /// </returns>
+    [Authorize(Roles = "Administrador")]
+    [HttpPost("register-technician")]
+    public async Task<IActionResult> RegisterTechnician(
+        [FromBody] TechnicianRegistrationRequestDto request)
+    {
+        var result = await _authService.RegisterTechnicianAsync(request);
+
+        if (result.Success)
+        {
+            return Ok(new { message = result.Message });
+        }
+
+        var errorBody = new { message = result.Message, fieldErrors = result.FieldErrors };
+
+        return result.IsDuplicateEmail ? Conflict(errorBody) : BadRequest(errorBody);
     }
 
     /// <summary>
@@ -123,45 +186,64 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// <param name="request">Datos necesarios para cambiar la contraseña.</param>
     /// <returns>Resultado de la operación.</returns>
     [Authorize]
-    [HttpPost("cambiar-password")]
-    public async Task<ActionResult<CambiarPasswordResponseDto>> CambiarPassword(
-        [FromBody] CambiarPasswordRequestDto request)
+    [HttpPost("change-password")]
+    public async Task<ActionResult<PasswordChangeResponseDto>> ChangePassword(
+        [FromBody] PasswordChangeRequestDto request)
     {
-        var usuarioIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (!int.TryParse(usuarioIdClaim, out var usuarioId))
+        if (!int.TryParse(userIdClaim, out var userId))
         {
             return Unauthorized(new
             {
-                mensaje = "No se pudo identificar al usuario autenticado"
+                message = "No se pudo identificar al usuario autenticado"
             });
         }
 
-        var resultado =
-            await _authService.CambiarPasswordAsync(usuarioId, request);
+        var result =
+            await _authService.ChangePasswordAsync(userId, request);
 
-        if (!resultado.Exito)
+        if (!result.Success)
         {
             return BadRequest(new
             {
-                mensaje = resultado.Mensaje
+                message = result.Message,
+                fieldErrors = result.FieldErrors
             });
         }
 
         Response.Cookies.Delete("access_token");
 
-        return Ok(resultado);
+        return Ok(result);
     }
 
     /// <summary>
     /// Cierra la sesión del usuario eliminando la cookie de autenticación.
     /// </summary>
     /// <returns>Resultado de la operación.</returns>
-    [HttpHead("logout")]
+    [HttpPost("logout")]
     public IActionResult Logout()
     {
-        Response.Cookies.Delete("access_token");
+        Response.Cookies.Delete("access_token", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/"
+        });
 
-        return Ok(new{mensaje = "Sesión cerrada"});
+        // Elimina también cookies creadas antes de establecer Path = "/".
+        Response.Cookies.Delete("access_token", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/api/auth"
+        });
+
+        return Ok(new
+        {
+            message = "Sesión cerrada"
+        });
     }
 }

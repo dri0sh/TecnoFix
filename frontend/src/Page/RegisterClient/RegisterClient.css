@@ -1,0 +1,220 @@
+/* Estilos de la vista de registro de cliente.
+   La identidad visual (colores) es provisoria: se acuerda con el cliente (NF01).
+   Las variables están en un solo lugar para cambiar los colores fácilmente. */
+
+.formPage {
+  --primary-color: #3a35e0;
+  --text-color: #111111;
+  --muted-text-color: #6b6b78;
+  --border-color: #2b2b33;
+  --background-color: #ffffff;
+  --error-color: #f56558; /* NF01: mensajes de error en #f56558 */
+  --success-color: #2e7d32;
+  --font-family: "Lato", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem;
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background: var(--background-color);
+}
+
+.formPage *,
+.formPage *::before,
+.formPage *::after {
+  box-sizing: border-box;
+}
+
+/* Contenedor principal del formulario */
+
+.formPage__content {
+  width: 100%;
+  max-width: 34rem;
+}
+
+/* Título */
+
+.formPage__title {
+  margin: 0 0 0.6rem;
+  font-size: clamp(2.2rem, 4.2vw, 3.3rem);
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+/* Subtítulo */
+
+.formPage__subtitle {
+  margin: 0 0 2.2rem;
+  font-size: 1.15rem;
+  color: var(--muted-text-color);
+}
+
+/* Mensaje de error */
+
+.formPage__error {
+  margin: 0 0 1.6rem;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--error-color);
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--error-color);
+}
+
+/* Borde rojo cuando un campo tiene errores */
+
+.formPage__input--invalid {
+  border-color: var(--error-color);
+}
+
+/* Mensaje de error debajo de cada campo */
+
+.formPage__fieldError {
+  margin: 0.45rem 0 0 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--error-color);
+}
+
+/* Mensaje de éxito */
+
+.formPage__success {
+  margin: 0 0 1.6rem;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--success-color);
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--success-color);
+}
+
+/* Formulario */
+
+.formPage__form {
+  width: 100%;
+}
+
+/* Campo */
+
+.formPage__field {
+  margin-bottom: 1.5rem;
+}
+
+/* Etiqueta */
+
+.formPage__label {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* Entrada */
+
+.formPage__input {
+  width: 100%;
+  height: 3.6rem;
+  padding: 0 1.3rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text-color);
+  background: var(--background-color);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  transition:
+    border-color 0.12s,
+    box-shadow 0.12s;
+}
+
+.formPage__input::placeholder {
+  color: var(--muted-text-color);
+}
+
+.formPage__input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(58, 53, 224, 0.15);
+}
+
+/* Botón principal */
+
+.formPage__button {
+  width: 100%;
+  height: 3.6rem;
+  margin-top: 0.4rem;
+  padding: 0 1rem;
+  font: inherit;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--background-color);
+  background: var(--primary-color);
+  border: 0;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: filter 0.12s, opacity 0.12s;
+}
+
+.formPage__button:hover {
+  filter: brightness(1.12);
+}
+
+.formPage__button:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+
+.formPage__button:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Pie del formulario */
+
+.formPage .formFooter {
+  margin: 1.8rem 0 0;
+  text-align: center;
+  font-size: 1.05rem;
+  color: var(--muted-text-color);
+}
+
+.formPage .formFooter a {
+  color: var(--primary-color);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.formPage .formFooter a:hover {
+  text-decoration: underline;
+}
+
+/* Adaptación para pantallas pequeñas */
+
+@media (max-width: 600px) {
+  .formPage {
+    padding: 1.25rem;
+  }
+
+  .formPage__title {
+    font-size: 2.4rem;
+  }
+
+  .formPage__subtitle {
+    margin-bottom: 1.8rem;
+  }
+
+  .formPage__field {
+    margin-bottom: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .formPage__input,
+  .formPage__button {
+    transition: none;
+  }
+}

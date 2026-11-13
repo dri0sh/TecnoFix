@@ -1,182 +1,266 @@
-import { useState } from "react";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { iniciarSesion } from "../../Api/Auth";
+import Swal from "sweetalert2";
+import { Login as LoginApi } from "../../Api/Auth";
+import { HOME_ROUTE } from "../../Utils/Menu";
+import { useAuth } from "../../Context/AuthContext";
 import "./Login.css";
-import { guardarRol, normalizarRol } from "../../Utils/Auth";
 
 // Mensajes exactos de la tarjeta USU-001
-const MENSAJE_CORREO_INVALIDO = "El correo electrónico no tiene un formato válido";
-const MENSAJE_ERROR_CONEXION = "No se pudo conectar con el servidor. Intenta nuevamente.";
+const INVALID_EMAIL_MESSAGE = "El correo electrónico no tiene un formato válido";
+const CONNECTION_ERROR_MESSAGE = "No se pudo conectar con el servidor. Intenta nuevamente.";
 
-// Formato: algo@dominio.ext
-const REGEX_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// Formato de correo: texto@dominio.extensión
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-function mensajeCampoVacio(nombreCampo: string): string {
-    return "Debe completar el campo " + nombreCampo;
+// Rutas definidas en App.tsx
+const REGISTER_ROUTE = "/register-client";
+
+// Configuración del aviso emergente (toast) de SweetAlert2
+const TOAST = Swal.mixin({
+    toast: true,
+    position: "top-end",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: (toast) => {
+        // Pausa el temporizador mientras el cursor está sobre el aviso
+        toast.onmouseenter = Swal.stopTimer;
+        toast.onmouseleave = Swal.resumeTimer;
+    }
+});
+
+/** Muestra el aviso de inicio de sesión exitoso. */
+function ShowLoginSuccessToast(): void {
+    TOAST.fire({
+        icon: "success",
+        title: "Sesión iniciada correctamente"
+    });
 }
 
-// Pantalla de inicio según el rol (NF02).
-// Provisorio: todos van a cambiar contraseña hasta que existan las pantallas de cada rol.
-function obtenerRutaDeInicio(rol: string): string {
-    const rolNormalizado = normalizarRol(rol);
-
-    if (rolNormalizado === "administrador") {return "/cambiar-password";}
-
-    if (rolNormalizado === "tecnico") {return "/cambiar-password";}
-
-    if (rolNormalizado === "cliente") {return "/cambiar-password";}
-
-    return "/login";
+/** Mensaje para un campo obligatorio vacío. */
+function GetEmptyFieldMessage(fieldName: string): string {
+    return "Debe completar el campo " + fieldName;
 }
 
+/**
+ * Ruta de inicio según el rol (NF02).
+ * Provisorio: todos los roles van a cambiar contraseña hasta que existan sus pantallas.
+ */
+function GetHomeRoute(): string {
+    return HOME_ROUTE;
+}
+
+/**
+ * Vista de inicio de sesión (USU-001).
+ * Valida formato y campos vacíos antes de llamar al backend,
+ * que vuelve a validar las credenciales.
+ */
 export function Login() {
-    const navegar = useNavigate();
+    const navigate = useNavigate();
+    const { refreshSession } = useAuth();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [emailError, setEmailError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
 
-    const [correo, setCorreo] = useState("");
-    const [contrasena, setContrasena] = useState("");
-    const [verContrasena, setVerContrasena] = useState(false);
-    const [errorCorreo, setErrorCorreo] = useState("");
-    const [errorContrasena, setErrorContrasena] = useState("");
-    const [errorGeneral, setErrorGeneral] = useState("");
-    const [cargando, setCargando] = useState(false);
+    /** Revisa que los campos estén completos y el correo tenga formato válido. */
+    function ValidateForm(cleanEmail: string): boolean {
+        let isValid = true;
 
-    // Revisa que los campos estén completos y con buen formato
-    function validarFormulario(correoLimpio: string): boolean {
-        let esValido = true;
-
-        if (correoLimpio === "") {
-            setErrorCorreo(mensajeCampoVacio("Correo electrónico"));
-            esValido = false;
-        } else if (!REGEX_CORREO.test(correoLimpio)) {
-            setErrorCorreo(MENSAJE_CORREO_INVALIDO);
-            esValido = false;
+        if (cleanEmail === "") {
+            setEmailError(GetEmptyFieldMessage("Correo electrónico"));
+            isValid = false;
+        } else if (!EMAIL_REGEX.test(cleanEmail)) {
+            setEmailError(INVALID_EMAIL_MESSAGE);
+            isValid = false;
         }
 
-        if (contrasena === "") {
-            setErrorContrasena(mensajeCampoVacio("Contraseña"));
-            esValido = false;
+        if (password === "") {
+            setPasswordError(GetEmptyFieldMessage("Contraseña"));
+            isValid = false;
         }
 
-        return esValido;
+        return isValid;
     }
 
-    async function manejarEnvio(evento: FormEvent<HTMLFormElement>) {
-        evento.preventDefault();
-        setErrorCorreo("");
-        setErrorContrasena("");
-        setErrorGeneral("");
+    async function HandleSubmit(event: FormEvent) {
+        event.preventDefault();
 
-        const correoLimpio = correo.trim();
-        if (!validarFormulario(correoLimpio)) return;
+        setEmailError("");
+        setPasswordError("");
+        setErrorMessage("");
 
-        setCargando(true);
+        const cleanEmail = email.trim();
+
+        if (!ValidateForm(cleanEmail)) return;
+
+        setIsLoading(true);
+
         try {
-            const respuesta = await iniciarSesion({
-                Correo: correoLimpio,
-                Contrasena: contrasena
+            // Los nombres de las propiedades coinciden con LoginRequestDto
+            await LoginApi({
+                email: cleanEmail,
+                password
             });
 
-            guardarRol(respuesta.rol);
-            navegar(obtenerRutaDeInicio(respuesta.rol));
+            const sessionLoaded = await refreshSession();
+
+            if (!sessionLoaded) {
+            setErrorMessage("No fue posible verificar la sesión. Intenta nuevamente.");
+            return;
+        }
+
+        ShowLoginSuccessToast();
+        navigate(GetHomeRoute());
+
         } catch (error) {
-            // Un TypeError significa que no hubo conexión con el servidor.
-            // Cualquier otro Error trae el mensaje del backend ("Correo electrónico o contraseña incorrectos").
-            if (error instanceof Error && !(error instanceof TypeError)) {
-                setErrorGeneral(error.message);
-            } else {
-                setErrorGeneral(MENSAJE_ERROR_CONEXION);
-            }
+            setErrorMessage(GetErrorMessage(error));
         } finally {
-            setCargando(false);
+            setIsLoading(false);
         }
     }
 
-        return (
-        <main className="login-pagina">
-            <section className="login-tarjeta">
-                {/* Marca: ícono de servicio técnico + nombre */}
-                <div className="login-marca">
-                    <span className="login-icono" aria-hidden="true">
+    return (
+        <div className="loginPage">
+            <main className="loginPage__card">
+                {/* Marca: ícono de servicio técnico y nombre */}
+                <div className="loginPage__brand">
+                    <span className="loginPage__icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
                             strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
                         </svg>
                     </span>
-                    <span className="login-nombre">TecnoFix</span>
+                    <span className="loginPage__name">TecnoFix</span>
                 </div>
 
-                <h1>Iniciar sesión</h1>
-                <p className="subtitulo">Ingresa con tu correo electrónico y tu contraseña.</p>
+                <h1 className="loginPage__title">Iniciar sesión</h1>
 
-                {/* Error general (credenciales incorrectas) */}
-                <p id="errorGeneral" className="mensajeError" role="alert">{errorGeneral}</p>
+                <p className="loginPage__subtitle">
+                    Ingresa con tu correo electrónico y tu contraseña.
+                </p>
 
-                <form onSubmit={manejarEnvio} noValidate>
-                    <div className="campo">
-                        <label htmlFor="correo">Correo electrónico</label>
-                        <div className={"entradaContenedor" + (errorCorreo ? " invalido" : "")}>
+                {errorMessage && (
+                    <p className="loginPage__error" role="alert">
+                        {errorMessage}
+                    </p>
+                )}
+
+                <form onSubmit={HandleSubmit} className="loginPage__form" noValidate>
+                    <div className="loginPage__field">
+                        <label className="loginPage__label" htmlFor="email">
+                            Correo electrónico
+                        </label>
+
+                        <div className={"loginPage__inputWrapper" + (emailError ? " loginPage__inputWrapper--invalid" : "")}>
                             <input
-                                id="correo"
-                                name="correo"
+                                id="email"
                                 type="email"
+                                className="loginPage__input"
                                 autoComplete="username"
                                 placeholder="usuario@correo.cl"
-                                value={correo}
-                                onChange={(e) => setCorreo(e.target.value)}
+                                value={email}
+                                onChange={(event) => setEmail(event.target.value)}
+                                aria-invalid={Boolean(emailError)}
                             />
-                            <div className="accionesCampo">
-                                <span className="ayuda">
-                                    <button type="button" className="ayudaBoton" aria-describedby="ayudaCorreo" aria-label="Ayuda: correo electrónico">?</button>
-                                    <span id="ayudaCorreo" className="ayudaTexto" role="tooltip">
+
+                            <div className="loginPage__actions">
+                                <span className="loginPage__help">
+                                    <button
+                                        type="button"
+                                        className="loginPage__helpButton"
+                                        aria-describedby="emailHelp"
+                                        aria-label="Ayuda: correo electrónico"
+                                    >
+                                        ?
+                                    </button>
+                                    <span id="emailHelp" className="loginPage__helpText" role="tooltip">
                                         Es el correo con el que te registraste, por ejemplo usuario@correo.cl.
                                     </span>
                                 </span>
                             </div>
                         </div>
-                        <p className="mensajeError" role="alert">{errorCorreo}</p>
+
+                        {emailError && (
+                            <p className="loginPage__fieldError" role="alert">
+                                {emailError}
+                            </p>
+                        )}
                     </div>
 
-                    <div className="campo">
-                        <label htmlFor="contrasena">Contraseña</label>
-                        <div className={"entradaContenedor" + (errorContrasena ? " invalido" : "")}>
+                    <div className="loginPage__field">
+                        <label className="loginPage__label" htmlFor="password">
+                            Contraseña
+                        </label>
+
+                        <div className={"loginPage__inputWrapper" + (passwordError ? " loginPage__inputWrapper--invalid" : "")}>
                             <input
-                                id="contrasena"
-                                name="contrasena"
-                                type={verContrasena ? "text" : "password"}
+                                id="password"
+                                type={showPassword ? "text" : "password"}
+                                className="loginPage__input"
                                 autoComplete="current-password"
                                 placeholder="Ingresa tu contraseña"
-                                value={contrasena}
-                                onChange={(e) => setContrasena(e.target.value)}
+                                value={password}
+                                onChange={(event) => setPassword(event.target.value)}
+                                aria-invalid={Boolean(passwordError)}
                             />
-                            <div className="accionesCampo">
+
+                            <div className="loginPage__actions">
                                 <button
                                     type="button"
-                                    className="verContrasena"
-                                    aria-pressed={verContrasena}
-                                    onClick={() => setVerContrasena(!verContrasena)}
+                                    className="loginPage__toggle"
+                                    aria-pressed={showPassword}
+                                    onClick={() => setShowPassword(!showPassword)}
                                 >
-                                    {verContrasena ? "Ocultar" : "Ver"}
+                                    {showPassword ? "Ocultar" : "Ver"}
                                 </button>
-                                <span className="ayuda">
-                                    <button type="button" className="ayudaBoton" aria-describedby="ayudaContrasena" aria-label="Ayuda: contraseña">?</button>
-                                    <span id="ayudaContrasena" className="ayudaTexto" role="tooltip">
+
+                                <span className="loginPage__help">
+                                    <button
+                                        type="button"
+                                        className="loginPage__helpButton"
+                                        aria-describedby="passwordHelp"
+                                        aria-label="Ayuda: contraseña"
+                                    >
+                                        ?
+                                    </button>
+                                    <span id="passwordHelp" className="loginPage__helpText" role="tooltip">
                                         Si es tu primer ingreso, usa la contraseña temporal que te llegó por correo.
                                     </span>
                                 </span>
                             </div>
                         </div>
-                        <p className="mensajeError" role="alert">{errorContrasena}</p>
+
+                        {passwordError && (
+                            <p className="loginPage__fieldError" role="alert">
+                                {passwordError}
+                            </p>
+                        )}
                     </div>
 
-                    <button type="submit" className="botonPrincipal" disabled={cargando}>
-                        {cargando ? "Ingresando..." : "Iniciar sesión"}
+                    <button type="submit" className="loginPage__button" disabled={isLoading}>
+                        {isLoading ? "Ingresando..." : "Iniciar sesión"}
                     </button>
                 </form>
 
-                {/* Enlace a USU-002 (registro de cliente). Ruta provisoria. */}
-                <p className="pieFormulario">¿No tienes cuenta? <Link to="/registro-cliente">Regístrate</Link></p>
-            </section>
-        </main>
+                <p className="loginPage__footer">
+                    ¿No tienes cuenta? <Link to={REGISTER_ROUTE}>Regístrate</Link>
+                </p>
+            </main>
+        </div>
     );
+}
+
+/** Convierte cualquier error en un mensaje para el usuario. */
+function GetErrorMessage(error: unknown): string {
+    // Un TypeError significa que no hubo conexión con el servidor
+    if (error instanceof Error && !(error instanceof TypeError)) {
+        return error.message;
+    }
+
+    return CONNECTION_ERROR_MESSAGE;
 }
