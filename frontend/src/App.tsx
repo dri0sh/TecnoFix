@@ -1,4 +1,3 @@
-
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { ChangePassword } from "./Page/ChangePassword/ChangePassword";
 import { RegisterTechnician } from "./Page/RegisterTechnician/RegisterTechnician";
@@ -11,6 +10,7 @@ import { Navigation } from "./Components/Navigation";
 import { Diagnosis } from "./Page/Diagnosis/Diagnosis";
 import { EquipmentTypes } from "./Page/EquipmentTypes/EquipmentTypes";
 import { Home } from "./Page/Home/Home";
+import { OrderTracking } from "./Page/OrderTracking/OrderTracking";
 import { HOME_ROUTE } from "./Utils/Menu";
 import { AuthProvider, useAuth } from "./Context/AuthContext";
 
@@ -98,7 +98,7 @@ function AppRoutes() {
                 <Route
                     path="/diagnosis"
                     element={
-                        <ProtectedRoute allowedRoles={["administrador", "tecnico"]}>
+                        <ProtectedRoute allowedRoles={["tecnico"]}>
                             <Diagnosis />
                         </ProtectedRoute>
                     }
@@ -109,6 +109,14 @@ function AppRoutes() {
                     element={
                         <ProtectedRoute allowedRoles={["administrador"]}>
                             <EquipmentTypes />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/order-tracking"
+                    element={
+                        <ProtectedRoute allowedRoles={["cliente"]}>
+                            <OrderTracking />
                         </ProtectedRoute>
                     }
                 />

@@ -39,6 +39,12 @@ export const MENU_OPTIONS: MenuOption[] = [
         roles: ["tecnico"]
     },
     {
+        label: "Seguimiento de órdenes",
+        path: "/order-tracking",
+        description: "Consulta el estado y el historial de tus órdenes de reparación.",
+        roles: ["cliente"]
+    },
+    {
         label: "Cambiar contraseña",
         path: "/change-password",
         description: "Actualiza la contraseña de tu cuenta.",
