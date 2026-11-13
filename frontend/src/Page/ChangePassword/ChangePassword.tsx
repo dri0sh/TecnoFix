@@ -2,7 +2,7 @@ import { useState, type FormEvent } from "react";
 import { ChangePassword as ChangePasswordApi } from "../../Api/Auth";
 import { ApiError } from "../../Api/Client";
 import { useNavigate } from "react-router-dom";
-import { ClearSession } from "../../Utils/Auth";
+import { useAuth } from "../../Context/AuthContext";
 import { ConfirmAction } from "../../Utils/Alert";
 import "./ChangePassword.css";
 
@@ -33,6 +33,7 @@ export function ChangePassword() {
 
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const { clearSession } = useAuth();
 
     /**
      * Revisa todos los campos y devuelve el error correspondiente a cada uno.
@@ -106,7 +107,7 @@ export function ChangePassword() {
                 setConfirmNewPassword("");
 
                 setTimeout(() => {
-                    ClearSession();
+                    clearSession();
                     navigate("/login", { replace: true });
                 }, 2500);
             } else {

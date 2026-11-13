@@ -1,20 +1,28 @@
+
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ClearSession, GetRole } from "../Utils/Auth";
 import { GetMenuOptions, HOME_ROUTE } from "../Utils/Menu";
 import { Logout as LogoutRequest } from "../Api/Auth";
+import { useAuth } from "../Context/AuthContext";
 import "./Navigation.css";
 
 /**
- * Barra de navegación superior. Muestra las opciones según el rol del usuario,
- * a partir de la misma lista que usa la página de inicio (Utils/Menu.ts).
+ * Barra de navegación superior. Muestra las opciones según el rol
+ * del usuario autenticado mediante AuthContext.
  */
 export function Navigation() {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const role = GetRole();
+    const { user, isLoading, clearSession } = useAuth();
 
-    // El login no debe mostrar navegación.
+    // Esperar la verificación de la sesión.
+    if (isLoading) {
+        return null;
+    }
+
+    const role = user?.role;
+
+    // El login y las sesiones no autenticadas no muestran navegación.
     if (!role || location.pathname === "/login") {
         return null;
     }
@@ -25,7 +33,7 @@ export function Navigation() {
         try {
             await LogoutRequest();
 
-            ClearSession();
+            clearSession();
             navigate("/login", { replace: true });
         } catch (error) {
             console.error("Error al cerrar sesión:", error);

@@ -55,6 +55,38 @@ public class AuthController(IAuthService authService) : ControllerBase
     }
 
     /// <summary>
+    /// Obtiene la información del usuario correspondiente a la sesión actual.
+    /// </summary>
+    /// <returns>Identidad y rol del usuario autenticado.</returns>
+    [Authorize]
+    [HttpGet("session")]
+    public IActionResult GetSession()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? User.FindFirstValue(JwtRegisteredClaimNames.Sub);
+
+        var name = User.FindFirstValue(ClaimTypes.Name);
+        var role = User.FindFirstValue(ClaimTypes.Role);
+
+        if (string.IsNullOrWhiteSpace(userId) ||
+            string.IsNullOrWhiteSpace(name) ||
+            string.IsNullOrWhiteSpace(role))
+        {
+            return Unauthorized(new
+            {
+                message = "No se pudo identificar la sesión del usuario."
+            });
+        }
+
+        return Ok(new
+        {
+            userId,
+            name,
+            role
+        });
+    }
+
+    /// <summary>
     /// Registra a un nuevo cliente en el sistema.
     /// </summary>
     /// <param name="request">Datos del nuevo cliente.</param>

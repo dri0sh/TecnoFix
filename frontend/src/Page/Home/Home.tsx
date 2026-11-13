@@ -1,5 +1,7 @@
+
 import { Link } from "react-router-dom";
-import { GetRole, NormalizeRole } from "../../Utils/Auth";
+import { useAuth } from "../../Context/AuthContext";
+import { NormalizeRole } from "../../Utils/Auth";
 import { GetMenuOptions } from "../../Utils/Menu";
 import "../../StandardPage.css";
 import "./Home.css";
@@ -15,7 +17,9 @@ const ROLE_DISPLAY_NAMES: Record<string, string> = {
  * Página de inicio. Muestra como tarjetas las opciones disponibles según el rol del usuario.
  */
 export function Home() {
-    const role = GetRole() ?? "";
+    const { user } = useAuth();
+
+    const role = user?.role ?? "";
     const options = GetMenuOptions(role);
     const roleName = ROLE_DISPLAY_NAMES[NormalizeRole(role)] ?? role;
 
@@ -32,7 +36,11 @@ export function Home() {
 
                 <div className="homePage__grid">
                     {options.map((option) => (
-                        <Link key={option.path} to={option.path} className="homePage__card">
+                        <Link
+                            key={option.path}
+                            to={option.path}
+                            className="homePage__card"
+                        >
                             <h2 className="homePage__cardTitle">
                                 {option.label}
                             </h2>
