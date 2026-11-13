@@ -2,6 +2,8 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Login as LoginApi } from "../../Api/Auth";
+import { HOME_ROUTE } from "../../Utils/Menu";
+import { useAuth } from "../../Context/AuthContext";
 import "./Login.css";
 
 // Mensajes exactos de la tarjeta USU-001
@@ -12,11 +14,7 @@ const CONNECTION_ERROR_MESSAGE = "No se pudo conectar con el servidor. Intenta n
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 // Rutas definidas en App.tsx
-const HOME_ROUTE = "/change-password";
 const REGISTER_ROUTE = "/register-client";
-
-// AJUSTAR: debe tener el mismo valor que ROLE_STORAGE_KEY de Navigation y ProtectedRoute
-const ROLE_STORAGE_KEY = "role";
 
 // Configuración del aviso emergente (toast) de SweetAlert2
 const TOAST = Swal.mixin({
@@ -60,7 +58,7 @@ function GetHomeRoute(): string {
  */
 export function Login() {
     const navigate = useNavigate();
-
+    const { refreshSession } = useAuth();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [showPassword, setShowPassword] = useState(false);
@@ -104,15 +102,21 @@ export function Login() {
 
         try {
             // Los nombres de las propiedades coinciden con LoginRequestDto
-            const response = await LoginApi({
+            await LoginApi({
                 email: cleanEmail,
                 password
             });
 
-            // El rol se guarda en minúscula para coincidir con allowedRoles de App.tsx
-            localStorage.setItem(ROLE_STORAGE_KEY, response.role.toLowerCase());
-            ShowLoginSuccessToast();
-            navigate(GetHomeRoute());
+            const sessionLoaded = await refreshSession();
+
+            if (!sessionLoaded) {
+            setErrorMessage("No fue posible verificar la sesión. Intenta nuevamente.");
+            return;
+        }
+
+        ShowLoginSuccessToast();
+        navigate(GetHomeRoute());
+
         } catch (error) {
             setErrorMessage(GetErrorMessage(error));
         } finally {

@@ -1,4 +1,3 @@
-
 import { useEffect, useState, type FormEvent } from "react";
 import {
     GetOrdersForDiagnosis,
@@ -9,6 +8,11 @@ import { ApiError } from "../../Api/Client";
 import type { RepairOrderDiagnosisListDto } from "../../Types/OrderType";
 import "../ChangePassword/ChangePassword.css";
 import "./Diagnosis.css";
+import {
+    ConfirmAction,
+    ShowSuccessToast,
+    ShowError
+} from "../../Utils/Alert";
 
 type DiagnosisField =
     | "technicalDiagnosis"
@@ -141,62 +145,82 @@ export function Diagnosis() {
         setFieldErrors({});
     }
 
+   
     async function HandleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
+    event.preventDefault();
 
-        setFieldErrors({});
-        setErrorMessage(null);
-        setSuccessMessage(null);
+    setFieldErrors({});
+    setErrorMessage(null);
+    setSuccessMessage(null);
 
-        const errors = ValidateForm();
+    const errors = ValidateForm();
 
-        if (Object.keys(errors).length > 0) {
-            setFieldErrors(errors);
-            return;
+    if (Object.keys(errors).length > 0) {
+        setFieldErrors(errors);
+        return;
+    }
+
+    if (!selectedOrder) return;
+
+    const confirmed = await ConfirmAction(
+        "¿Deseas confirmar el diagnóstico y presupuesto de esta orden?",
+        {
+            "Número de orden": selectedOrder.orderNumber,
+            "Cliente": selectedOrder.clientName,
+            "Equipo": `${selectedOrder.equipmentType} - ${selectedOrder.brandModel}`,
+            "Diagnóstico técnico": technicalDiagnosis.trim(),
+            "Mano de obra": `$${Number(laborCost).toLocaleString("es-CL")}`,
+            "Repuestos": `$${Number(partsCost).toLocaleString("es-CL")}`,
+            "Total presupuesto": `$${(Number(laborCost) + Number(partsCost)).toLocaleString("es-CL")}`
         }
+    );
 
-        if (!selectedOrder) return;
+    // Si cancela, no se registra la información.
+    if (!confirmed) return;
 
-        setIsSubmitting(true);
+    setIsSubmitting(true);
 
-        try {
-            const response = await RegisterDiagnosisAndBudget({
-                orderId: selectedOrder.id,
-                technicalDiagnosis: technicalDiagnosis.trim(),
-                laborCost: Number(laborCost),
-                partsCost: Number(partsCost)
+    try {
+        const response = await RegisterDiagnosisAndBudget({
+            orderId: selectedOrder.id,
+            technicalDiagnosis: technicalDiagnosis.trim(),
+            laborCost: Number(laborCost),
+            partsCost: Number(partsCost)
+        });
+
+        await ShowSuccessToast(response.message);
+
+        ResetForm();
+        await LoadOrders();
+
+    } catch (error) {
+        if (
+            error instanceof ApiError &&
+            Object.keys(error.fieldErrors).length > 0
+        ) {
+            const normalizedErrors: FieldErrors = {};
+
+            Object.entries(error.fieldErrors).forEach(([key, value]) => {
+                const normalizedKey = key.toLowerCase();
+
+                if (normalizedKey === "technicaldiagnosis") {
+                    normalizedErrors.technicalDiagnosis = value;
+                } else if (normalizedKey === "laborcost") {
+                    normalizedErrors.laborCost = value;
+                } else if (normalizedKey === "partscost") {
+                    normalizedErrors.partsCost = value;
+                }
             });
 
-            setSuccessMessage(response.message);
-            ResetForm();
-            await LoadOrders();
-        } catch (error) {
-            if (
-                error instanceof ApiError &&
-                Object.keys(error.fieldErrors).length > 0
-            ) {
-                const normalizedErrors: FieldErrors = {};
-
-                Object.entries(error.fieldErrors).forEach(([key, value]) => {
-                    const normalizedKey = key.toLowerCase();
-
-                    if (normalizedKey === "technicaldiagnosis") {
-                        normalizedErrors.technicalDiagnosis = value;
-                    } else if (normalizedKey === "laborcost") {
-                        normalizedErrors.laborCost = value;
-                    } else if (normalizedKey === "partscost") {
-                        normalizedErrors.partsCost = value;
-                    }
-                });
-
-                setFieldErrors(normalizedErrors);
-            } else {
-                setErrorMessage(GetErrorMessage(error));
-            }
-        } finally {
-            setIsSubmitting(false);
+            setFieldErrors(normalizedErrors);
+        } else {
+            await ShowError(GetErrorMessage(error));
         }
+    } finally {
+        setIsSubmitting(false);
     }
+    }
+
 
     function InputClass(field: DiagnosisField): string {
         return (
