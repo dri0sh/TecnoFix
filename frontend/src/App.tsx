@@ -9,6 +9,7 @@ import { AccessDenied } from "./Page/AccessDenied/AccessDenied"
 import { Navigation } from "./Components/Navigation";
 import { Diagnosis } from "./Page/Diagnosis/Diagnosis";
 import { EquipmentTypes } from "./Page/EquipmentTypes/EquipmentTypes";
+import { OrderTracking } from "./Page/OrderTracking/OrderTracking";
 
 function App() {
     return (
@@ -66,8 +67,8 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
-                
-                                <Route
+
+                <Route
                     path="/register-order"
                     element={
                         <ProtectedRoute
@@ -95,14 +96,16 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+
                 <Route
                     path="/diagnosis"
                     element={
                         <ProtectedRoute allowedRoles={["administrador", "tecnico"]}>
                             <Diagnosis />
-                    </ProtectedRoute>
-            }
-        />
+                        </ProtectedRoute>
+                    }
+                />
+
                 <Route
                     path="/equipment-types"
                     element={
@@ -110,6 +113,15 @@ function App() {
                             allowedRoles={["administrador"]}
                         >
                             <EquipmentTypes />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/order-tracking"
+                    element={
+                        <ProtectedRoute allowedRoles={["cliente"]}>
+                            <OrderTracking />
                         </ProtectedRoute>
                     }
                 />
