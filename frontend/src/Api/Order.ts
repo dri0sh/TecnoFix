@@ -5,7 +5,9 @@ import type {
     RepairOrderFormOptionsDto,
     RepairOrderDiagnosisListDto,
     RepairOrderDiagnosisRequestDto,
-    RepairOrderDiagnosisResponseDto
+    RepairOrderDiagnosisResponseDto,
+    OrderTrackingDto,
+    OrderTrackingListItemDto
 } from "../Types/OrderType";
 
 /**
@@ -67,4 +69,20 @@ export function RegisterDiagnosisAndBudget(
         method: "POST",
         body: JSON.stringify(request)
     });
+}
+
+/**
+ * Obtiene las órdenes del cliente autenticado para el selector del seguimiento (ORD-005).
+ */
+export function GetClientOrders(): Promise<OrderTrackingListItemDto[]> {
+    return ApiFetch<OrderTrackingListItemDto[]>("/orders/mine");
+}
+
+/**
+ * Obtiene el seguimiento completo de una orden del cliente autenticado (ORD-005).
+ *
+ * @param orderId Identificador de la orden.
+ */
+export function GetOrderTracking(orderId: number): Promise<OrderTrackingDto> {
+    return ApiFetch<OrderTrackingDto>(`/orders/${orderId}/tracking`);
 }

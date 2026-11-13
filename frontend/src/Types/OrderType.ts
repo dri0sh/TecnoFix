@@ -55,3 +55,51 @@ export interface RepairOrderDiagnosisResponseDto {
     message: string;
     fieldErrors: Record<string, string>;
 }
+
+// Códigos de los estados de una orden (los mismos que el enum OrderStatus del backend)
+export type OrderStatusCode =
+    | "Received"
+    | "InDiagnosis"
+    | "Budgeted"
+    | "InRepair"
+    | "ReadyForPickup"
+    | "Delivered"
+    | "Rejected";
+
+// Orden del cliente para el selector del seguimiento (ORD-005)
+export interface OrderTrackingListItemDto {
+    id: number;
+    orderNumber: number;
+    equipmentType: string;
+    brandModel: string;
+}
+
+// Presupuesto de una orden (ORD-005)
+export interface OrderTrackingBudgetDto {
+    technicalDiagnosis: string | null;
+    laborCost: number;
+    partsCost: number;
+    totalCost: number;
+}
+
+// Evento de la bitácora de una orden (ORD-005)
+export interface OrderTrackingLogDto {
+    status: string;
+    statusCode: OrderStatusCode;
+    comment: string;
+    createdAt: string;
+}
+
+// Seguimiento completo de una orden (ORD-005)
+export interface OrderTrackingDto {
+    id: number;
+    orderNumber: number;
+    status: string;
+    statusCode: OrderStatusCode;
+    equipmentType: string;
+    brandModel: string;
+    serialNumber: string | null;
+    reportedFault: string;
+    budget: OrderTrackingBudgetDto | null;
+    logs: OrderTrackingLogDto[];
+}

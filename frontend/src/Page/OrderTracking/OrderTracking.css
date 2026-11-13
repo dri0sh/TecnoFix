@@ -1,0 +1,468 @@
+/* Estilos de la vista de seguimiento de la orden (ORD-005).
+   Todo está acotado a .orderTracking para no afectar a otras páginas.
+   La identidad visual (colores) es provisoria: se acuerda con el cliente (NF01). */
+
+.orderTracking {
+  --primary-color: #3a35e0;
+  --primary-soft-color: #ecebff;
+  --text-color: #111111;
+  --muted-text-color: #6b6b78;
+  --border-color: #e4e4ee;
+  --background-color: #ffffff;
+  --page-background: #f7f7fc;
+  --error-color: #f56558; /* NF01: mensajes de error en #f56558 */
+  --error-soft-color: #fdecea;
+  --badge-background: #e0f0ff;
+  --badge-text-color: #1769aa;
+  --font-family: "Lato", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  min-height: 100vh;
+  padding: 2rem 1.25rem;
+  font-family: var(--font-family);
+  color: var(--text-color);
+  background: var(--page-background);
+  text-align: left;
+}
+
+.orderTracking *,
+.orderTracking *::before,
+.orderTracking *::after {
+  box-sizing: border-box;
+}
+
+.orderTracking__content {
+  width: 100%;
+  max-width: 48rem;
+}
+
+/* Título y subtítulo */
+
+.orderTracking__title {
+  margin: 0 0 0.3rem;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.orderTracking__subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  color: var(--muted-text-color);
+}
+
+/* Mensajes */
+
+.orderTracking__error {
+  margin: 0 0 1.2rem;
+  padding: 0.8rem 1rem;
+  border: 1.5px solid var(--error-color);
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--error-color);
+  background: var(--background-color);
+}
+
+.orderTracking__muted,
+.orderTracking__empty {
+  margin: 0 0 1rem;
+  font-size: 0.95rem;
+  color: var(--muted-text-color);
+}
+
+/* Selector de orden */
+
+.orderTracking__field {
+  margin-bottom: 1.2rem;
+}
+
+.orderTracking__label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.orderTracking__select {
+  appearance: none;
+  width: 100%;
+  height: 3rem;
+  padding: 0 3rem 0 1rem;
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%236b6b78' stroke-width='2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  border: 1.5px solid var(--border-color);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.orderTracking__select:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Tarjetas */
+
+.orderTracking__card {
+  margin-bottom: 1rem;
+  padding: 1.25rem;
+  background: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+}
+
+.orderTracking__cardTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 1rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.orderTracking__cardTitle svg {
+  color: var(--primary-color);
+}
+
+.orderTracking__cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.orderTracking__orderNumber {
+  margin: 0 0 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--muted-text-color);
+}
+
+.orderTracking__equipment {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.orderTracking__badge {
+  flex-shrink: 0;
+  padding: 0.2rem 0.7rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--badge-text-color);
+  background: var(--badge-background);
+  border-radius: 999px;
+}
+
+.orderTracking__badge--rejected {
+  color: var(--error-color);
+  background: var(--error-soft-color);
+}
+
+.orderTracking__divider {
+  margin: 1rem 0;
+  border: 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.orderTracking__sectionTitle {
+  margin: 0 0 0.7rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Barra de avance */
+
+.orderTracking__progress {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.4rem;
+}
+
+.orderTracking__step {
+  height: 0.4rem;
+  background: var(--primary-soft-color);
+  border-radius: 999px;
+}
+
+.orderTracking__step--done {
+  background: var(--primary-color);
+}
+
+.orderTracking__step--rejected {
+  background: var(--error-color);
+}
+
+.orderTracking__progressLabels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--muted-text-color);
+}
+
+/* Mensaje informativo del estado */
+
+.orderTracking__notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.7rem;
+  margin-top: 1.1rem;
+  padding: 0.9rem 1rem;
+  color: var(--primary-color);
+  background: var(--primary-soft-color);
+  border-radius: 12px;
+}
+
+.orderTracking__notice svg {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.orderTracking__notice--rejected {
+  color: var(--error-color);
+  background: var(--error-soft-color);
+}
+
+.orderTracking__noticeTitle {
+  margin: 0 0 0.15rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.orderTracking__noticeText {
+  margin: 0;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+/* Información del equipo */
+
+.orderTracking__details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem 1.5rem;
+  margin: 0;
+}
+
+.orderTracking__details dt,
+.orderTracking__budget dt {
+  margin: 0 0 0.15rem;
+  font-size: 0.78rem;
+  color: var(--muted-text-color);
+}
+
+.orderTracking__details dd,
+.orderTracking__budget dd {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.orderTracking__detailsWide {
+  grid-column: 1 / -1;
+}
+
+.orderTracking__detailsWide dd {
+  font-weight: 400;
+}
+
+/* Presupuesto */
+
+.orderTracking__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.4rem 1rem;
+  font-size: 0.9rem;
+  color: var(--muted-text-color);
+  background: var(--page-background);
+  border-radius: 12px;
+}
+
+.orderTracking__placeholder p {
+  margin: 0;
+}
+
+.orderTracking__budget {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+}
+
+.orderTracking__budgetWide dd {
+  font-weight: 400;
+}
+
+.orderTracking__budgetRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.orderTracking__budgetRow dt {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.orderTracking__budgetRow--total {
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.orderTracking__budgetRow--total dt,
+.orderTracking__budgetRow--total dd {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-color);
+}
+
+/* Pestañas de la bitácora */
+
+.orderTracking__tabs {
+  display: inline-flex;
+  gap: 0.25rem;
+  margin-bottom: 1.1rem;
+}
+
+.orderTracking__tab {
+  padding: 0.4rem 0.9rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--muted-text-color);
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.orderTracking__tab--active {
+  color: var(--text-color);
+  background: #f1f1f6;
+}
+
+.orderTracking__tab:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Línea de tiempo */
+
+.orderTracking__timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orderTracking__timelineItem {
+  position: relative;
+  padding: 0 0 1.3rem 2.2rem;
+}
+
+.orderTracking__timelineItem:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: 1.5rem;
+  bottom: 0;
+  left: 0.7rem;
+  width: 2px;
+  background: var(--primary-soft-color);
+}
+
+.orderTracking__marker {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 1.4rem;
+  height: 1.4rem;
+  color: var(--background-color);
+  background: var(--primary-color);
+  border-radius: 50%;
+}
+
+.orderTracking__marker svg {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
+.orderTracking__marker--dot {
+  top: 0.3rem;
+  left: 0.3rem;
+  width: 0.8rem;
+  height: 0.8rem;
+}
+
+.orderTracking__logStatus {
+  margin: 0 0 0.1rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.orderTracking__logDate {
+  margin: 0 0 0.3rem;
+  font-size: 0.75rem;
+  color: var(--muted-text-color);
+}
+
+.orderTracking__logComment {
+  margin: 0;
+  font-size: 0.85rem;
+}
+
+/* Listado */
+
+.orderTracking__logList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.orderTracking__logRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.orderTracking__logRow .orderTracking__logDate {
+  flex-shrink: 0;
+  margin: 0;
+}
+
+/* Adaptación para pantallas pequeñas */
+
+@media (max-width: 480px) {
+  .orderTracking {
+    padding: 1.25rem 0.9rem;
+  }
+
+  .orderTracking__title {
+    font-size: 1.45rem;
+  }
+
+  .orderTracking__details {
+    grid-template-columns: 1fr;
+  }
+
+  .orderTracking__logRow {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+}
