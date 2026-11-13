@@ -115,6 +115,7 @@ function LogTimeline({ logs }: { logs: OrderTrackingLogDto[] }) {
                     <p className="orderTracking__logStatus">{log.status}</p>
                     <p className="orderTracking__logDate">{FormatDateTime(log.createdAt)}</p>
                     <p className="orderTracking__logComment">{log.comment}</p>
+                    <p className="orderTracking__logResponsible">Responsable: {log.responsibleName}</p>
                 </li>
             ))}
         </ol>
@@ -130,6 +131,7 @@ function LogList({ logs }: { logs: OrderTrackingLogDto[] }) {
                     <div>
                         <p className="orderTracking__logStatus">{log.status}</p>
                         <p className="orderTracking__logComment">{log.comment}</p>
+                        <p className="orderTracking__logResponsible">Responsable: {log.responsibleName}</p>
                     </div>
                     <p className="orderTracking__logDate">{FormatDateTime(log.createdAt)}</p>
                 </li>
