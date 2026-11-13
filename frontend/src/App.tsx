@@ -5,38 +5,52 @@ import { RegisterOrder } from "./Page/RegisterOrder/RegisterOrder";
 import { Login } from "./Page/Login/Login";
 import { RegisterClient } from "./Page/RegisterClient/RegisterClient";
 import { ProtectedRoute } from "./Components/ProtectedRoute";
-import { AccessDenied } from "./Page/AccessDenied/AccessDenied"
+import { AccessDenied } from "./Page/AccessDenied/AccessDenied";
 import { Navigation } from "./Components/Navigation";
 import { Diagnosis } from "./Page/Diagnosis/Diagnosis";
 import { EquipmentTypes } from "./Page/EquipmentTypes/EquipmentTypes";
+import { Home } from "./Page/Home/Home";
 import { OrderTracking } from "./Page/OrderTracking/OrderTracking";
+import { HOME_ROUTE } from "./Utils/Menu";
+import { AuthProvider, useAuth } from "./Context/AuthContext";
 
-function App() {
+function AppRoutes() {
+    const { isAuthenticated, isLoading } = useAuth();
+
+    if (isLoading) {
+        return <div>Cargando aplicación...</div>;
+    }
+
     return (
-        <BrowserRouter>
+        <>
             <Navigation />
 
             <Routes>
                 <Route
                     path="/"
-                    element={<Navigate to="/login" replace />}
+                    element={
+                        <Navigate
+                            to={isAuthenticated ? HOME_ROUTE : "/login"}
+                            replace
+                        />
+                    }
                 />
 
+                <Route path="/login" element={<Login />} />
+
                 <Route
-                    path="/login"
-                    element={<Login />}
+                    path="/home"
+                    element={
+                        <ProtectedRoute allowedRoles={["administrador", "tecnico", "cliente"]}>
+                            <Home />
+                        </ProtectedRoute>
+                    }
                 />
 
                 <Route
                     path="/change-password"
                     element={
-                        <ProtectedRoute
-                            allowedRoles={[
-                                "administrador",
-                                "tecnico",
-                                "cliente"
-                            ]}
-                        >
+                        <ProtectedRoute allowedRoles={["administrador", "tecnico", "cliente"]}>
                             <ChangePassword />
                         </ProtectedRoute>
                     }
@@ -46,10 +60,7 @@ function App() {
                     path="/register-client"
                     element={
                         <ProtectedRoute
-                            allowedRoles={[
-                                "administrador",
-                                "tecnico"
-                            ]}
+                            allowedRoles={["tecnico"]}
                             allowUnauthenticated={true}
                         >
                             <RegisterClient />
@@ -60,9 +71,7 @@ function App() {
                 <Route
                     path="/register-technician"
                     element={
-                        <ProtectedRoute
-                            allowedRoles={["administrador"]}
-                        >
+                        <ProtectedRoute allowedRoles={["administrador"]}>
                             <RegisterTechnician />
                         </ProtectedRoute>
                     }
@@ -71,12 +80,7 @@ function App() {
                 <Route
                     path="/register-order"
                     element={
-                        <ProtectedRoute
-                            allowedRoles={[
-                                "administrador",
-                                "tecnico"
-                            ]}
-                        >
+                        <ProtectedRoute allowedRoles={["administrador", "tecnico"]}>
                             <RegisterOrder />
                         </ProtectedRoute>
                     }
@@ -85,13 +89,7 @@ function App() {
                 <Route
                     path="/access-denied"
                     element={
-                        <ProtectedRoute
-                            allowedRoles={[
-                                "administrador",
-                                "tecnico",
-                                "cliente"
-                            ]}
-                        >
+                        <ProtectedRoute allowedRoles={["administrador", "tecnico", "cliente"]}>
                             <AccessDenied />
                         </ProtectedRoute>
                     }
@@ -100,7 +98,7 @@ function App() {
                 <Route
                     path="/diagnosis"
                     element={
-                        <ProtectedRoute allowedRoles={["administrador", "tecnico"]}>
+                        <ProtectedRoute allowedRoles={["tecnico"]}>
                             <Diagnosis />
                         </ProtectedRoute>
                     }
@@ -109,14 +107,11 @@ function App() {
                 <Route
                     path="/equipment-types"
                     element={
-                        <ProtectedRoute
-                            allowedRoles={["administrador"]}
-                        >
+                        <ProtectedRoute allowedRoles={["administrador"]}>
                             <EquipmentTypes />
                         </ProtectedRoute>
                     }
                 />
-
                 <Route
                     path="/order-tracking"
                     element={
@@ -126,6 +121,16 @@ function App() {
                     }
                 />
             </Routes>
+        </>
+    );
+}
+
+function App() {
+    return (
+        <BrowserRouter>
+            <AuthProvider>
+                <AppRoutes />
+            </AuthProvider>
         </BrowserRouter>
     );
 }

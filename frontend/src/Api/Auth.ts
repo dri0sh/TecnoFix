@@ -100,3 +100,12 @@ export function RegisterClient(request: ClientRegistrationRequestDto): Promise<C
         body: JSON.stringify(request)
     });
 }
+
+/**
+ * Cierra la sesión en el backend eliminando la cookie JWT.
+ */
+export function Logout(): Promise<{ message: string }> {
+    return ApiFetch<{ message: string }>("/auth/logout", {
+        method: "POST"
+    });
+}

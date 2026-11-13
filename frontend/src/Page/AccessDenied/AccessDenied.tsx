@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import "../../StandardPage.css";
+import { HOME_ROUTE } from "../../Utils/Menu";
 
 export function AccessDenied() {
     return (
@@ -14,7 +15,7 @@ export function AccessDenied() {
                 </p>
 
                 <Link
-                    to="/change-password"
+                    to={HOME_ROUTE}
                     className="formPage__button"
                     style={{
                         display: "flex",

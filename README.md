@@ -39,11 +39,11 @@ El proyecto utiliza convenciones de nomenclatura y documentación para mantener 
 
 Los identificadores utilizados en el código deben escribirse en inglés. Por ejemplo:
 
- Clases - PascalCase: `UserService`.
- Funciones y métodos - PascalCase: `GetUserById()`.
- Variables - camelCase: `userName`.
- Parámetros - camelCase: `userId`.
- Constantes - UPPER_SNAKE_CASE: `MAX_LOGIN_ATTEMPTS`.
+ - Clases - PascalCase: `UserService`.
+ - Funciones y métodos - PascalCase: `GetUserById()`.
+ - Variables - camelCase: `userName`.
+ - Parámetros - camelCase: `userId`.
+ - Constantes - UPPER_SNAKE_CASE: `MAX_LOGIN_ATTEMPTS`.
 
 ### Idioma
 
