@@ -311,3 +311,53 @@
         transition: none;
     }
 }
+
+.equipmentTypesPage__labelWithHelp {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.equipmentTypesPage__labelWithHelp .equipmentTypesPage__sectionTitle {
+    margin-bottom: 0;
+}
+
+.equipmentTypesPage__labelWithHelp .formPage__helpText {
+    right: auto;
+    left: 0;
+}
+
+.equipmentTypesPage__actions .formPage__helpText {
+    right: 0;
+    bottom: calc(100% + 0.55rem);
+}
+
+.equipmentTypesPage__actions .formPage__help {
+    display: inline-flex;
+    align-items: center;
+}
+
+.equipmentTypesPage__fieldControl {
+    position: relative;
+    width: 100%;
+}
+
+.equipmentTypesPage__fieldControl > .formPage__input {
+    padding-right: 3.2rem;
+}
+
+.equipmentTypesPage__fieldControl > .equipmentTypesPage__textarea {
+    padding-right: 3.2rem;
+}
+
+.equipmentTypesPage__fieldControl .formPage__help {
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+}
+
+.equipmentTypesPage__fieldControl--textarea .formPage__help {
+    top: 1rem;
+    transform: none;
+}

@@ -292,26 +292,46 @@ export function EquipmentTypes() {
                                     Nombre
                                 </label>
 
-                                <input
-                                    id="equipmentTypeName"
-                                    type="text"
-                                    className={InputClass("name")}
-                                    value={name}
-                                    onChange={(event) =>
-                                        setName(event.target.value)
-                                    }
+                                <div className="equipmentTypesPage__fieldControl">
+                                    <input
+                                        id="equipmentTypeName"
+                                        type="text"
+                                        className={InputClass("name")}
+                                        value={name}
+                                        onChange={(event) =>
+                                            setName(event.target.value)
+                                        }
                                     placeholder="Ej: Consola de videojuegos."
                                     maxLength={60}
                                     aria-invalid={Boolean(fieldErrors.name)}
-                                />
+                                    />
+
+                                    <span className="formPage__help">
+                                        <button
+                                            type="button"
+                                            className="formPage__helpButton"
+                                            aria-describedby="equipmentTypeNameHelp"
+                                            aria-label="Ayuda: nombre del tipo de equipo"
+                                        >
+                                            ?
+                                        </button>
+
+                                        <span
+                                            id="equipmentTypeNameHelp"
+                                            className="formPage__helpText"
+                                            role="tooltip"
+                                        >
+                                            El nombre es obligatorio y admite hasta 60 caracteres.
+                                            No distingue entre mayúsculas y minúsculas:
+                                            Notebook y noTEbook se consideran el mismo nombre.
+                                        </span>
+                                    </span>
+                                </div>
 
                                 {fieldErrors.name && (
-                                    <p
-                                        className="formPage__fieldError"
-                                        role="alert"
-                                    >
-                                        {fieldErrors.name}
-                                    </p>
+                                <p className="formPage__fieldError" role="alert">
+                                    {fieldErrors.name}
+                                </p>
                                 )}
                             </div>
 
@@ -323,19 +343,40 @@ export function EquipmentTypes() {
                                     Descripción
                                 </label>
 
-                                <textarea
-                                    id="equipmentTypeDescription"
-                                    className="equipmentTypesPage__textarea"
-                                    value={description}
-                                    onChange={(event) =>
-                                        setDescription(event.target.value)
-                                    }
+                                <div className="equipmentTypesPage__fieldControl equipmentTypesPage__fieldControl--textarea">
+                                    <textarea
+                                        id="equipmentTypeDescription"
+                                        className="equipmentTypesPage__textarea"
+                                        value={description}
+                                        onChange={(event) =>
+                                            setDescription(event.target.value)
+                                        }
                                     placeholder="Descripción opcional del tipo de equipo."
                                     maxLength={250}
                                     rows={5}
                                 />
-                            </div>
 
+                                    <span className="formPage__help">
+                                        <button
+                                            type="button"
+                                            className="formPage__helpButton"
+                                            aria-describedby="equipmentTypeDescriptionHelp"
+                                            aria-label="Ayuda: descripción del tipo de equipo"
+                                        >
+                                            ?
+                                        </button>
+
+                                        <span
+                                            id="equipmentTypeDescriptionHelp"
+                                            className="formPage__helpText"
+                                            role="tooltip"
+                                        >
+                                            Campo opcional. Admite hasta 250 caracteres.
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            
                             <button
                                 type="submit"
                                 className="formPage__button"
@@ -364,9 +405,32 @@ export function EquipmentTypes() {
                     <section className="equipmentTypesPage__catalogSection">
                         <div className="equipmentTypesPage__catalogHeader">
                             <div>
-                                <h2 className="equipmentTypesPage__sectionTitle">
-                                    Catálogo
-                                </h2>
+                                <div className="equipmentTypesPage__labelWithHelp">
+                                    <h2 className="equipmentTypesPage__sectionTitle">
+                                        Catálogo
+                                    </h2>
+
+                                    <span className="formPage__help">
+                                        <button
+                                            type="button"
+                                            className="formPage__helpButton"
+                                            aria-describedby="equipmentTypesCatalogHelp"
+                                            aria-label="Ayuda: catálogo de tipos de equipo"
+                                        >
+                                            ?
+                                        </button>
+
+                                        <span
+                                            id="equipmentTypesCatalogHelp"
+                                            className="formPage__helpText"
+                                            role="tooltip"
+                                        >
+                                            Los tipos deshabilitados no estarán disponibles
+                                            para nuevas órdenes, pero seguirán asociados
+                                            a las órdenes existentes.
+                                        </span>
+                                    </span>
+                                </div>
 
                                 <p className="equipmentTypesPage__sectionDescription">
                                     Los tipos deshabilitados permanecen registrados
@@ -440,25 +504,39 @@ export function EquipmentTypes() {
                                                             Editar
                                                         </button>
 
-                                                        <button
-                                                            type="button"
-                                                            className={
-                                                                "equipmentTypesPage__actionButton " +
-                                                                (
+                                                        <span className="formPage__help">
+                                                            <button
+                                                                type="button"
+                                                                className={
+                                                                    "equipmentTypesPage__actionButton " +
+                                                                    (
+                                                                        type.isEnabled
+                                                                            ? "equipmentTypesPage__actionButton--danger"
+                                                                            : "equipmentTypesPage__actionButton--primary"
+                                                                    )
+                                                                }
+                                                                onClick={() => HandleStatusChange(type)}
+                                                                disabled={isSaving}
+                                                                aria-describedby={
                                                                     type.isEnabled
-                                                                        ? "equipmentTypesPage__actionButton--danger"
-                                                                        : "equipmentTypesPage__actionButton--primary"
-                                                                )
-                                                            }
-                                                            onClick={() =>
-                                                                HandleStatusChange(type)
-                                                            }
-                                                            disabled={isSaving}
-                                                        >
-                                                            {type.isEnabled
-                                                                ? "Deshabilitar"
-                                                                : "Habilitar"}
-                                                        </button>
+                                                                        ? `equipmentTypeDisableHelp-${type.id}`
+                                                                        : undefined
+                                                                }
+                                                            >
+                                                                {type.isEnabled ? "Deshabilitar" : "Habilitar"}
+                                                            </button>
+
+                                                            {type.isEnabled && (
+                                                                <span
+                                                                    id={`equipmentTypeDisableHelp-${type.id}`}
+                                                                    className="formPage__helpText"
+                                                                    role="tooltip"
+                                                                >
+                                                                    No es posible deshabilitar un tipo de equipo que
+                                                                    tenga órdenes en estados distintos de Entregada.
+                                                                </span>
+                                                            )}
+                                                        </span>
                                                     </div>
                                                 </td>
                                             </tr>

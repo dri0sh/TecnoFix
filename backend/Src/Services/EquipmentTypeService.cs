@@ -56,7 +56,7 @@ public class EquipmentTypeService(TecnoFixDbContext context) : IEquipmentTypeSer
             };
         }
 
-        if (await _context.EquipmentTypes.AnyAsync(type => type.Name == name))
+        if (await _context.EquipmentTypes.AnyAsync(type => type.Name.ToLower() == name.ToLower()))
         {
             return CreateDuplicateNameResponse();
         }
@@ -113,7 +113,7 @@ public class EquipmentTypeService(TecnoFixDbContext context) : IEquipmentTypeSer
             };
         }
 
-        if (await _context.EquipmentTypes.AnyAsync(type => type.Id != id && type.Name == name))
+        if (await _context.EquipmentTypes.AnyAsync(type => type.Id != id && type.Name.ToLower() == name.ToLower()))
         {
             return CreateDuplicateNameResponse();
         }
