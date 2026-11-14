@@ -97,3 +97,43 @@ export async function AskNewOption(
 
     return result.isConfirmed ? result.value : null;
 }
+
+// Confirmación de cambio de contraseña con cuenta regresiva.
+export async function ShowPasswordChangeSuccess(): Promise<void> {
+    let timerInterval: ReturnType<typeof setInterval> | undefined;
+
+    await Swal.fire({
+        icon: "success",
+        title: "Contraseña actualizada",
+        html: `
+            <p>Tu contraseña se cambió correctamente.</p>
+            <p>Serás redirigido al inicio de sesión en
+            <strong id="password-countdown">3</strong> segundos.</p>
+        `,
+        timer: 3000,
+        timerProgressBar: true,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+            const countdown = Swal.getHtmlContainer()?.querySelector(
+                "#password-countdown"
+            );
+
+            timerInterval = setInterval(() => {
+                const remaining = Swal.getTimerLeft();
+
+                if (countdown && remaining !== undefined) {
+                    countdown.textContent = String(
+                        Math.max(0, Math.ceil(remaining / 1000))
+                    );
+                }
+            }, 100);
+        },
+        willClose: () => {
+            if (timerInterval !== undefined) {
+                clearInterval(timerInterval);
+            }
+        }
+    });
+}

@@ -212,7 +212,13 @@ public class AuthController(IAuthService authService) : ControllerBase
             });
         }
 
-        Response.Cookies.Delete("access_token");
+        Response.Cookies.Delete("access_token", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/"
+        });
 
         return Ok(result);
     }
