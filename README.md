@@ -31,6 +31,14 @@ hasta su entrega, además permite al cliente consultar el estado de sus órdenes
 - Frontend: Vercel
 - Base de datos: Neon PostgreSQL
 
+### Estructura general del proyecto
+
+El proyecto se encuentra organizado en dos componentes principales:
+
+- backend: contiene la API, la lógica de negocio, el acceso a datos y los servicios del sistema.
+
+- frontend: contiene la aplicación web, sus páginas, componentes, contexto de autenticación y comunicación con la API.
+
 ## Estándares de código
 
 El proyecto utiliza convenciones de nomenclatura y documentación para mantener la consistencia, legibilidad y mantenibilidad del código.
@@ -60,7 +68,7 @@ Se establece una separación entre el idioma utilizado en el código y el conten
 Los commits deben seguir el formato:
 
 tipo(scope): descripción breve en español (requisito relacionado, cuando corresponda)
-Descricpcion: El cuerpo del commit se utiliza para explicar con mayor detalle los cambios realizados, sus motivos o consideraciones importantes.
+Descripción: El cuerpo del commit se utiliza para explicar con mayor detalle los cambios realizados, sus motivos o consideraciones importantes.
 
 tipos:
 - `feat`: Nueva funcionalidad.
