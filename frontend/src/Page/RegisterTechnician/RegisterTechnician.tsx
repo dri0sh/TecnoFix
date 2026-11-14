@@ -2,6 +2,8 @@ import { useEffect, useState, type FormEvent } from "react";
 import { AddTechnicianSpecialty, GetTechnicianSpecialties, RegisterTechnician as RegisterTechnicianApi } from "../../Api/Auth";
 import { ApiError } from "../../Api/Client";
 import { AskNewOption, ConfirmAction, ShowSuccessToast } from "../../Utils/Alert";
+import { HelpTooltip } from "../../Components/HelpTooltip";
+import { LuChevronDown } from "react-icons/lu";
 import "./RegisterTechnician.css";
 
 // Campos del formulario (se usan como clave de los errores)
@@ -204,24 +206,28 @@ export function RegisterTechnician() {
                     </div>
 
                     <div className="formPage__field">
-                        <label
-                            className="formPage__label"
-                            htmlFor="email"
-                        >
+                        <label className="formPage__label" htmlFor="email">
                             Correo electrónico
                         </label>
 
-                        <input
-                            id="email"
-                            type="email"
-                            className={InputClass("email")}
-                            value={email}
-                            onChange={(event) =>
-                                setEmail(event.target.value)
-                            }
-                            placeholder="tecnico@correo.cl"
-                            aria-invalid={Boolean(fieldErrors.email)}
-                        />
+                        <div className="formPage__control">
+                            <input
+                                id="email"
+                                type="email"
+                                className={InputClass("email")}
+                                value={email}
+                                onChange={(event) =>
+                                    setEmail(event.target.value)
+                                }
+                                placeholder="tecnico@correo.cl"
+                                aria-invalid={Boolean(fieldErrors.email)}
+                            />
+
+                            <HelpTooltip
+                                label="correo electrónico"
+                                text="A este correo se enviará la contraseña temporal del técnico."
+                            />
+                        </div>
 
                         {fieldErrors.email && (
                             <p className="formPage__fieldError" role="alert">
@@ -231,30 +237,36 @@ export function RegisterTechnician() {
                     </div>
 
                     <div className="formPage__field">
-                        <label
-                            className="formPage__label"
-                            htmlFor="specialty"
-                        >
+                        <label className="formPage__label" htmlFor="specialty">
                             Especialidad
                         </label>
 
                         <div className="formPage__selectRow">
-                            <select
-                                id="specialty"
-                                className={InputClass("specialty") + " formPage__select"}
-                                value={specialty}
-                                onChange={(event) =>
-                                    setSpecialty(event.target.value)
-                                }
-                                aria-invalid={Boolean(fieldErrors.specialty)}
-                            >
-                                <option value="">Selecciona una especialidad</option>
-                                {specialties.map((item) => (
-                                    <option key={item} value={item}>
-                                        {item}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="formPage__control formPage__control--select">
+                                <select
+                                    id="specialty"
+                                    className={InputClass("specialty") + " formPage__select"}
+                                    value={specialty}
+                                    onChange={(event) =>
+                                        setSpecialty(event.target.value)
+                                    }
+                                    aria-invalid={Boolean(fieldErrors.specialty)}
+                                >
+                                    <option value="">Selecciona una especialidad</option>
+                                    {specialties.map((item) => (
+                                        <option key={item} value={item}>
+                                            {item}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <LuChevronDown className="formPage__selectArrow" aria-hidden="true" />
+
+                                <HelpTooltip
+                                    label="especialidad"
+                                    text="Si la especialidad no está en la lista, puedes agregarla con el botón + Agregar."
+                                />
+                            </div>
 
                             <button
                                 type="button"

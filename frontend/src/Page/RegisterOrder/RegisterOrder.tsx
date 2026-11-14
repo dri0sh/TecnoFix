@@ -3,6 +3,8 @@ import { AddEquipmentTypeFromOrder, GetRepairOrderFormOptions, RegisterRepairOrd
 import { ApiError } from "../../Api/Client";
 import { AskNewOption, ConfirmAction, ShowSuccessToast } from "../../Utils/Alert";
 import type { SelectOptionDto } from "../../Types/OrderType";
+import { HelpTooltip } from "../../Components/HelpTooltip";
+import { LuChevronDown } from "react-icons/lu";
 import "../RegisterTechnician/RegisterTechnician.css";
 import "./RegisterOrder.css";
 
@@ -229,20 +231,29 @@ export function RegisterOrder() {
                             Cliente
                         </label>
 
-                        <select
-                            id="clientId"
-                            className={InputClass("clientId", "formPage__select")}
-                            value={clientId}
-                            onChange={(event) => setClientId(event.target.value)}
-                            aria-invalid={Boolean(fieldErrors.clientId)}
-                        >
-                            <option value="">Selecciona un cliente</option>
-                            {clients.map((client) => (
-                                <option key={client.id} value={client.id}>
-                                    {client.label}
-                                </option>
-                            ))}
-                        </select>
+                        <div className="formPage__control formPage__control--select">
+                            <select
+                                id="clientId"
+                                className={InputClass("clientId", "formPage__select")}
+                                value={clientId}
+                                onChange={(event) => setClientId(event.target.value)}
+                                aria-invalid={Boolean(fieldErrors.clientId)}
+                            >
+                                <option value="">Selecciona un cliente</option>
+                                {clients.map((client) => (
+                                    <option key={client.id} value={client.id}>
+                                        {client.label}
+                                    </option>
+                                ))}
+                            </select>
+
+                            <LuChevronDown className="formPage__selectArrow" aria-hidden="true" />
+
+                            <HelpTooltip
+                                label="cliente"
+                                text="Si el cliente no aparece, primero debe crear su cuenta desde la opción Regístrate."
+                            />
+                        </div>
 
                         {RenderFieldError("clientId")}
                     </div>
@@ -253,20 +264,29 @@ export function RegisterOrder() {
                         </label>
 
                         <div className="formPage__selectRow">
-                            <select
-                                id="equipmentTypeId"
-                                className={InputClass("equipmentTypeId", "formPage__select")}
-                                value={equipmentTypeId}
-                                onChange={(event) => setEquipmentTypeId(event.target.value)}
-                                aria-invalid={Boolean(fieldErrors.equipmentTypeId)}
-                            >
-                                <option value="">Selecciona un tipo de equipo</option>
-                                {equipmentTypes.map((type) => (
-                                    <option key={type.id} value={type.id}>
-                                        {type.label}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="formPage__control formPage__control--select">
+                                <select
+                                    id="equipmentTypeId"
+                                    className={InputClass("equipmentTypeId", "formPage__select")}
+                                    value={equipmentTypeId}
+                                    onChange={(event) => setEquipmentTypeId(event.target.value)}
+                                    aria-invalid={Boolean(fieldErrors.equipmentTypeId)}
+                                >
+                                    <option value="">Selecciona un tipo de equipo</option>
+                                    {equipmentTypes.map((type) => (
+                                        <option key={type.id} value={type.id}>
+                                            {type.label}
+                                        </option>
+                                    ))}
+                                </select>
+
+                                <LuChevronDown className="formPage__selectArrow" aria-hidden="true" />
+
+                                <HelpTooltip
+                                    label="tipo de equipo"
+                                    text="Si el tipo no está en la lista, puedes agregarlo con el botón + Agregar."
+                                />
+                            </div>
 
                             <button
                                 type="button"
@@ -305,16 +325,23 @@ export function RegisterOrder() {
                             Número de serie (opcional)
                         </label>
 
-                        <input
-                            id="serialNumber"
-                            type="text"
-                            className={InputClass("serialNumber")}
-                            value={serialNumber}
-                            onChange={(event) => setSerialNumber(event.target.value)}
-                            placeholder="PF3AB12C"
-                            maxLength={60}
-                            aria-invalid={Boolean(fieldErrors.serialNumber)}
-                        />
+                        <div className="formPage__control">
+                            <input
+                                id="serialNumber"
+                                type="text"
+                                className={InputClass("serialNumber")}
+                                value={serialNumber}
+                                onChange={(event) => setSerialNumber(event.target.value)}
+                                placeholder="PF3AB12C"
+                                maxLength={60}
+                                aria-invalid={Boolean(fieldErrors.serialNumber)}
+                            />
+
+                            <HelpTooltip
+                                label="número de serie"
+                                text="Suele estar en una etiqueta en la parte inferior o trasera del equipo."
+                            />
+                        </div>
 
                         {RenderFieldError("serialNumber")}
                     </div>
@@ -324,16 +351,23 @@ export function RegisterOrder() {
                             Descripción de la falla reportada
                         </label>
 
-                        <textarea
-                            id="reportedFault"
-                            className={InputClass("reportedFault", "formPage__textarea")}
-                            value={reportedFault}
-                            onChange={(event) => setReportedFault(event.target.value)}
-                            placeholder="No enciende después de una caída."
-                            maxLength={1000}
-                            rows={4}
-                            aria-invalid={Boolean(fieldErrors.reportedFault)}
-                        />
+                        <div className="formPage__control formPage__control--textarea">
+                            <textarea
+                                id="reportedFault"
+                                className={InputClass("reportedFault", "formPage__textarea")}
+                                value={reportedFault}
+                                onChange={(event) => setReportedFault(event.target.value)}
+                                placeholder="No enciende después de una caída."
+                                maxLength={1000}
+                                rows={4}
+                                aria-invalid={Boolean(fieldErrors.reportedFault)}
+                            />
+
+                            <HelpTooltip
+                                label="falla reportada"
+                                text="Describe el problema tal como lo cuenta el cliente. Sirve de base para el diagnóstico."
+                            />
+                        </div>
 
                         {RenderFieldError("reportedFault")}
                     </div>

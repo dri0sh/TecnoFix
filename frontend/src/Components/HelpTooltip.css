@@ -1,0 +1,100 @@
+/* Ayuda en línea tipo tooltip (NF03).*/
+
+.formPage__help {
+  position: relative;
+  display: flex;
+  align-items: center;
+  z-index: 5;
+}
+
+.formPage__helpButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.3rem;
+  height: 1.3rem;
+  padding: 0;
+  border: 1.5px solid var(--muted-text-color);
+  border-radius: 50%;
+  background: none;
+  color: var(--muted-text-color);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: help;
+}
+
+.formPage__helpButton:hover {
+  color: var(--text-color);
+  border-color: var(--text-color);
+}
+
+.formPage__helpButton:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.formPage__helpText {
+  position: absolute;
+  right: -0.5rem;
+  bottom: calc(100% + 0.55rem);
+  z-index: 100;
+  width: 15rem;
+  padding: 0.6rem 0.8rem;
+  background: #1c1c24;
+  color: var(--background-color);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  font-weight: 400;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s;
+}
+
+.formPage__help:hover .formPage__helpText,
+.formPage__help:focus-within .formPage__helpText {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Etiqueta con ayuda: la etiqueta y el «?» van juntos sobre el borde del campo */
+
+/* Campo con ayuda: el «?» va dentro del recuadro, a la derecha */
+
+.formPage__control {
+  position: relative;
+  width: 100%;
+}
+
+.formPage__selectRow .formPage__control {
+  flex: 1;
+}
+
+.formPage__control > .formPage__help {
+  position: absolute;
+  top: 50%;
+  right: 1rem;
+  transform: translateY(-50%);
+}
+
+/* Espacio para que el texto no quede debajo del «?» */
+.formPage__control > .formPage__input {
+  padding-right: 3.2rem;
+}
+
+/* En las listas, el «?» va a la izquierda de la flecha */
+.formPage__control--select > .formPage__select {
+  padding-right: 5rem;
+}
+
+.formPage__control--select > .formPage__help {
+  right: 3.2rem;
+}
+
+/* En los textos largos, el «?» va arriba a la derecha */
+.formPage__control--textarea > .formPage__help {
+  top: 1rem;
+  transform: none;
+}
