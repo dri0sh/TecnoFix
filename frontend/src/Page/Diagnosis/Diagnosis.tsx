@@ -104,19 +104,19 @@ export function Diagnosis() {
 
     if (field === "technicalDiagnosis") {
         if (value.trim() === "") {
-            error = "Debe completar el campo diagnóstico técnico.";
+            error = "Debe completar el campo Diagnóstico técnico";
         }
     } else if (field === "laborCost") {
         if (value.trim() === "") {
-            error = "Debe completar el campo costo de mano de obra.";
+            error = "Debe completar el campo Costo de mano de obra";
         } else if (!Number.isFinite(Number(value)) || Number(value) < 0) {
-            error = "El costo de mano de obra no es válido.";
+            error = "El costo ingresado no es válido";
         }
     } else if (field === "partsCost") {
         if (value.trim() === "") {
-            error = "Debe completar el campo costo de repuestos.";
+            error = "Debe completar el campo Costo de repuestos";
         } else if (!Number.isFinite(Number(value)) || Number(value) < 0) {
-            error = "El costo de repuestos no es válido.";
+            error = "El costo ingresado no es válido";
         }
     }
 
@@ -141,29 +141,29 @@ export function Diagnosis() {
 
         if (technicalDiagnosis.trim() === "") {
             errors.technicalDiagnosis =
-                "Debe completar el campo del diagnóstico técnico.";
+                "Debe completar el campo Diagnóstico técnico";
         }
 
         if (laborCost.trim() === "") {
             errors.laborCost =
-                "Debe completar el campo del costo de mano de obra.";
+                "Debe completar el campo Costo de mano de obra";
         } else if (
             !Number.isFinite(Number(laborCost)) ||
             Number(laborCost) < 0
         ) {
             errors.laborCost =
-                "El costo de mano de obra no es válido.";
+                "El costo ingresado no es válido";
         }
 
         if (partsCost.trim() === "") {
             errors.partsCost =
-                "Debe completar el campo del costo de repuestos.";
+                "Debe completar el campo Costo de repuestos";
         } else if (
             !Number.isFinite(Number(partsCost)) ||
             Number(partsCost) < 0
         ) {
             errors.partsCost =
-                "El costo de repuestos no es válido.";
+                "El costo ingresado no es válido";
         }
 
         return errors;
