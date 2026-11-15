@@ -207,11 +207,6 @@ export function RegisterClient() {
                             placeholder="Juan Pérez Soto"
                             required
                         />
-
-                        <HelpTooltip
-                            label="nombre y apellidos"
-                            text="Ingresa tu nombre y apellidos. Solo se permiten letras y espacios."
-                        />
                     </div>
 
                     {fieldErrors.name && (
