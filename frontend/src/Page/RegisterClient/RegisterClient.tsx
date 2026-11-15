@@ -219,8 +219,8 @@ export function RegisterClient() {
                 {/* RUT */}
                 <div className="formPage__field">
                     <label className="formPage__label" htmlFor="rut">
-                        RUT (sin puntos ni guion)
-                    </label>
+                        RUT 
+                     </label>
 
                     <div className="formPage__control">
                         <input
