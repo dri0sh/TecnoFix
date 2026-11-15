@@ -285,7 +285,7 @@ export function RegisterClient() {
                 {/* Teléfono */}
                 <div className="formPage__field">
                     <label className="formPage__label" htmlFor="phoneNumber">
-                        Teléfono
+                        Teléfono de contacto
                     </label>
 
                     <div className="formPage__control">
@@ -298,12 +298,12 @@ export function RegisterClient() {
                                 setPhoneNumber(event.target.value);
                                 setFieldErrors(prev => ({ ...prev, phoneNumber: "" }));
                             }}
-                            placeholder="+56 9 1234 5678"
+                            placeholder="9 1234 5678"
                             required
                         />
 
                         <HelpTooltip
-                            label="teléfono"
+                            label="teléfono de contacto"
                             text="Ingresa un número de teléfono de contacto."
                         />
                     </div>
