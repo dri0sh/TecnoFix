@@ -6,9 +6,9 @@ import "./RegisterClient.css";
 import { ApiError } from "../../Api/Client";
 import {
     ConfirmAction,
-    ShowSuccessToast,
-    ShowError
+    ShowSuccessToast
 } from "../../Utils/Alert";
+import { HelpTooltip } from "../../Components/HelpTooltip";
 
 export function RegisterClient() {
     const [name, setName] = useState("");
@@ -21,23 +21,58 @@ export function RegisterClient() {
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const ValidateRut = (rut: string): boolean => {
+    const cleanRut = rut.replace(/\./g, "").replace(/-/g, "").trim();
+
+    // Debe tener entre 7 y 8 números y un dígito verificador.
+    if (!/^\d{7,8}[0-9kK]$/.test(cleanRut)) {
+        return false;
+    }
+
+    const body = cleanRut.slice(0, -1);
+    const verifier = cleanRut.slice(-1).toUpperCase();
+
+    let sum = 0;
+    let multiplier = 2;
+
+    for (let i = body.length - 1; i >= 0; i--) {
+        sum += Number(body[i]) * multiplier;
+        multiplier = multiplier === 7 ? 2 : multiplier + 1;
+    }
+
+    const result = 11 - (sum % 11);
+    const expectedVerifier =
+        result === 11 ? "0" : result === 10 ? "K" : String(result);
+
+    return verifier === expectedVerifier;
+};
+
     function ValidateForm(): boolean {
         const errors: Record<string, string> = {};
 
         if (name.trim() === "") {
             errors["name"] = "Debe completar el campo Nombre";
+        } else if (!/^[\p{L}\s]+$/u.test(name.trim())) {
+            errors["name"] = "El nombre y apellidos solo pueden contener letras y espacios.";
         }
 
         if (rut.trim() === "") {
             errors["rut"] = "Debe completar el campo RUT";
+        } else if (!ValidateRut(rut)) {
+            errors["rut"] = "El RUT ingresado no es válido.";
         }
 
+
         if (email.trim() === "") {
-            errors["email"] = "Debe completar el campo Correo electrónico";
+             errors["email"] = "Debe completar el campo Correo electrónico";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+            errors["email"] = "El correo electrónico no tiene un formato válido";
         }
 
         if (phoneNumber.trim() === "") {
             errors["phoneNumber"] = "Debe completar el campo Teléfono";
+        } else if (!/^\d{9}$/.test(phoneNumber.trim())) {
+            errors["phoneNumber"] = "El teléfono debe contener exactamente 9 números.";
         }
 
         setFieldErrors(errors);
@@ -108,13 +143,15 @@ export function RegisterClient() {
             setFieldErrors(filteredErrors);
 
             if (Object.keys(filteredErrors).length === 0) {
-                await ShowError(error.message);
-            }
+            setFieldErrors({
+             email: error.message
+            });
+        }   
         } else {
-            await ShowError(
-                "No se pudo conectar con el servidor. Intenta nuevamente."
-            );
-        }
+            setFieldErrors({
+            email: "No se pudo conectar con el servidor. Intenta nuevamente."
+            });
+    }
     } finally {
         setIsLoading(false);
     }
@@ -150,12 +187,14 @@ export function RegisterClient() {
                     noValidate
                 >
 
-                    {/* Nombre */}
-                    <div className="formPage__field">
-                        <label className="formPage__label" htmlFor="name">
-                            Nombre completo
-                        </label>
+                    
+                {/* Nombre */}
+                <div className="formPage__field">
+                    <label className="formPage__label" htmlFor="name">
+                        Nombre y apellidos
+                    </label>
 
+                    <div className="formPage__control">
                         <input
                             id="name"
                             type="text"
@@ -165,23 +204,30 @@ export function RegisterClient() {
                                 setName(event.target.value);
                                 setFieldErrors(prev => ({ ...prev, name: "" }));
                             }}
-                            placeholder="Ingresa tu nombre."
+                            placeholder="Juan Pérez Soto"
                             required
                         />
 
-                        {fieldErrors.name && (
-                            <p className="formPage__fieldError" role="alert">
-                                {fieldErrors.name}
-                            </p>
-                        )}
+                        <HelpTooltip
+                            label="nombre y apellidos"
+                            text="Ingresa tu nombre y apellidos. Solo se permiten letras y espacios."
+                        />
                     </div>
 
-                    {/* RUT */}
-                    <div className="formPage__field">
-                        <label className="formPage__label" htmlFor="rut">
-                            RUT (sin puntos ni guion)
-                        </label>
+                    {fieldErrors.name && (
+                        <p className="formPage__fieldError" role="alert">
+                            {fieldErrors.name}
+                        </p>
+                    )}
+                </div>
 
+                {/* RUT */}
+                <div className="formPage__field">
+                    <label className="formPage__label" htmlFor="rut">
+                        RUT (sin puntos ni guion)
+                    </label>
+
+                    <div className="formPage__control">
                         <input
                             id="rut"
                             type="text"
@@ -195,19 +241,26 @@ export function RegisterClient() {
                             required
                         />
 
-                        {fieldErrors.rut && (
-                            <p className="formPage__fieldError" role="alert">
-                              {fieldErrors.rut}
-                            </p>
-                        )}
+                        <HelpTooltip
+                            label="RUT"
+                            text="Ingresa tu RUT sin puntos ni guion."
+                        />
                     </div>
 
-                    {/* Correo electrónico */}
-                    <div className="formPage__field">
-                        <label className="formPage__label" htmlFor="email">
-                            Correo electrónico
-                        </label>
+                    {fieldErrors.rut && (
+                        <p className="formPage__fieldError" role="alert">
+                            {fieldErrors.rut}
+                        </p>
+                    )}
+                </div>
 
+                {/* Correo electrónico */}
+                <div className="formPage__field">
+                    <label className="formPage__label" htmlFor="email">
+                        Correo electrónico
+                    </label>
+
+                    <div className="formPage__control">
                         <input
                             id="email"
                             type="email"
@@ -221,19 +274,26 @@ export function RegisterClient() {
                             required
                         />
 
-                        {fieldErrors.email && (
-                            <p className="formPage__fieldError" role="alert">
-                                 {fieldErrors.email}
-                            </p>
-                        )}
+                        <HelpTooltip
+                            label="correo electrónico"
+                            text="Ingresa un correo válido. A esta dirección se enviará la contraseña temporal."
+                        />
                     </div>
 
-                    {/* Teléfono */}
-                    <div className="formPage__field">
-                        <label className="formPage__label" htmlFor="phoneNumber">
-                            Teléfono
-                        </label>
+                    {fieldErrors.email && (
+                        <p className="formPage__fieldError" role="alert">
+                            {fieldErrors.email}
+                        </p>
+                    )}
+                </div>
 
+                {/* Teléfono */}
+                <div className="formPage__field">
+                    <label className="formPage__label" htmlFor="phoneNumber">
+                        Teléfono
+                    </label>
+
+                    <div className="formPage__control">
                         <input
                             id="phoneNumber"
                             type="tel"
@@ -247,12 +307,19 @@ export function RegisterClient() {
                             required
                         />
 
-                        {fieldErrors.phoneNumber && (
-                            <p className="formPage__fieldError" role="alert">
-                                {fieldErrors.phoneNumber}
-                            </p>
-                        )}
+                        <HelpTooltip
+                            label="teléfono"
+                            text="Ingresa un número de teléfono de contacto."
+                        />
                     </div>
+
+                    {fieldErrors.phoneNumber && (
+                        <p className="formPage__fieldError" role="alert">
+                            {fieldErrors.phoneNumber}
+                        </p>
+                    )}
+                </div>
+
 
                     <button
                         type="submit"
