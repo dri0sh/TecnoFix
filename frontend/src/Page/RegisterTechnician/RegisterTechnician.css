@@ -205,13 +205,21 @@
 
 /* Lista desplegable con el mismo aspecto que los campos de texto */
 
-.formPage__select {
+.formPage__input.formPage__select {
   appearance: none;
   padding-right: 3rem;
   cursor: pointer;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1l6 6 6-6' fill='none' stroke='%232b2b33' stroke-width='2'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 1.3rem center;
+}
+
+/* Flecha de las listas (ícono de react-icons, el mismo set de Seguimiento de órdenes) */
+.formPage__selectArrow {
+  position: absolute;
+  top: 50%;
+  right: 1.2rem;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  color: var(--border-color);
+  pointer-events: none;
 }
 
 

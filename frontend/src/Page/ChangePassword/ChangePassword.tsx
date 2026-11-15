@@ -3,7 +3,10 @@ import { ChangePassword as ChangePasswordApi } from "../../Api/Auth";
 import { ApiError } from "../../Api/Client";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../Context/AuthContext";
-import { ConfirmAction } from "../../Utils/Alert";
+import {
+    ConfirmAction,
+    ShowPasswordChangeSuccess
+} from "../../Utils/Alert";
 import "./ChangePassword.css";
 
 // Campos del formulario (se usan como clave de los errores)
@@ -24,7 +27,6 @@ export function ChangePassword() {
 
     const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
@@ -80,7 +82,6 @@ export function ChangePassword() {
 
         setFieldErrors({});
         setErrorMessage(null);
-        setSuccessMessage(null);
 
         const errors = ValidateForm();
 
@@ -100,16 +101,15 @@ export function ChangePassword() {
         try {
             const response = await ChangePasswordApi({currentPassword, newPassword, confirmNewPassword});
 
-            if (response.success) { setSuccessMessage(`${response.message}. Serás redirigido al inicio de sesión. Redirigiendo`);
-
+            if (response.success) {
                 setCurrentPassword("");
                 setNewPassword("");
                 setConfirmNewPassword("");
 
-                setTimeout(() => {
-                    clearSession();
-                    navigate("/login", { replace: true });
-                }, 2500);
+                await ShowPasswordChangeSuccess();
+
+                clearSession();
+                navigate("/login", { replace: true });
             } else {
                 setErrorMessage(response.message);
             }
@@ -160,18 +160,6 @@ export function ChangePassword() {
                         {errorMessage}
                     </p>
                 )}
-
-                {successMessage && (
-                    <p className="formPage__success" role="status">
-                        {successMessage}
-                        <span className="formPage__loadingDots" aria-hidden="true">
-                            <span>.</span>
-                            <span>.</span>
-                            <span>.</span>
-                        </span>
-                    </p>
-                )}
-
                 <form
                     onSubmit={HandleSubmit}
                     className="formPage__form"
@@ -196,6 +184,7 @@ export function ChangePassword() {
                                         : "password"
                                 }
                                 className="formPage__input"
+                                placeholder="Ingresa tu contraseña actual"
                                 autoComplete="current-password"
                                 value={currentPassword}
                                 onChange={(event) => {
@@ -282,6 +271,7 @@ export function ChangePassword() {
                                         : "password"
                                 }
                                 className="formPage__input"
+                                placeholder="Ingresa tu nueva contraseña"
                                 autoComplete="new-password"
                                 value={newPassword}
                                 onChange={(event) => {
@@ -365,6 +355,7 @@ export function ChangePassword() {
                                         : "password"
                                 }
                                 className="formPage__input"
+                                placeholder="Confirma tu nueva contraseña"
                                 autoComplete="new-password"
                                 value={confirmNewPassword}
                                 onChange={(event) => {

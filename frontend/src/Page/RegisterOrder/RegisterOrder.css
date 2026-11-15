@@ -3,7 +3,7 @@
 
 /* Área de texto para la descripción de la falla */
 
-.formPage__textarea {
+.formPage__input.formPage__textarea {
   height: auto;
   min-height: 7.5rem;
   padding-top: 1rem;

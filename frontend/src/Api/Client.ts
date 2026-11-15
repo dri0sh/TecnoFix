@@ -33,16 +33,19 @@ export class ApiError extends Error {
  * @param body Respuesta de error entregada por el backend.
  * @returns Mensaje de error que será mostrado al usuario.
  */
+
 function ExtractErrorMessage(body: ApiErrorResponse | null): string {
     if (body?.message) return body.message;
 
-    if (body?.errors) {const firstField = Object.values(body.errors)[0];
+    if (body?.errors) {
+        const firstField = Object.values(body.errors)[0];
 
         if (firstField?.length) return firstField[0];
     }
 
     return "Ocurrió un error inesperado, inténtelo nuevamente";
 }
+
 
 /**
  * Realiza una petición HTTP al backend.
@@ -66,7 +69,21 @@ export async function ApiFetch<TResponse>(path: string, options: RequestInit = {
 
     if (!response.ok) {
         const errorMessage = ExtractErrorMessage(body);
-        throw new ApiError(errorMessage, body?.fieldErrors ?? {});
+        const fieldErrors: Record<string, string> = {
+    ...(body?.fieldErrors ?? {})
+};
+
+if (body?.errors) {
+    const errors = body.errors as Record<string, string[]>;
+
+    for (const [field, messages] of Object.entries(errors)) {
+        if (messages.length > 0 && !fieldErrors[field]) {
+            fieldErrors[field] = messages[0];
+        }
+    }
+}
+
+throw new ApiError(errorMessage, fieldErrors);
     }
 
     return body as TResponse;
