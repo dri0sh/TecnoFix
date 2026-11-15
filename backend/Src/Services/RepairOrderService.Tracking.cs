@@ -38,6 +38,7 @@ public partial class RepairOrderService
             .Include(item => item.EquipmentType)
             .Include(item => item.Logs)
                 .ThenInclude(log => log.Responsible)
+                .ThenInclude(user => user.Role)
             .FirstOrDefaultAsync(item => item.Id == orderId && item.ClientId == clientId);
 
         if (order is null)
@@ -69,6 +70,7 @@ public partial class RepairOrderService
                 StatusCode = log.NewStatus.ToString(),
                 Comment = log.Comment,
                 ResponsibleName = log.Responsible.Name,
+                ResponsibleRole = log.Responsible.Role?.Name ?? string.Empty,
                 CreatedAt = log.CreatedAt
             })
             .ToList();

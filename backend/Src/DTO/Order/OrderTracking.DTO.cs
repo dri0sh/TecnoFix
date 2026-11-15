@@ -49,6 +49,12 @@ public class OrderTrackingLogDto
     /// Nombre del usuario que realizó el cambio de estado.
     /// </summary>
     public string ResponsibleName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Rol del usuario que realizó el cambio de estado.
+    /// </summary>
+    public string ResponsibleRole { get; set; } = string.Empty;
+    
     /// <summary>
     /// Fecha y hora del evento, en UTC.
     /// </summary>
