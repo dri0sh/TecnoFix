@@ -9,7 +9,8 @@
   --muted-text-color: #6b6b78;
   --border-color: #e4e4ee;
   --background-color: #ffffff;
-  --page-background: #f7f7fc;
+  --page-background: #ffffff;
+  --budget-background: #f7f7fc;
   --error-color: #f56558; /* NF01: mensajes de error en #f56558 */
   --error-soft-color: #fdecea;
   --badge-background: #e0f0ff;
@@ -288,7 +289,7 @@
   padding: 1.4rem 1rem;
   font-size: 0.9rem;
   color: var(--muted-text-color);
-  background: var(--page-background);
+  background: var(--budget-background);
   border-radius: 12px;
 }
 
