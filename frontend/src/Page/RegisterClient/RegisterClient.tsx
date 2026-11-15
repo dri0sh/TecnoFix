@@ -51,7 +51,7 @@ export function RegisterClient() {
         const errors: Record<string, string> = {};
 
         if (name.trim() === "") {
-            errors["name"] = "Debe completar el campo Nombre";
+            errors["name"] = "Debe completar el campo Nombre y apellidos";
         } else if (!/^[\p{L}\s]+$/u.test(name.trim())) {
             errors["name"] = "El nombre y apellidos solo pueden contener letras y espacios.";
         }
@@ -59,7 +59,7 @@ export function RegisterClient() {
         if (rut.trim() === "") {
             errors["rut"] = "Debe completar el campo RUT";
         } else if (!ValidateRut(rut)) {
-            errors["rut"] = "El RUT ingresado no es válido.";
+            errors["rut"] = "El RUT ingresado no es válido";
         }
 
 
@@ -70,7 +70,7 @@ export function RegisterClient() {
         }
 
         if (phoneNumber.trim() === "") {
-            errors["phoneNumber"] = "Debe completar el campo Teléfono";
+            errors["phoneNumber"] = "Debe completar el campo Teléfono de contacto";
         } else if (!/^\d{9}$/.test(phoneNumber.trim())) {
             errors["phoneNumber"] = "El teléfono debe contener exactamente 9 números.";
         }
@@ -98,7 +98,7 @@ export function RegisterClient() {
             "Nombre completo": name,
             "RUT": rut,
             "Correo electrónico": email,
-            "Teléfono": phoneNumber
+            "Teléfono de contacto": phoneNumber
         }
     );
 
@@ -298,7 +298,7 @@ export function RegisterClient() {
                                 setPhoneNumber(event.target.value);
                                 setFieldErrors(prev => ({ ...prev, phoneNumber: "" }));
                             }}
-                            placeholder="9 1234 5678"
+                            placeholder="912345678"
                             required
                         />
 
