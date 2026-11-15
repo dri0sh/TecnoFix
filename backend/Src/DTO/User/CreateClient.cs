@@ -8,19 +8,19 @@ namespace TecnoFix.Src.DTO.User;
 /// </summary>
 public class ClientRegistrationRequestDto
 {
-    [Required(ErrorMessage = "Debe completar el campo Nombre y apellidos.")]
+    [Required(ErrorMessage = "Debe completar el campo Nombre y apellidos")]
     [RegularExpression(@"^[\p{L}\s]+$", ErrorMessage = "El nombre y apellidos solo pueden contener letras y espacios.")]
     public string Name { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Debe completar el campo Correo electrónico.")]
+    [Required(ErrorMessage = "Debe completar el campo Correo electrónico")]
     [EmailAddress(ErrorMessage = "El correo electrónico no tiene un formato válido.")]
     public string Email { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Debe completar el campo RUT.")]
+    [Required(ErrorMessage = "Debe completar el campo RUT")]
     [CustomValidation(typeof(ClientRegistrationRequestDto), nameof(ValidateRut))]
     public string Rut { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Debe completar el campo Teléfono.")]
+    [Required(ErrorMessage = "Debe completar el campo Teléfono de contacto")]
     [RegularExpression(@"^\d{9}$", ErrorMessage = "El teléfono debe contener exactamente 9 números.")]
     public string PhoneNumber { get; set; } = string.Empty;
 
@@ -59,7 +59,7 @@ public class ClientRegistrationRequestDto
 
     return verifier == expectedVerifier
         ? ValidationResult.Success
-        : new ValidationResult("El RUT ingresado no es válido de acuerdo con el algoritmo chileno.");
+        : new ValidationResult("El RUT ingresado no es válido");
 }
 }
 

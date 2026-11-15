@@ -301,31 +301,31 @@ var diagnosis = (request.TechnicalDiagnosis ?? string.Empty).Trim();
 if (string.IsNullOrWhiteSpace(diagnosis))
 {
     result.FieldErrors["technicalDiagnosis"] =
-        "Debe completar el campo del diagnóstico técnico.";
+        "Debe completar el campo Diagnóstico técnico";
 }
 
 // Validar costo de mano de obra.
 if (request.LaborCost == null)
 {
     result.FieldErrors["laborCost"] =
-        "Debe completar el campo del costo de mano de obra.";
+        "Debe completar el campo Costo de mano de obra";
 }
 else if (request.LaborCost < 0)
 {
     result.FieldErrors["laborCost"] =
-        "El costo ingresado no es válido.";
+        "El costo ingresado no es válido";
 }
 
 // Validar costo de repuestos.
 if (request.PartsCost == null)
 {
     result.FieldErrors["partsCost"] =
-        "Debe completar el campo del costo de repuestos.";
+        "Debe completar el campo Costo de repuestos";
 }
 else if (request.PartsCost < 0)
 {
     result.FieldErrors["partsCost"] =
-        "El costo ingresado no es válido.";
+        "El costo ingresado no es válido";
 }
 
 if (result.FieldErrors.Count > 0)
