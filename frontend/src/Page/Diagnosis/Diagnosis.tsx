@@ -104,17 +104,17 @@ export function Diagnosis() {
 
     if (field === "technicalDiagnosis") {
         if (value.trim() === "") {
-            error = "Debe completar el campo del diagnóstico técnico.";
+            error = "Debe completar el campo diagnóstico técnico.";
         }
     } else if (field === "laborCost") {
         if (value.trim() === "") {
-            error = "Debe completar el campo del costo de mano de obra.";
+            error = "Debe completar el campo costo de mano de obra.";
         } else if (!Number.isFinite(Number(value)) || Number(value) < 0) {
             error = "El costo de mano de obra no es válido.";
         }
     } else if (field === "partsCost") {
         if (value.trim() === "") {
-            error = "Debe completar el campo del costo de repuestos.";
+            error = "Debe completar el campo costo de repuestos.";
         } else if (!Number.isFinite(Number(value)) || Number(value) < 0) {
             error = "El costo de repuestos no es válido.";
         }
@@ -373,19 +373,16 @@ export function Diagnosis() {
                             className="formPage__form"
                             noValidate
                         >
-                            <div className="formPage__field">
-                                <label
-                                    className="formPage__label"
-                                    htmlFor="technicalDiagnosis"
-                                >
-                                    Diagnóstico técnico
-                                </label>
+                            
+                        <div className="formPage__field">
+                            <label
+                                className="formPage__label"
+                                htmlFor="technicalDiagnosis"
+                            >
+                                Diagnóstico técnico
+                            </label>
 
-                                <HelpTooltip
-                                    label="Diagnóstico técnico"
-                                    text="Describe la falla encontrada, su causa y el estado actual del equipo."
-                                />
-
+                            <div className="formPage__control">
                                 <div className={InputClass("technicalDiagnosis")}>
                                     <textarea
                                         id="technicalDiagnosis"
@@ -393,36 +390,38 @@ export function Diagnosis() {
                                         className="formPage__input diagnosisPage__textarea"
                                         value={technicalDiagnosis}
                                         onChange={(event) => {
-                                        const value = event.target.value;
-                                        setTechnicalDiagnosis(value);
-                                        UpdateFieldError("technicalDiagnosis", value);
-                                    }}
+                                            const value = event.target.value;
+                                            setTechnicalDiagnosis(value);
+                                            UpdateFieldError("technicalDiagnosis", value);
+                                        }}
                                         placeholder="Describe el diagnóstico técnico del equipo."
                                         maxLength={2000}
                                         required
                                     />
                                 </div>
 
-                                {fieldErrors.technicalDiagnosis && (
-                                    <p className="formPage__fieldError" role="alert">
-                                        {fieldErrors.technicalDiagnosis}
-                                    </p>
-                                )}
+                                <HelpTooltip
+                                    label="Diagnóstico técnico"
+                                    text="Describe la falla encontrada, su causa y el estado actual del equipo."
+                                />
                             </div>
 
-                            <div className="formPage__field">
-                                <label
-                                    className="formPage__label"
-                                    htmlFor="laborCost"
-                                >
-                                    Costo de mano de obra ($)
-                                </label>
+                            {fieldErrors.technicalDiagnosis && (
+                                <p className="formPage__fieldError" role="alert">
+                                    {fieldErrors.technicalDiagnosis}
+                                </p>
+                            )}
+                        </div>
 
-                                <HelpTooltip
-                                    label="Costo de mano de obra"
-                                    text="Ingresa el valor correspondiente al trabajo realizado por el técnico."
-                                />
+                        <div className="formPage__field">
+                            <label
+                                className="formPage__label"
+                                htmlFor="laborCost"
+                            >
+                                Costo de mano de obra ($)
+                            </label>
 
+                            <div className="formPage__control">
                                 <div className={InputClass("laborCost")}>
                                     <input
                                         id="laborCost"
@@ -433,35 +432,37 @@ export function Diagnosis() {
                                         className="formPage__input"
                                         value={laborCost}
                                         onChange={(event) => {
-                                        const value = event.target.value;
-                                        setLaborCost(value);
-                                        UpdateFieldError("laborCost", value);
-                                    }}
+                                            const value = event.target.value;
+                                            setLaborCost(value);
+                                            UpdateFieldError("laborCost", value);
+                                        }}
                                         placeholder="Ingresa el costo de mano de obra"
                                         required
                                     />
                                 </div>
 
-                                {fieldErrors.laborCost && (
-                                    <p className="formPage__fieldError" role="alert">
-                                        {fieldErrors.laborCost}
-                                    </p>
-                                )}
+                                <HelpTooltip
+                                    label="Costo de mano de obra"
+                                    text="Ingresa el valor correspondiente al trabajo realizado por el técnico."
+                                />
                             </div>
 
-                            <div className="formPage__field">
-                                <label
-                                    className="formPage__label"
-                                    htmlFor="partsCost"
-                                >
-                                    Costo de repuestos ($)
-                                </label>
+                            {fieldErrors.laborCost && (
+                                <p className="formPage__fieldError" role="alert">
+                                    {fieldErrors.laborCost}
+                                </p>
+                            )}
+                        </div>
 
-                                <HelpTooltip
-                                    label="Costo de repuestos"
-                                    text="Ingresa el costo total de los repuestos. Si no se necesitan repuestos, ingresa 0."
-                                />
+                        <div className="formPage__field">
+                            <label
+                                className="formPage__label"
+                                htmlFor="partsCost"
+                            >
+                                Costo de repuestos ($)
+                            </label>
 
+                            <div className="formPage__control">
                                 <div className={InputClass("partsCost")}>
                                     <input
                                         id="partsCost"
@@ -472,21 +473,28 @@ export function Diagnosis() {
                                         className="formPage__input"
                                         value={partsCost}
                                         onChange={(event) => {
-                                        const value = event.target.value;
-                                        setPartsCost(value);
-                                        UpdateFieldError("partsCost", value);
-                                    }}
+                                            const value = event.target.value;
+                                            setPartsCost(value);
+                                            UpdateFieldError("partsCost", value);
+                                        }}
                                         placeholder="Ingresa el costo de repuestos"
                                         required
                                     />
                                 </div>
 
-                                {fieldErrors.partsCost && (
-                                    <p className="formPage__fieldError" role="alert">
-                                        {fieldErrors.partsCost}
-                                    </p>
-                                )}
+                                <HelpTooltip
+                                    label="Costo de repuestos"
+                                    text="Ingresa el costo total de los repuestos. Si no se necesitan repuestos, ingresa 0."
+                                />
                             </div>
+
+                            {fieldErrors.partsCost && (
+                                <p className="formPage__fieldError" role="alert">
+                                    {fieldErrors.partsCost}
+                                </p>
+                            )}
+                        </div>
+
 
                             <div className="diagnosisPage__total">
                                 <span>Total del presupuesto</span>
