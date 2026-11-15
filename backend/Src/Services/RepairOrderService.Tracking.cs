@@ -32,6 +32,7 @@ public partial class RepairOrderService
     public async Task<OrderTrackingDto?> GetOrderTrackingAsync(int orderId, int clientId)
     {
         // El filtro por ClientId impide consultar órdenes de otros clientes.
+        // ThenInclude carga al usuario responsable de cada evento de la bitácora.
         var order = await _context.RepairOrders
             .AsNoTracking()
             .Include(item => item.EquipmentType)
@@ -67,6 +68,7 @@ public partial class RepairOrderService
                 Status = log.NewStatus.ToDisplayName(),
                 StatusCode = log.NewStatus.ToString(),
                 Comment = log.Comment,
+                ResponsibleName = log.Responsible.Name,
                 CreatedAt = log.CreatedAt
             })
             .ToList();

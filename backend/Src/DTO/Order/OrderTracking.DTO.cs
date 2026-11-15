@@ -49,7 +49,6 @@ public class OrderTrackingLogDto
     /// Nombre del usuario que realizó el cambio de estado.
     /// </summary>
     public string ResponsibleName { get; set; } = string.Empty;
-
     /// <summary>
     /// Fecha y hora del evento, en UTC.
     /// </summary>
@@ -92,4 +91,6 @@ public class OrderTrackingDto
     /// Bitácora ordenada del evento más reciente al más antiguo.
     /// </summary>
     public List<OrderTrackingLogDto> Logs { get; set; } = [];
+
+    
 }
