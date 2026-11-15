@@ -294,43 +294,47 @@ public async Task<RepairOrderDiagnosisResponseDto> RegisterDiagnosisAndBudgetAsy
 {
     var result = new RepairOrderDiagnosisResponseDto();
 
-    // Validar el diagnóstico técnico.
-    var diagnosis = (request.TechnicalDiagnosis ?? string.Empty).Trim();
+    
+// Validar el diagnóstico técnico.
+var diagnosis = (request.TechnicalDiagnosis ?? string.Empty).Trim();
 
-    if (string.IsNullOrWhiteSpace(diagnosis))
-    {
-        result.FieldErrors["technicalDiagnosis"] =
-            "Debe completar el campo diagnóstico técnico.";
-    }
+if (string.IsNullOrWhiteSpace(diagnosis))
+{
+    result.FieldErrors["technicalDiagnosis"] =
+        "Debe completar el campo del diagnóstico técnico.";
+}
 
-    // Validar costo de mano de obra.
-    if (request.LaborCost == null)
-    {
-        result.FieldErrors["laborCost"] =
-            "Debe completar el campo costo de mano de obra.";
-    }
-    else if (request.LaborCost < 0)
-    {
-        result.FieldErrors["laborCost"] = "El costo ingresado no es válido";
-    }
+// Validar costo de mano de obra.
+if (request.LaborCost == null)
+{
+    result.FieldErrors["laborCost"] =
+        "Debe completar el campo del costo de mano de obra.";
+}
+else if (request.LaborCost < 0)
+{
+    result.FieldErrors["laborCost"] =
+        "El costo ingresado no es válido.";
+}
 
-    // Validar costo de repuestos.
-    if (request.PartsCost == null)
-    {
-        result.FieldErrors["partsCost"] =
-            "Debe completar el campo costo de repuestos.";
-    }
-    else if (request.PartsCost < 0)
-    {
-        result.FieldErrors["partsCost"] = "El costo ingresado no es válido";
-    }
+// Validar costo de repuestos.
+if (request.PartsCost == null)
+{
+    result.FieldErrors["partsCost"] =
+        "Debe completar el campo del costo de repuestos.";
+}
+else if (request.PartsCost < 0)
+{
+    result.FieldErrors["partsCost"] =
+        "El costo ingresado no es válido.";
+}
 
-    if (result.FieldErrors.Count > 0)
-    {
-        result.Success = false;
-        result.Message = result.FieldErrors.Values.First();
-        return result;
-    }
+if (result.FieldErrors.Count > 0)
+{
+    result.Success = false;
+    result.Message = result.FieldErrors.Values.First();
+    return result;
+}
+
 
     var order = await _context.RepairOrders
         .FirstOrDefaultAsync(order => order.Id == request.OrderId);

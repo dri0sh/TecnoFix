@@ -207,3 +207,15 @@
     flex-direction: column;
   }
 }
+
+/* Ocultar flechas de los campos numéricos */
+.diagnosisPage input[type="number"]::-webkit-inner-spin-button,
+.diagnosisPage input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.diagnosisPage input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
