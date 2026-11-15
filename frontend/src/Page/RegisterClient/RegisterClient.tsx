@@ -58,6 +58,8 @@ export function RegisterClient() {
 
         if (rut.trim() === "") {
             errors["rut"] = "Debe completar el campo RUT";
+        } else if (/[.-]/.test(rut)) {
+            errors["rut"] = "El RUT debe ingresarse sin puntos ni guion (ej.: 12345670K)";
         } else if (!ValidateRut(rut)) {
             errors["rut"] = "El RUT ingresado no es válido";
         }
