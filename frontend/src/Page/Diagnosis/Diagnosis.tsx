@@ -436,6 +436,7 @@ export function Diagnosis() {
                                             setLaborCost(value);
                                             UpdateFieldError("laborCost", value);
                                         }}
+                                        onWheel={(event) => event.currentTarget.blur()}
                                         placeholder="Ingresa el costo de mano de obra"
                                         required
                                     />
@@ -477,6 +478,7 @@ export function Diagnosis() {
                                             setPartsCost(value);
                                             UpdateFieldError("partsCost", value);
                                         }}
+                                        onWheel={(event) => event.currentTarget.blur()}
                                         placeholder="Ingresa el costo de repuestos"
                                         required
                                     />
