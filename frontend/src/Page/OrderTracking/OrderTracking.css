@@ -432,7 +432,17 @@
   font-size: 0.75rem;
   color: var(--muted-text-color);
 }
+/* Rol del responsable, a la derecha de su nombre */
 
+.orderTracking__logRole {
+  margin-left: 0.4rem;
+  padding: 0.05rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  background: var(--primary-soft-color);
+  border-radius: 999px;
+}
 /* Listado */
 
 .orderTracking__logList {

@@ -87,6 +87,18 @@ function FormatCurrency(value: number): string {
     }).format(value);
 }
 
+// Nombre del rol tal como se muestra al usuario (el backend lo entrega sin tilde)
+const ROLE_DISPLAY_NAMES: Record<string, string> = {
+    Administrador: "Administrador",
+    Tecnico: "Técnico",
+    Cliente: "Cliente"
+};
+
+/** Nombre del rol para mostrar al usuario. */
+function GetRoleDisplayName(role: string): string {
+    return ROLE_DISPLAY_NAMES[role] ?? role;
+}
+
 /** Cantidad de tramos que se pintan en la barra de avance. */
 function GetFilledSteps(statusCode: OrderStatusCode): number {
     if (statusCode === "Rejected") {
@@ -115,7 +127,12 @@ function LogTimeline({ logs }: { logs: OrderTrackingLogDto[] }) {
                     <p className="orderTracking__logStatus">{log.status}</p>
                     <p className="orderTracking__logDate">{FormatDateTime(log.createdAt)}</p>
                     <p className="orderTracking__logComment">{log.comment}</p>
-                    <p className="orderTracking__logResponsible">Responsable: {log.responsibleName}</p>
+                    <p className="orderTracking__logResponsible">Responsable: {log.responsibleName}
+                        {log.responsibleRole && (
+                            <span className="orderTracking__logRole">{GetRoleDisplayName(log.responsibleRole)}</span>
+                        )}
+                    </p>
+                
                 </li>
             ))}
         </ol>
@@ -131,7 +148,12 @@ function LogList({ logs }: { logs: OrderTrackingLogDto[] }) {
                     <div>
                         <p className="orderTracking__logStatus">{log.status}</p>
                         <p className="orderTracking__logComment">{log.comment}</p>
-                        <p className="orderTracking__logResponsible">Responsable: {log.responsibleName}</p>                        
+                                               <p className="orderTracking__logResponsible">
+                            Responsable: {log.responsibleName}
+                            {log.responsibleRole && (
+                                <span className="orderTracking__logRole">{GetRoleDisplayName(log.responsibleRole)}</span>
+                            )}
+                        </p>                     
                     </div>
                     <p className="orderTracking__logDate">{FormatDateTime(log.createdAt)}</p>
                 </li>

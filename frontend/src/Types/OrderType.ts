@@ -88,6 +88,7 @@ export interface OrderTrackingLogDto {
     statusCode: OrderStatusCode;
     comment: string;
     responsibleName: string;
+    responsibleRole: string;
     createdAt: string;
 }
 
