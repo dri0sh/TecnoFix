@@ -60,7 +60,7 @@ function AppRoutes() {
                     path="/register-client"
                     element={
                         <ProtectedRoute
-                            allowedRoles={["tecnico"]}
+                            allowedRoles={[]}
                             allowUnauthenticated={true}
                         >
                             <RegisterClient />
