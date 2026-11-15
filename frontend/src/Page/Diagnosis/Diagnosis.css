@@ -215,7 +215,8 @@
     margin: 0;
 }
 
-.diagnosisPage input[type="number"] {
-    -moz-appearance: textfield;
+/* Firefox */
+.formPage input[type="number"] {
     appearance: textfield;
+    -moz-appearance: textfield;
 }
