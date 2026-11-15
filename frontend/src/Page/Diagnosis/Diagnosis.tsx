@@ -13,6 +13,7 @@ import {
     ShowSuccessToast,
     ShowError
 } from "../../Utils/Alert";
+import { HelpTooltip } from "../../Components/HelpTooltip";
 
 type DiagnosisField =
     | "technicalDiagnosis"
@@ -98,14 +99,43 @@ export function Diagnosis() {
         setPartsCost("");
     }
 
-    function ClearFieldError(field: DiagnosisField) {
-        setFieldErrors((currentErrors) => {
-            const nextErrors = { ...currentErrors };
-            delete nextErrors[field];
-            return nextErrors;
-        });
+   function UpdateFieldError(field: DiagnosisField, value: string) {
+    let error: string | undefined;
+
+    if (field === "technicalDiagnosis") {
+        if (value.trim() === "") {
+            error = "Debe completar el campo del diagnóstico técnico.";
+        }
+    } else if (field === "laborCost") {
+        if (value.trim() === "") {
+            error = "Debe completar el campo del costo de mano de obra.";
+        } else if (!Number.isFinite(Number(value)) || Number(value) < 0) {
+            error = "El costo de mano de obra no es válido.";
+        }
+    } else if (field === "partsCost") {
+        if (value.trim() === "") {
+            error = "Debe completar el campo del costo de repuestos.";
+        } else if (!Number.isFinite(Number(value)) || Number(value) < 0) {
+            error = "El costo de repuestos no es válido.";
+        }
     }
 
+    setFieldErrors((currentErrors) => {
+        if (!currentErrors[field]) return currentErrors;
+
+        const nextErrors = { ...currentErrors };
+
+        if (error) {
+            nextErrors[field] = error;
+        } else {
+            delete nextErrors[field];
+        }
+
+        return nextErrors;
+    });
+    }
+
+    
     function ValidateForm(): FieldErrors {
         const errors: FieldErrors = {};
 
@@ -121,7 +151,8 @@ export function Diagnosis() {
             !Number.isFinite(Number(laborCost)) ||
             Number(laborCost) < 0
         ) {
-            errors.laborCost = "El costo ingresado no es válido";
+            errors.laborCost =
+                "El costo de mano de obra no es válido.";
         }
 
         if (partsCost.trim() === "") {
@@ -131,11 +162,13 @@ export function Diagnosis() {
             !Number.isFinite(Number(partsCost)) ||
             Number(partsCost) < 0
         ) {
-            errors.partsCost = "El costo ingresado no es válido";
+            errors.partsCost =
+                "El costo de repuestos no es válido.";
         }
 
         return errors;
     }
+
 
     function ResetForm() {
         setSelectedOrder(null);
@@ -348,6 +381,11 @@ export function Diagnosis() {
                                     Diagnóstico técnico
                                 </label>
 
+                                <HelpTooltip
+                                    label="Diagnóstico técnico"
+                                    text="Describe la falla encontrada, su causa y el estado actual del equipo."
+                                />
+
                                 <div className={InputClass("technicalDiagnosis")}>
                                     <textarea
                                         id="technicalDiagnosis"
@@ -355,9 +393,10 @@ export function Diagnosis() {
                                         className="formPage__input diagnosisPage__textarea"
                                         value={technicalDiagnosis}
                                         onChange={(event) => {
-                                            setTechnicalDiagnosis(event.target.value);
-                                            ClearFieldError("technicalDiagnosis");
-                                        }}
+                                        const value = event.target.value;
+                                        setTechnicalDiagnosis(value);
+                                        UpdateFieldError("technicalDiagnosis", value);
+                                    }}
                                         placeholder="Describe el diagnóstico técnico del equipo."
                                         maxLength={2000}
                                         required
@@ -379,6 +418,11 @@ export function Diagnosis() {
                                     Costo de mano de obra ($)
                                 </label>
 
+                                <HelpTooltip
+                                    label="Costo de mano de obra"
+                                    text="Ingresa el valor correspondiente al trabajo realizado por el técnico."
+                                />
+
                                 <div className={InputClass("laborCost")}>
                                     <input
                                         id="laborCost"
@@ -389,9 +433,10 @@ export function Diagnosis() {
                                         className="formPage__input"
                                         value={laborCost}
                                         onChange={(event) => {
-                                            setLaborCost(event.target.value);
-                                            ClearFieldError("laborCost");
-                                        }}
+                                        const value = event.target.value;
+                                        setLaborCost(value);
+                                        UpdateFieldError("laborCost", value);
+                                    }}
                                         placeholder="Ingresa el costo de mano de obra"
                                         required
                                     />
@@ -412,6 +457,11 @@ export function Diagnosis() {
                                     Costo de repuestos ($)
                                 </label>
 
+                                <HelpTooltip
+                                    label="Costo de repuestos"
+                                    text="Ingresa el costo total de los repuestos. Si no se necesitan repuestos, ingresa 0."
+                                />
+
                                 <div className={InputClass("partsCost")}>
                                     <input
                                         id="partsCost"
@@ -422,9 +472,10 @@ export function Diagnosis() {
                                         className="formPage__input"
                                         value={partsCost}
                                         onChange={(event) => {
-                                            setPartsCost(event.target.value);
-                                            ClearFieldError("partsCost");
-                                        }}
+                                        const value = event.target.value;
+                                        setPartsCost(value);
+                                        UpdateFieldError("partsCost", value);
+                                    }}
                                         placeholder="Ingresa el costo de repuestos"
                                         required
                                     />
